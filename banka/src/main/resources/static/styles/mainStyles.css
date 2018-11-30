@@ -1,0 +1,139 @@
+.navbar-background{
+    background: #0b5c7c;
+}
+
+.nav-link, .navbar-left, .nav-item {
+    color:#f8ff95;
+    font-size: 18px;
+    text-shadow: 1px 1px 1px #383535;
+}
+
+.navbar-brand {
+    color: #fff566;
+    font-size: 22px;
+    text-shadow: 1px 1px 1px #383535;
+}
+
+.navbar-right{
+    margin-top:20px; 
+}
+
+#dropdownCombo {
+    background: #fff06a;
+}
+
+.naslov-zuti-centar {
+    color: #fff566;
+    font-size: 22px;
+    text-shadow: 1px 1px 1px #383535;
+    text-align: center;
+}
+
+.labela-forma-zuta{
+    color: #fff566;
+    font-size: 18px;
+    text-shadow: 1px 1px 1px #383535;
+}
+
+.labela-forma-plava{
+    color: #0b5c7c;
+    font-size: 18px;
+    text-shadow: 1px 1px 1px #383535;
+}
+
+.poruka-greska {
+    color: #f32121;
+    font-size: 16px;
+    text-shadow: 1px 1px 1px #383535;
+    font-weight: 600;
+}
+
+.pozadina-plava{
+    background : #0b5c7c;
+}
+
+.top-bottomn-margin-xs {
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.top-bottomn-margin-md {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.gap-top-xs{
+    margin-top: 5px;
+}
+
+.gap-top-md{
+    margin-top: 10px;
+}
+
+.gap-top-lg{
+    margin-top: 20px;
+}
+
+.table-fixed thead {
+    width: 100%;
+}
+
+.table-fixed tbody {
+  height: 170px;
+  overflow-y: auto;
+  width: 100%;
+}
+
+.table-fixed tbody td, .table-fixed thead > tr> th {
+  float: left;
+  border-bottom-width: 0;
+}
+
+.table-fixed thead tr{
+    background: #0b5c7c;
+}
+
+.table-fixed tr{
+    background: #adc3cc;
+}
+
+.selektovan-red {
+    background-color: #cadce4 !important;
+}
+
+.right-items{
+    float:right;
+}
+
+.racun-aktivan {
+    background-color: #7cc9c2 !important;
+}
+
+.racun-neaktivan {
+    background-color: #ce6060 !important;
+}
+
+.btn-file {
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-file input[type=file] {
+    position: absolute;
+    top: 0;
+    right: 0;
+    min-width: 100%;
+    min-height: 100%;
+    font-size: 100px;
+    text-align: right;
+    filter: alpha(opacity=0);
+    opacity: 0;
+    background: red;
+    cursor: inherit;
+    display: block;
+}
+
+input[readonly] {
+    background-color: white !important;
+    cursor: text !important;
+}
