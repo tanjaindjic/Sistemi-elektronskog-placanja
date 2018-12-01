@@ -13,17 +13,25 @@
         </div>
         <div class="payment">
             <form>
-                <div class="form-group owner">
-                    <label for="owner">Ime i Prezime</label>
-                    <input type="text" class="form-control" id="owner">
-                </div>
-                <div class="form-group CVV">
-                    <label for="cvv">CVV kod</label>
-                    <input type="text" class="form-control" id="cvv">
+                <div class="form-group">
+                    <label id="poruka" style="color: red"></label>
                 </div>
                 <div class="form-group" id="card-number-field">
                     <label for="cardNumber">Broj kartice</label>
-                    <input type="text" class="form-control" id="cardNumber">
+                    <input type="tel" class="form-control" id="cardNumber" maxlength="19" ng-model="cardNumber" ng-change="format()">
+                </div>
+
+                <div class="form-group owner">
+                    <label for="owner">Ime</label>
+                    <input type="text" class="form-control" id="owner">
+                </div>
+                <div class="form-group ownerLastname">
+                    <label for="ownerL">Prezime</label>
+                    <input type="text" class="form-control" id="ownerL">
+                </div>
+                <div class="form-group CVV">
+                    <label for="cvv">CVV kod</label>
+                    <input type="text" class="form-control" id="cvv" maxlength="4">
                 </div>
                 <div class="form-group" id="expiration-date">
                     <label>Datum isteka</label>
@@ -33,7 +41,7 @@
                             <td>Godina</td>
                         </tr>
                         <tr>
-                           <td><select>
+                           <td><select id="mesec">
                                <option value="01">01</option>
                                <option value="02">02 </option>
                                <option value="03">03</option>
@@ -48,7 +56,7 @@
                                <option value="12">12</option>
                            </select></td>
                             <td>
-                                <select>
+                                <select id="godina">
                                     <option value="18"> 2018</option>
                                     <option value="19"> 2019</option>
                                     <option value="20"> 2020</option>
@@ -75,8 +83,9 @@
                     <img src="assets/images/mastercard.jpg" id="mastercard">
                     <img src="assets/images/amex.jpg" id="amex">
                 </div>
+
                 <div class="form-group" id="pay-now">
-                    <button type="submit" class="btn btn-default" id="confirm-purchase">Plaćanje</button>
+                    <button type="submit" class="btn btn-default" id="confirm-purchase" ng-click="submit()">Plaćanje</button>
                 </div>
             </form>
         </div>

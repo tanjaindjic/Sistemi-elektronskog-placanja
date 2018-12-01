@@ -1,33 +1,25 @@
-mainModule.controller('centerController', ['$scope', '$window', 'userService',
-    function($scope, $window, userService){
+mainModule.controller('centerController', ['$scope', '$window', 'mainService',
+    function($scope, $window, mainService){
 
-        $scope.logovaniKorisnik = {};
+        $scope.cardNumber = "";
+        $scope.format = function(){
+            document.getElementById('cardNumber').addEventListener('input', function (e) {
+            var target = e.target, position = target.selectionEnd, length = target.value.length;
 
-        $scope.initCenter = function(){
-            $scope.logovaniKorisnik = userService.parsirajToken();
+            target.value = target.value.replace(/[^\dA-Z]/g, '').replace(/(.{4})/g, '$1 ').trim();
+            target.selectionEnd = position += ((target.value.charAt(position - 1) === ' ' && target.value.charAt(length - 1) === ' ' && length !== target.value.length) ? 1 : 0);
+            });
+        }
 
-            if($scope.logovaniKorisnik.uloga === 'KLIJENT')
-                $scope.isKlijent = true;
-            else $scope.isKlijent = false;
+        $scope.submit = function(){
+            var poruka = mainService.validate();
+            if(poruka=="yeet")
+                document.getElementById("poruka").innerHTML  = "";
+            else document.getElementById("poruka").innerHTML  = poruka;
+
         }
 
 
-
-        $scope.odjaviSe = function(){
-            $window.localStorage.removeItem('token');
-            $scope.logovaniKorisnik = {};
-            $window.location.reload();
-        }
-
-
-        $scope.profil = function(){
-            var tempUser = parsirajToken();
-            if(tempUser.uloga === 'KLIJENT'){
-                $window.location('/klijent');
-            }else{
-                 $window.location('/home');
-            }
-        }
 
     }
 ]);

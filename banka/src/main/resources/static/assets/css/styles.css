@@ -38,12 +38,18 @@
 }
 
 .creditCardForm .owner {
-    width: 73%;
+    width: 38%;
+    margin-right: 10px;
+}
+
+
+.creditCardForm .ownerLastname {
+    width: 38%;
     margin-right: 10px;
 }
 
 .creditCardForm .CVV {
-    width: 25%;
+    width: 20%;
 }
 
 .creditCardForm #card-number-field {
