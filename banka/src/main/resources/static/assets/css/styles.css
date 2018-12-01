@@ -38,12 +38,12 @@
 }
 
 .creditCardForm .owner {
-    width: 63%;
+    width: 73%;
     margin-right: 10px;
 }
 
 .creditCardForm .CVV {
-    width: 35%;
+    width: 25%;
 }
 
 .creditCardForm #card-number-field {
@@ -66,11 +66,13 @@
 }
 
 .creditCardForm .payment .btn {
-    width: 100%;
+    width: 30%;
     margin-top: 3px;
     font-size: 24px;
     background-color: #2ec4a5;
     color: white;
+    margin:auto;
+    display:block;
 }
 
 .creditCardForm .payment select {
