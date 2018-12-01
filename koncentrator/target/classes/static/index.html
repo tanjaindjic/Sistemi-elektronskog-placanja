@@ -1,0 +1,36 @@
+
+<!DOCTYPE html>
+<html ng-app="mainModule">
+<head>
+	<meta http-equiv="Cоntent-Type" content="text/html" charset="utf-8">
+	<title>Koncentrator Placanja</title>
+
+	<!-- Stilovi -->
+  	<link rel="stylesheet" href="styles/bootstrap.min.css">
+  	<link rel="stylesheet" href="styles/mainStyles.css">
+    
+  	<!-- Glavni JavaScript  -->
+	<script type="text/javascript" src="js/jquery.js"></script>
+	<script type="text/javascript" src="js/angular.js"></script>
+	<script type="text/javascript" src="js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="js/angular-cookies.js"></script>
+	<script type="text/javascript" src="js/angular-ui-router.js"></script>
+	<script type="text/javascript" src="js/ngStorage.min.js"></script>
+	<script type="text/javascript" src="js/angular-jwt.min.js"></script>
+
+	<!-- Glavni modul i Rutiranje  -->
+	<script type="text/javascript" src="appParts/mainModule.js"></script>
+
+	<!-- Servisi  -->
+	<script type="text/javascript" src="appParts/services/mainService.js"></script>
+
+	<!-- JavaScript za Komponente  -->
+	<script type="text/javascript" src="appParts/mainPanel/mainPanelController.js"></script>
+
+</head>
+<body background="assets/images/bgImg.png">
+
+	<div>
+		<ui-view></ui-view>
+	</div>
+</body>
