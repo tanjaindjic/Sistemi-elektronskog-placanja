@@ -2,10 +2,15 @@ package sep.tim18.banka.model;
 
 import org.hibernate.validator.constraints.Length;
 
+import javax.persistence.Entity;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 
+@Entity
 public class Kartica {
     @GeneratedValue
+    @Id
     private long id;
 
     @Length(min = 16, max = 16)
@@ -82,5 +87,13 @@ public class Kartica {
 
     public void setRezervisanaSredstva(Float rezervisanaSredstva) {
         this.rezervisanaSredstva = rezervisanaSredstva;
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 }

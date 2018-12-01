@@ -2,11 +2,16 @@ var mainModule = angular.module('mainModule', [ 'ui.router', 'ngStorage', 'angul
 
 mainModule.config(function($stateProvider, $urlRouterProvider) {
 
-    $urlRouterProvider.otherwise('/');
+    $urlRouterProvider.otherwise('/pay/');
 
     $stateProvider.state('home', {
-        url: '/',
+        url: '/pay/{token}',
         templateUrl : 'appParts/centerComponent/center.html',
     })
+    .state('expired', {
+            url: '/expired',
+            templateUrl: 'appParts/expiredComponent/expired.html',
+            controller : 'expiredController'
+        })
 
 });

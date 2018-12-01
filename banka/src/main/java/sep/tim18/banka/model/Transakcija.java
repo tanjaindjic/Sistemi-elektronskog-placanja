@@ -1,26 +1,58 @@
 package sep.tim18.banka.model;
 
 import org.hibernate.validator.constraints.Length;
+import sep.tim18.banka.model.enums.Status;
 
+import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
-import java.sql.Date;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import org.joda.time.DateTime;
 
+@Entity
 public class Transakcija {
 
     @GeneratedValue
+    @Id
     private Long id;
 
+    @ManyToOne
     private Klijent uplacuje;
 
+    @ManyToOne
     private Klijent prima;
 
     private String paymentURL;
 
-    private Date vremeKreiranja;
+    private DateTime vremeKreiranja;
 
-    private Date vremeIzvrsenja;
+    private DateTime vremeIzvrsenja;
 
     private Status status;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Klijent getUplacuje() {
+        return uplacuje;
+    }
+
+    public void setUplacuje(Klijent uplacuje) {
+        this.uplacuje = uplacuje;
+    }
+
+    public Klijent getPrima() {
+        return prima;
+    }
+
+    public void setPrima(Klijent prima) {
+        this.prima = prima;
+    }
 
     @Length(max=18)
     private String racunPrimaoca;
@@ -41,19 +73,19 @@ public class Transakcija {
         this.paymentURL = paymentURL;
     }
 
-    public Date getVremeKreiranja() {
+    public DateTime getVremeKreiranja() {
         return vremeKreiranja;
     }
 
-    public void setVremeKreiranja(Date vremeKreiranja) {
+    public void setVremeKreiranja(DateTime vremeKreiranja) {
         this.vremeKreiranja = vremeKreiranja;
     }
 
-    public Date getVremeIzvrsenja() {
+    public DateTime getVremeIzvrsenja() {
         return vremeIzvrsenja;
     }
 
-    public void setVremeIzvrsenja(Date vremeIzvrsenja) {
+    public void setVremeIzvrsenja(DateTime vremeIzvrsenja) {
         this.vremeIzvrsenja = vremeIzvrsenja;
     }
 
