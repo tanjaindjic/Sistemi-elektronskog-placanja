@@ -2,17 +2,15 @@ package sep.tim18.banka.model;
 
 import sep.tim18.banka.model.enums.Status;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
+import javax.persistence.*;
+
 import org.joda.time.DateTime;
 
 @Entity
 public class Transakcija {
 
-    @GeneratedValue
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne

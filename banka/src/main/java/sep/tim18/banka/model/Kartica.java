@@ -6,8 +6,8 @@ import javax.persistence.*;
 
 @Entity
 public class Kartica {
-    @GeneratedValue
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
     @Length(min = 8, max = 19)
@@ -16,7 +16,6 @@ public class Kartica {
     @Length(min = 3, max = 4)
     private String ccv;
 
-    @Length(min = 4, max = 4)
     private String expDate;
 
     private String brRacuna;
@@ -29,6 +28,16 @@ public class Kartica {
     private Klijent vlasnik;
 
     public Kartica() {
+    }
+
+    public Kartica(@Length(min = 8, max = 19) String pan, @Length(min = 3, max = 4) String ccv, String expDate, String brRacuna, Float raspolozivaSredstva, Float rezervisanaSredstva, Klijent vlasnik) {
+        this.pan = pan;
+        this.ccv = ccv;
+        this.expDate = expDate;
+        this.brRacuna = brRacuna;
+        this.raspolozivaSredstva = raspolozivaSredstva;
+        this.rezervisanaSredstva = rezervisanaSredstva;
+        this.vlasnik = vlasnik;
     }
 
     public String getPan() {
