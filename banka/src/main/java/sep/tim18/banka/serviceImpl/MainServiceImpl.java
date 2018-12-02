@@ -180,11 +180,8 @@ public class MainServiceImpl implements MainService {
         t.setRacunPosiljaoca(paymentDTO.getPan());
         transakcijaRepository.save(t);
         Map retVal = new HashMap();
-        retVal.put("Location", t.getFailedURL());
-        retVal.put("MERCHANT_ORDER_ID", t.getId());
-        retVal.put("ACQUIRER_ORDER_ID", t.getId());
-        retVal.put("ACQUIRER_TIMESTAMP", t.getVremeIzvrsenja());
-        retVal.put("PAYMENT_ID ",t.getId());
+        retVal.put("location", "/expired");
+        //TODO poslati na KP isto
         return new ResponseEntity<Map>(retVal, HttpStatus.OK);
     }
 

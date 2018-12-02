@@ -55,6 +55,7 @@ public class MainController {
     public ResponseEntity<Map> finishPayment(HttpServletResponse httpServletResponse, @PathVariable String token, @RequestBody PaymentDTO paymentDTO) throws IOException {
         System.out.println("USAO U KONTROLER");
         if(mainService.isTokenExpired(token)){
+            //TODO poslati failed na KP
             Map mapa = new HashMap();
             mapa.put("location", "/expired");
             return new ResponseEntity<>(mapa, HttpStatus.OK);
