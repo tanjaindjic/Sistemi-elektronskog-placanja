@@ -1,6 +1,5 @@
 package sep.tim18.banka.model;
 
-import org.hibernate.validator.constraints.Length;
 import sep.tim18.banka.model.enums.Status;
 
 import javax.persistence.Entity;
@@ -30,6 +29,45 @@ public class Transakcija {
 
     private Status status;
 
+    private String racunPrimaoca;
+
+    private String racunPosiljaoca;
+
+    private Float iznos;
+
+    private String successURL;
+
+    private String failedURL;
+
+    private String errorURL;
+
+    private Long parentTransactionId;
+    //ovo pise u specifikaciji da se salje sa KP
+    private Long merchantOrderId; //id transakcije sa KP
+
+    private DateTime merchantTimestamp; //timestamp KP transakcije
+
+    public Transakcija() {
+    }
+
+    public Transakcija(Transakcija original) {
+        this.uplacuje = original.uplacuje;
+        this.prima = original.prima;
+        this.paymentURL = original.paymentURL;
+        this.vremeKreiranja = new DateTime();
+        this.vremeIzvrsenja = null;
+        this.status = original.status;
+        this.racunPrimaoca = original.racunPrimaoca;
+        this.racunPosiljaoca = original.racunPosiljaoca;
+        this.iznos = original.iznos;
+        this.successURL = original.successURL;
+        this.failedURL = original.failedURL;
+        this.errorURL = original.errorURL;
+        this.merchantOrderId = original.merchantOrderId;
+        this.merchantTimestamp = original.merchantTimestamp;
+        this.parentTransactionId = original.id;
+    }
+
     public Long getId() {
         return id;
     }
@@ -54,16 +92,6 @@ public class Transakcija {
         this.prima = prima;
     }
 
-    @Length(max=18)
-    private String racunPrimaoca;
-
-    @Length(max=18)
-    private String racunPosiljaoca;
-
-    private Float iznos;
-
-    public Transakcija() {
-    }
 
     public String getPaymentURL() {
         return paymentURL;
@@ -119,6 +147,54 @@ public class Transakcija {
 
     public void setIznos(Float iznos) {
         this.iznos = iznos;
+    }
+
+    public String getSuccessURL() {
+        return successURL;
+    }
+
+    public void setSuccessURL(String successURL) {
+        this.successURL = successURL;
+    }
+
+    public String getFailedURL() {
+        return failedURL;
+    }
+
+    public void setFailedURL(String failedURL) {
+        this.failedURL = failedURL;
+    }
+
+    public String getErrorURL() {
+        return errorURL;
+    }
+
+    public void setErrorURL(String errorURL) {
+        this.errorURL = errorURL;
+    }
+
+    public Long getParentTransactionId() {
+        return parentTransactionId;
+    }
+
+    public void setParentTransactionId(Long parentTransactionId) {
+        this.parentTransactionId = parentTransactionId;
+    }
+
+    public Long getMerchantOrderId() {
+        return merchantOrderId;
+    }
+
+    public void setMerchantOrderId(Long merchantOrderId) {
+        this.merchantOrderId = merchantOrderId;
+    }
+
+    public DateTime getMerchantTimestamp() {
+        return merchantTimestamp;
+    }
+
+    public void setMerchantTimestamp(DateTime merchantTimestamp) {
+        this.merchantTimestamp = merchantTimestamp;
     }
 }
 

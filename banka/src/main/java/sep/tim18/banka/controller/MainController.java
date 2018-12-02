@@ -7,6 +7,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import sep.tim18.banka.model.Transakcija;
+import sep.tim18.banka.model.dto.PaymentDTO;
 import sep.tim18.banka.model.dto.RequestDTO;
 import sep.tim18.banka.service.MainService;
 
@@ -27,10 +28,9 @@ public class MainController {
     @RequestMapping(value = "/startPayment", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Map> request(@RequestBody RequestDTO request){
 
-        boolean check = mainService.validate(request);
         Map retVal = new HashMap<String, String>();
 
-        if(!check)
+        if(!mainService.validate(request))
             return new ResponseEntity<Map>(retVal, HttpStatus.I_AM_A_TEAPOT);//https://www.google.com/teapot :D
 
         Transakcija t = mainService.createTransaction(request);
@@ -46,10 +46,18 @@ public class MainController {
         httpServletResponse.sendRedirect(siteAddress + "/pay/" + token);
 
         //TODO promeniti na https posle
-        //zakomentarisano radi testiranja
-        /*if(mainService.isTokenExpired(token)){
+        if(mainService.isTokenExpired(token)){
             httpServletResponse.sendRedirect(siteAddress + "/expired");
-        }else httpServletResponse.sendRedirect(siteAddress + "/pay/" + token);*/
+        }else httpServletResponse.sendRedirect(siteAddress + "/pay/" + token);
 
     }
+
+    @RequestMapping(value = "/pay/{token}", method = RequestMethod.POST)
+    public ResponseEntity<Map> finishPayment(HttpServletResponse httpServletResponse, @PathVariable String token, @RequestBody PaymentDTO paymentDTO) throws IOException {
+        if(mainService.isTokenExpired(token))
+            httpServletResponse.sendRedirect(siteAddress + "/expired");
+        return mainService.tryPayment(token, paymentDTO);
+
+    }
+
 }

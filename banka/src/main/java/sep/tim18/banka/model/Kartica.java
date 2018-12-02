@@ -2,10 +2,7 @@ package sep.tim18.banka.model;
 
 import org.hibernate.validator.constraints.Length;
 
-import javax.persistence.Entity;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity
 public class Kartica {
@@ -13,7 +10,7 @@ public class Kartica {
     @Id
     private long id;
 
-    @Length(min = 16, max = 16)
+    @Length(min = 8, max = 19)
     private String pan;
 
     @Length(min = 3, max = 4)
@@ -22,23 +19,16 @@ public class Kartica {
     @Length(min = 4, max = 4)
     private String expDate;
 
-    @Length(min = 5, max = 18)
     private String brRacuna;
 
     private Float raspolozivaSredstva;
 
     private Float rezervisanaSredstva;
 
-    public Kartica() {
-    }
+    @ManyToOne
+    private Klijent vlasnik;
 
-    public Kartica(@Length(min = 16, max = 16) String pan, @Length(min = 3, max = 4) String ccv, @Length(min = 4, max = 4) String expDate, @Length(min = 5, max = 18) String brRacuna, Float raspolozivaSredstva, Float rezervisanaSredstva) {
-        this.pan = pan;
-        this.ccv = ccv;
-        this.expDate = expDate;
-        this.brRacuna = brRacuna;
-        this.raspolozivaSredstva = raspolozivaSredstva;
-        this.rezervisanaSredstva = rezervisanaSredstva;
+    public Kartica() {
     }
 
     public String getPan() {
@@ -95,5 +85,13 @@ public class Kartica {
 
     public void setId(long id) {
         this.id = id;
+    }
+
+    public Klijent getVlasnik() {
+        return vlasnik;
+    }
+
+    public void setVlasnik(Klijent vlasnik) {
+        this.vlasnik = vlasnik;
     }
 }
