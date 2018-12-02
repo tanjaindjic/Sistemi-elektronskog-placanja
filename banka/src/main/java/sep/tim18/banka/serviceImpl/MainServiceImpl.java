@@ -99,6 +99,9 @@ public class MainServiceImpl implements MainService {
     @Override
     public boolean isTokenExpired(String token) {
         Transakcija t = transakcijaRepository.findByPaymentURL(token);
+        if(t==null)
+            return true;
+
         if(t.getStatus()==Status.E)
             return true;
 

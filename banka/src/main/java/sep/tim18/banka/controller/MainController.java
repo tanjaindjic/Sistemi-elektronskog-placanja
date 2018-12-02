@@ -36,14 +36,13 @@ public class MainController {
         Transakcija t = mainService.createTransaction(request);
         retVal.put("paymentURL", t.getPaymentURL());
         retVal.put("paymentID", t.getId());
+        retVal.put("Location", siteAddress + "pay/" + t.getPaymentURL());
 
         return new ResponseEntity<Map>(retVal, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/pay/{token}", method = RequestMethod.GET)
     public void method(HttpServletResponse httpServletResponse, @PathVariable String token) throws IOException {
-
-        httpServletResponse.sendRedirect(siteAddress + "/pay/" + token);
 
         //TODO promeniti na https posle
         if(mainService.isTokenExpired(token)){
@@ -54,8 +53,13 @@ public class MainController {
 
     @RequestMapping(value = "/pay/{token}", method = RequestMethod.POST)
     public ResponseEntity<Map> finishPayment(HttpServletResponse httpServletResponse, @PathVariable String token, @RequestBody PaymentDTO paymentDTO) throws IOException {
-        if(mainService.isTokenExpired(token))
-            httpServletResponse.sendRedirect(siteAddress + "/expired");
+        System.out.println("USAO U KONTROLER");
+        if(mainService.isTokenExpired(token)){
+            Map mapa = new HashMap();
+            mapa.put("location", "/expired");
+            return new ResponseEntity<>(mapa, HttpStatus.OK);
+        }
+
         return mainService.tryPayment(token, paymentDTO);
 
     }

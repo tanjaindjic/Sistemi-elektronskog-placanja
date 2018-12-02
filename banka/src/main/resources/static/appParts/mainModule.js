@@ -12,7 +12,7 @@ mainModule.config(function($stateProvider, $urlRouterProvider) {
         url: '/expired',
         templateUrl: 'appParts/expiredComponent/expired.html',
         controller : 'expiredController'
-        })
+    })
     .state('paymentSent', {
         url: '/paymentSent',
         templateUrl: 'appParts/paymentSentComponent/paymentSent.html',

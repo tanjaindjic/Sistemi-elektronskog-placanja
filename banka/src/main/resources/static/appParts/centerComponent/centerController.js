@@ -1,5 +1,5 @@
-mainModule.controller('centerController', ['$scope', '$window', 'mainService',
-    function($scope, $window, mainService){
+mainModule.controller('centerController', ['$scope', '$window', 'mainService', '$http', '$location',
+    function($scope, $window, mainService, $http, $location){
 
         $scope.cardNumber = "";
         $scope.format = function(){
@@ -11,13 +11,49 @@ mainModule.controller('centerController', ['$scope', '$window', 'mainService',
             });
         }
 
-        $scope.submit = function(){
-            var poruka = mainService.validate();
-            if(poruka=="yeet")
-                document.getElementById("poruka").innerHTML  = "";
-            else document.getElementById("poruka").innerHTML  = poruka;
+        var sendData = function(payload){
+            $http({
+                method: 'POST',
+                url:  window.location.pathname + "pay/token", //promeniti kraj
+                data: payload
+                }).then(function successCallback(response) {
+                    $location.path(response.data.location);
+                }, function errorCallback(response) {
+                    alert("Greska u zahtevu!");
+            });
 
         }
+
+        var prepareData = function(){
+            var month = document.getElementById("mesec");
+            var year = document.getElementById("godina");
+
+            var data = {
+                "pan" : document.getElementById("cardNumber").value.replace(/ /g,''),
+                "cvv" : document.getElementById("cvv").value,
+                "ime": document.getElementById("owner").value,
+                "prezime": document.getElementById("ownerL").value,
+                "mesec" : month.options[month.selectedIndex].text,
+                "godina" : year.options[year.selectedIndex].text
+            }
+
+            return data;
+        }
+
+        $scope.submit = function(){
+            var poruka = mainService.validate();
+            if(poruka!="yeet")
+                document.getElementById("poruka").innerHTML  = poruka;
+            else{
+                document.getElementById("poruka").innerHTML  = "";
+                var payload = prepareData();
+                sendData(payload);
+
+            }
+
+        }
+
+
 
 
 
