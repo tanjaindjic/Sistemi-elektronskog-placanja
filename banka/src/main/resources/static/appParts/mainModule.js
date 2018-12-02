@@ -18,5 +18,10 @@ mainModule.config(function($stateProvider, $urlRouterProvider) {
         templateUrl: 'appParts/paymentSentComponent/paymentSent.html',
         controller : 'paymentSentController'
     })
+    .state('paymentPassed', {
+        url: '/paymentPassed',
+        templateUrl: 'appParts/paymentPassedComponent/paymentPassed.html',
+        controller : 'paymentPassedController'
+    })
 
 });

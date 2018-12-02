@@ -16,6 +16,6 @@ public interface MainService {
     boolean isTokenExpired(String token);
     ResponseEntity<Map> tryPayment(String token, PaymentDTO paymentDTO) throws JsonProcessingException;
     ResponseEntity<Map> sendToPCC(Transakcija t, String token, PaymentDTO paymentDTO) throws JsonProcessingException;
-    ResponseEntity<Map> paymentFailed(Transakcija t, String token, PaymentDTO paymentDTO);
-    ResponseEntity<Map> finishPayment(Transakcija t, String token, PaymentDTO paymentDTO);
+    ResponseEntity<Map> paymentFailed(Transakcija t, String token, PaymentDTO paymentDTO) throws JsonProcessingException;
+    ResponseEntity<Map> finishPayment(Transakcija t, String token, PaymentDTO paymentDTO) throws JsonProcessingException;
 }

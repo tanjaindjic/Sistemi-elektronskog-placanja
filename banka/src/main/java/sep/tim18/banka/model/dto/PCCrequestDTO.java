@@ -5,9 +5,9 @@ import org.joda.time.DateTime;
 
 public class PCCrequestDTO {
     //TODO proveriti da li treba nova transakcija ili za postojecu saljem i samo menjam status na CEKANJE
-    private Long acquirer_order_id;
+    private Long acquirerOrderID;
 
-    private DateTime acquirer_timestamp;
+    private DateTime acquirerTimestamp;
 
     @Length(min = 8, max = 19)
     private String pan;
@@ -28,20 +28,20 @@ public class PCCrequestDTO {
     public PCCrequestDTO() {
     }
 
-    public Long getAcquirer_order_id() {
-        return acquirer_order_id;
+    public Long getAcquirerOrderID() {
+        return acquirerOrderID;
     }
 
-    public void setAcquirer_order_id(Long acquirer_order_id) {
-        this.acquirer_order_id = acquirer_order_id;
+    public void setAcquirerOrderID(Long acquirerOrderID) {
+        this.acquirerOrderID = acquirerOrderID;
     }
 
-    public DateTime getAcquirer_timestamp() {
-        return acquirer_timestamp;
+    public DateTime getAcquirerTimestamp() {
+        return acquirerTimestamp;
     }
 
-    public void setAcquirer_timestamp(DateTime acquirer_timestamp) {
-        this.acquirer_timestamp = acquirer_timestamp;
+    public void setAcquirerTimestamp(DateTime acquirerTimestamp) {
+        this.acquirerTimestamp = acquirerTimestamp;
     }
 
     public String getPan() {

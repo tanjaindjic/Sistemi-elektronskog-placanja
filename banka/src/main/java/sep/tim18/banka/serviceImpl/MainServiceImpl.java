@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import sep.tim18.banka.model.Kartica;
 import sep.tim18.banka.model.Klijent;
+import sep.tim18.banka.model.dto.FinishedPaymentDTO;
 import sep.tim18.banka.model.dto.PCCrequestDTO;
 import sep.tim18.banka.model.dto.PaymentDTO;
 import sep.tim18.banka.model.enums.Status;
@@ -148,8 +149,8 @@ public class MainServiceImpl implements MainService {
         Transakcija zaSlanje = new Transakcija(t);
 
         PCCrequestDTO pcCrequestDTO = new PCCrequestDTO();
-        pcCrequestDTO.setAcquirer_order_id(zaSlanje.getId());
-        pcCrequestDTO.setAcquirer_timestamp(zaSlanje.getVremeKreiranja());
+        pcCrequestDTO.setAcquirerOrderID(zaSlanje.getId());
+        pcCrequestDTO.setAcquirerTimestamp(zaSlanje.getVremeKreiranja());
         pcCrequestDTO.setCvv(paymentDTO.getCvv());
         pcCrequestDTO.setGodina(paymentDTO.getGodina());
         pcCrequestDTO.setMesec(paymentDTO.getMesec());
@@ -174,19 +175,37 @@ public class MainServiceImpl implements MainService {
     }
 
     @Override
-    public ResponseEntity<Map> paymentFailed(Transakcija t, String token, PaymentDTO paymentDTO) {
+    public ResponseEntity<Map> paymentFailed(Transakcija t, String token, PaymentDTO paymentDTO) throws JsonProcessingException {
         t.setStatus(Status.N);
         t.setVremeIzvrsenja(new DateTime());
         t.setRacunPosiljaoca(paymentDTO.getPan());
         transakcijaRepository.save(t);
+
+        FinishedPaymentDTO finishedPaymentDTO = new FinishedPaymentDTO();
+        finishedPaymentDTO.setStatusTransakcije(Status.N);
+        finishedPaymentDTO.setMerchantOrderID(t.getMerchantOrderId());
+        finishedPaymentDTO.setAcquirerOrderID(t.getId()); //ista banka
+        finishedPaymentDTO.setAcquirerTimestamp(t.getVremeIzvrsenja());
+        finishedPaymentDTO.setPaymentID(t.getId());
+        finishedPaymentDTO.setRedirectURL(t.getFailedURL());
+
+        ObjectMapper mapper = new ObjectMapper();
+        String jsonInString = mapper.writeValueAsString(finishedPaymentDTO);
+
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<String> entity = new HttpEntity<String>(jsonInString, headers);
+        ResponseEntity<String> response = restTemplate.exchange(pccURL, HttpMethod.POST, entity, String.class);
+
         Map retVal = new HashMap();
         retVal.put("location", "/expired");
-        //TODO poslati na KP isto
         return new ResponseEntity<Map>(retVal, HttpStatus.OK);
     }
 
     @Override
-    public ResponseEntity<Map> finishPayment(Transakcija t, String token, PaymentDTO paymentDTO) {
+    public ResponseEntity<Map> finishPayment(Transakcija t, String token, PaymentDTO paymentDTO) throws JsonProcessingException {
         Klijent kupac = klijentRepository.findByKartice_pan(paymentDTO.getPan());
         Kartica zaPlacanje = null;
         for(Kartica k : kupac.getKartice())
@@ -206,12 +225,27 @@ public class MainServiceImpl implements MainService {
         transakcijaRepository.save(t);
         //ovde su i merchant i acquirer isti jer je ista banka
         //TODO proveriti da li treba praviti 2 transakcije pri placanju, tj da li treba i za kupca jedan red u tabeli da se doda
+
+        FinishedPaymentDTO finishedPaymentDTO = new FinishedPaymentDTO();
+        finishedPaymentDTO.setStatusTransakcije(Status.U);
+        finishedPaymentDTO.setMerchantOrderID(t.getMerchantOrderId());
+        finishedPaymentDTO.setAcquirerOrderID(t.getId()); //ista banka
+        finishedPaymentDTO.setAcquirerTimestamp(t.getVremeIzvrsenja());
+        finishedPaymentDTO.setPaymentID(t.getId());
+        finishedPaymentDTO.setRedirectURL(t.getSuccessURL());
+
+        ObjectMapper mapper = new ObjectMapper();
+        String jsonInString = mapper.writeValueAsString(finishedPaymentDTO);
+
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<String> entity = new HttpEntity<String>(jsonInString, headers);
+        ResponseEntity<String> response = restTemplate.exchange(pccURL, HttpMethod.POST, entity, String.class);
+
         Map retVal = new HashMap();
-        retVal.put("Location", t.getSuccessURL());
-        retVal.put("MERCHANT_ORDER_ID", t.getId());
-        retVal.put("ACQUIRER_ORDER_ID", t.getId());
-        retVal.put("ACQUIRER_TIMESTAMP", t.getVremeIzvrsenja());
-        retVal.put("PAYMENT_ID ",t.getId());
+        retVal.put("location", "/paymentPassed");
         return new ResponseEntity<Map>(retVal, HttpStatus.OK);
     }
 
