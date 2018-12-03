@@ -3,7 +3,7 @@ package sep.tim18.banka.model.dto;
 import org.hibernate.validator.constraints.Length;
 import org.joda.time.DateTime;
 
-public class PCCrequestDTO {
+public class PCCRequestDTO {
     //TODO proveriti da li treba nova transakcija ili za postojecu saljem i samo menjam status na CEKANJE
     private Long acquirerOrderID;
 
@@ -29,7 +29,7 @@ public class PCCrequestDTO {
 
     private Float iznos;
 
-    public PCCrequestDTO() {
+    public PCCRequestDTO() {
     }
 
     public Long getAcquirerOrderID() {

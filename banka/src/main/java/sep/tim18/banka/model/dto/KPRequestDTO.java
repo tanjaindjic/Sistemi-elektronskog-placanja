@@ -5,7 +5,7 @@ import org.joda.time.DateTime;
 import java.sql.Time;
 import java.sql.Timestamp;
 
-public class RequestDTO {
+public class KPRequestDTO {
     private String merchantID;
     private String merchantPass;
     private Float iznos;
@@ -15,7 +15,7 @@ public class RequestDTO {
     private String failedURL;
     private String errorURL;
 
-    public RequestDTO() {
+    public KPRequestDTO() {
     }
 
     public String getMerchantID() {

@@ -2,7 +2,7 @@ package sep.tim18.banka.model.dto;
 
 import org.hibernate.validator.constraints.Length;
 
-public class PaymentDTO {
+public class BuyerInfoDTO {
 
     @Length(min = 8, max = 19)
     private String pan;
@@ -20,7 +20,7 @@ public class PaymentDTO {
 
     private int godina;
 
-    public PaymentDTO() {
+    public BuyerInfoDTO() {
     }
 
     public String getPan() {

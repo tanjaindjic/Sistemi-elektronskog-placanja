@@ -15,16 +15,16 @@ import sep.tim18.banka.model.Kartica;
 import sep.tim18.banka.model.Klijent;
 import sep.tim18.banka.model.PaymentInfo;
 import sep.tim18.banka.model.dto.FinishedPaymentDTO;
-import sep.tim18.banka.model.dto.PCCrequestDTO;
-import sep.tim18.banka.model.dto.PaymentDTO;
+import sep.tim18.banka.model.dto.PCCRequestDTO;
+import sep.tim18.banka.model.dto.BuyerInfoDTO;
 import sep.tim18.banka.model.enums.Status;
 import sep.tim18.banka.model.Transakcija;
-import sep.tim18.banka.model.dto.RequestDTO;
+import sep.tim18.banka.model.dto.KPRequestDTO;
 import sep.tim18.banka.repository.KarticaRepository;
 import sep.tim18.banka.repository.KlijentRepository;
 import sep.tim18.banka.repository.PaymentInfoRepository;
 import sep.tim18.banka.repository.TransakcijaRepository;
-import sep.tim18.banka.service.MainService;
+import sep.tim18.banka.service.AcquirerService;
 
 import java.security.SecureRandom;
 import java.util.HashMap;
@@ -33,7 +33,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
-public class MainServiceImpl implements MainService {
+public class AcquirerServiceImpl implements AcquirerService {
     static final String AB = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
     static SecureRandom rnd = new SecureRandom();
 
@@ -63,7 +63,7 @@ public class MainServiceImpl implements MainService {
 
 
     @Override
-    public boolean validate(RequestDTO request) {
+    public boolean validate(KPRequestDTO request) {
         Klijent prodavac = klijentRepository.findByMerchantID(request.getMerchantID());
         if(prodavac==null)
             return false;
@@ -82,7 +82,7 @@ public class MainServiceImpl implements MainService {
     }
 
     @Override
-    public Transakcija createTransaction(RequestDTO request) {
+    public Transakcija createTransaction(KPRequestDTO request) {
         Klijent prodavac = klijentRepository.findByMerchantID(request.getMerchantID());
 
         Transakcija t = new Transakcija();
@@ -107,7 +107,7 @@ public class MainServiceImpl implements MainService {
 
 
     @Override
-    public PaymentInfo createPaymentDetails(RequestDTO request) {
+    public PaymentInfo createPaymentDetails(KPRequestDTO request) {
         Transakcija t = createTransaction(request);
         PaymentInfo paymentInfo = new PaymentInfo(t, getToken());
         paymentInfoRepository.save(paymentInfo);
@@ -143,44 +143,44 @@ public class MainServiceImpl implements MainService {
 
     @Override
     @Transactional(readOnly = false, rollbackFor = Exception.class, propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
-    public ResponseEntity<Map> tryPayment(String token, PaymentDTO paymentDTO) throws JsonProcessingException {
+    public ResponseEntity<Map> tryPayment(String token, BuyerInfoDTO buyerInfoDTO) throws JsonProcessingException {
 
         PaymentInfo paymentInfo = paymentInfoRepository.findByPaymentURL(token);
         Transakcija t = paymentInfo.getTransakcija();
-        Klijent kupac = klijentRepository.findByKartice_pan(paymentDTO.getPan());
+        Klijent kupac = klijentRepository.findByKartice_pan(buyerInfoDTO.getPan());
         if(kupac==null)
-            return sendToPCC(t, token,paymentDTO);
+            return sendToPCC(t, token, buyerInfoDTO);
 
         //TODO proveriti filter
         List<Kartica> match = kupac.getKartice().stream()
-                .filter(s -> paymentDTO.getPan().equals(s.getPan()))
+                .filter(s -> buyerInfoDTO.getPan().equals(s.getPan()))
                 .collect(Collectors.toList());
 
         if(match.isEmpty())
-            return paymentFailed(paymentInfo, t, token, paymentDTO);
+            return paymentFailed(paymentInfo, t, token, buyerInfoDTO);
 
         if(match.get(0).getRaspolozivaSredstva() - t.getIznos()<0)
-            return paymentFailed(paymentInfo, t, token, paymentDTO);
+            return paymentFailed(paymentInfo, t, token, buyerInfoDTO);
 
-        return finishPayment(paymentInfo, t, token, paymentDTO);
+        return finishPayment(paymentInfo, t, token, buyerInfoDTO);
     }
 
     @Override
-    public ResponseEntity<Map> sendToPCC(Transakcija t, String token, PaymentDTO paymentDTO) throws JsonProcessingException {
+    public ResponseEntity<Map> sendToPCC(Transakcija t, String token, BuyerInfoDTO buyerInfoDTO) throws JsonProcessingException {
         t.setStatus(Status.C);
         //TODO proveriti da li ostaviti ovako ili cekati da banka kupca odgovori pcc-u i prosledi pored ostalog i broj racuna kupca sa kojeg je skinut iznos
-        t.setRacunPosiljaoca(paymentDTO.getPan());//za sad imamo samo br kartice a ne i racuna onog ko placa
+        t.setRacunPosiljaoca(buyerInfoDTO.getPan());//za sad imamo samo br kartice a ne i racuna onog ko placa
         transakcijaRepository.save(t);
 
-        PCCrequestDTO pcCrequestDTO = new PCCrequestDTO();
+        PCCRequestDTO pcCrequestDTO = new PCCRequestDTO();
         pcCrequestDTO.setAcquirerOrderID(t.getAcquirerOrderID());
         pcCrequestDTO.setAcquirerTimestamp(t.getAcquirerTimestamp());
-        pcCrequestDTO.setCvv(paymentDTO.getCvv());
-        pcCrequestDTO.setGodina(paymentDTO.getGodina());
-        pcCrequestDTO.setMesec(paymentDTO.getMesec());
-        pcCrequestDTO.setIme(paymentDTO.getIme());
-        pcCrequestDTO.setPrezime(paymentDTO.getPrezime());
-        pcCrequestDTO.setPan(paymentDTO.getPan());
+        pcCrequestDTO.setCvv(buyerInfoDTO.getCvv());
+        pcCrequestDTO.setGodina(buyerInfoDTO.getGodina());
+        pcCrequestDTO.setMesec(buyerInfoDTO.getMesec());
+        pcCrequestDTO.setIme(buyerInfoDTO.getIme());
+        pcCrequestDTO.setPrezime(buyerInfoDTO.getPrezime());
+        pcCrequestDTO.setPan(buyerInfoDTO.getPan());
         pcCrequestDTO.setIznos(t.getIznos());
         pcCrequestDTO.setReturnURL(siteAddress + "pccReply");
 
@@ -201,9 +201,9 @@ public class MainServiceImpl implements MainService {
     }
 
     @Override
-    public ResponseEntity<Map> paymentFailed(PaymentInfo paymentInfo, Transakcija t, String token, PaymentDTO paymentDTO) throws JsonProcessingException {
+    public ResponseEntity<Map> paymentFailed(PaymentInfo paymentInfo, Transakcija t, String token, BuyerInfoDTO buyerInfoDTO) throws JsonProcessingException {
         t.setStatus(Status.N);
-        t.setRacunPosiljaoca(paymentDTO.getPan());//pokusano da se plati sa ove kartice
+        t.setRacunPosiljaoca(buyerInfoDTO.getPan());//pokusano da se plati sa ove kartice
         transakcijaRepository.save(t);
 
         FinishedPaymentDTO finishedPaymentDTO = new FinishedPaymentDTO();
@@ -230,11 +230,11 @@ public class MainServiceImpl implements MainService {
     }
 
     @Override
-    public ResponseEntity<Map> finishPayment(PaymentInfo paymentInfo, Transakcija t, String token, PaymentDTO paymentDTO) throws JsonProcessingException {
-        Klijent kupac = klijentRepository.findByKartice_pan(paymentDTO.getPan());
+    public ResponseEntity<Map> finishPayment(PaymentInfo paymentInfo, Transakcija t, String token, BuyerInfoDTO buyerInfoDTO) throws JsonProcessingException {
+        Klijent kupac = klijentRepository.findByKartice_pan(buyerInfoDTO.getPan());
         Kartica zaPlacanje = null;
         for(Kartica k : kupac.getKartice())
-            if(k.getPan().equals(paymentDTO.getPan())){
+            if(k.getPan().equals(buyerInfoDTO.getPan())){
                 zaPlacanje = k;
                 break;
             }
