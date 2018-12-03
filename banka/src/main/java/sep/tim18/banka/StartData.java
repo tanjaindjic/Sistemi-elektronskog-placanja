@@ -2,6 +2,7 @@ package sep.tim18.banka;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 import sep.tim18.banka.model.Kartica;
 import sep.tim18.banka.model.Klijent;
@@ -12,11 +13,17 @@ import sep.tim18.banka.repository.TransakcijaRepository;
 import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 
+
+@PropertySource(ignoreResourceNotFound = true, value = "classpath:application.properties")
 @Component
 public class StartData {
 
-    @Value("${bankNumber}")
-    private String bankNumber;
+    private static String BNumber;
+
+    @Value("${BNumber}")
+    public void setB1URL(String bank1No) {
+        BNumber = bank1No;
+    }
 
     @Autowired
     private TransakcijaRepository transakcijaRepository;
@@ -36,9 +43,9 @@ public class StartData {
         klijentRepository.save(klijent2);
         klijentRepository.save(klijent3);
 
-        Kartica kartica1 = new Kartica(bankNumber + "2233334444", "111", "01/25", bankNumber + "001", 100000000000F, 0F, klijent1 );
-        Kartica kartica2 = new Kartica(bankNumber + "3344445555", "222", "01/25", bankNumber + "002", 100000000000F, 0F, klijent2 );
-        Kartica kartica3 = new Kartica(bankNumber + "4455556666", "333", "01/25", bankNumber + "003", 100000000000F, 0F, klijent3 );
+        Kartica kartica1 = new Kartica(BNumber + "2233334444", "111", "01/25", BNumber + "001", 100000000000F, 0F, klijent1 );
+        Kartica kartica2 = new Kartica(BNumber + "3344445555", "222", "01/25", BNumber + "002", 100000000000F, 0F, klijent2 );
+        Kartica kartica3 = new Kartica(BNumber + "4455556666", "333", "01/25", BNumber + "003", 100000000000F, 0F, klijent3 );
         karticaRepository.save(kartica1);
         karticaRepository.save(kartica2);
         karticaRepository.save(kartica3);

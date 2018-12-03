@@ -19,8 +19,12 @@ import java.util.Map;
 @RestController
 public class AcquirerController {
 
-    @Value("${siteAddress}")
-    private String siteAddress;
+    private static String BAddress;
+
+    @Value("${BAddress}")
+    public void setB1URL(String bankAdress) {
+        BAddress = bankAdress;
+    }
 
     @Autowired
     private AcquirerService acquirerService;
@@ -38,7 +42,7 @@ public class AcquirerController {
 
         PaymentInfo paymentInfo = acquirerService.createPaymentDetails(request);
 
-        retVal.put("paymentURL", siteAddress + "pay/" +paymentInfo.getPaymentURL());
+        retVal.put("paymentURL", BAddress + "pay/" +paymentInfo.getPaymentURL());
         retVal.put("paymentID", paymentInfo.getPaymentID());
 
         return new ResponseEntity<Map>(retVal, HttpStatus.OK);
@@ -49,8 +53,8 @@ public class AcquirerController {
 
         //TODO promeniti na https posle
         if(acquirerService.isTokenExpired(token)){
-            httpServletResponse.sendRedirect(siteAddress + "/expired");
-        }else httpServletResponse.sendRedirect(siteAddress + "/pay/" + token);
+            httpServletResponse.sendRedirect(BAddress + "/expired");
+        }else httpServletResponse.sendRedirect(BAddress + "/pay/" + token);
 
     }
 

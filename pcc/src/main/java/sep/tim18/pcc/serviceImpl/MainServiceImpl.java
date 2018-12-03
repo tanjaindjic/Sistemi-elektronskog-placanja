@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
+import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import sep.tim18.pcc.model.Banka;
 import sep.tim18.pcc.model.Zahtev;
@@ -14,6 +15,7 @@ import sep.tim18.pcc.repository.BankaRepository;
 import sep.tim18.pcc.repository.ZahtevRepository;
 import sep.tim18.pcc.service.MainService;
 
+@Service
 public class MainServiceImpl implements MainService {
 
     @Autowired

@@ -6,6 +6,7 @@ import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
+import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import sep.tim18.banka.model.Kartica;
 import sep.tim18.banka.model.Klijent;
@@ -18,10 +19,8 @@ import sep.tim18.banka.repository.KlijentRepository;
 import sep.tim18.banka.repository.TransakcijaRepository;
 import sep.tim18.banka.service.IssuerService;
 
+@Service
 public class IssuerServiceImpl implements IssuerService {
-
-    @Value("${replyToPCC}")
-    private String replyToPCC;
 
     @Autowired
     private TransakcijaRepository transakcijaRepository;
@@ -72,12 +71,10 @@ public class IssuerServiceImpl implements IssuerService {
         ObjectMapper mapper = new ObjectMapper();
         String jsonInString = mapper.writeValueAsString(pccReplyDTO);
 
-        RestTemplate restTemplate = new RestTemplate();
+
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-
-        HttpEntity<String> entity = new HttpEntity<String>(jsonInString, headers);
-        return restTemplate.exchange(replyToPCC, HttpMethod.POST, entity, String.class);
+        return new ResponseEntity<String>(jsonInString, headers, HttpStatus.OK);
 
 
     }

@@ -34,20 +34,41 @@ public class AcquirerServiceImpl implements AcquirerService {
     static final String AB = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
     static SecureRandom rnd = new SecureRandom();
 
+    private static int tokenDuration;
+
     @Value("${tokenDuration}")
-    private int tokenDuration;
+    public void setsss(int s) {
+        tokenDuration = s;
+    }
+
+
+    private static String requestToPCC;
 
     @Value("${requestToPCC}")
-    private String requestToPCC;
+    public void setss(String s) {
+        requestToPCC = s;
+    }
+
+    private static String replyToKP;
 
     @Value("${replyToKP}")
-    private String replyToKP;
+    public void setBs(String s) {
+        replyToKP = s;
+    }
 
-    @Value("${bankNumber}")
-    private String bankNumber;
+    private static String BNumber;
 
-    @Value("${siteAddress}")
-    private String siteAddress;
+    @Value("${BNumber}")
+    public void setBURL(String bank1No) {
+        BNumber = bank1No;
+    }
+
+    private static String BAddress;
+
+    @Value("${BAddress}")
+    public void setBA(String bankAdress) {
+        BAddress = bankAdress;
+    }
 
     @Autowired
     private TransakcijaRepository transakcijaRepository;
@@ -210,7 +231,7 @@ public class AcquirerServiceImpl implements AcquirerService {
         pcCrequestDTO.setIznos(t.getIznos());
         //pcCrequestDTO.setReturnURL(siteAddress + "pccReply");
         pcCrequestDTO.setRacunPrimaoca(t.getRacunPrimaoca());
-        pcCrequestDTO.setBrojBankeProdavca(bankNumber);
+        pcCrequestDTO.setBrojBankeProdavca(BNumber);
 
         ObjectMapper mapper = new ObjectMapper();
         String jsonInString = mapper.writeValueAsString(pcCrequestDTO);

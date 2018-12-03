@@ -4,11 +4,9 @@ import org.hibernate.validator.constraints.Length;
 import org.joda.time.DateTime;
 import sep.tim18.pcc.model.enums.Status;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
+import javax.persistence.*;
 
+@Entity
 public class Zahtev {
 
     @Id
