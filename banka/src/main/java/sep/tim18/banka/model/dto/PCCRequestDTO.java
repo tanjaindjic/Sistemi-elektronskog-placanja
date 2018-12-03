@@ -29,6 +29,8 @@ public class PCCRequestDTO {
 
     private Float iznos;
 
+    private String racunPrimaoca;
+
     public PCCRequestDTO() {
     }
 
@@ -110,5 +112,13 @@ public class PCCRequestDTO {
 
     public Float getIznos() {
         return iznos;
+    }
+
+    public String getRacunPrimaoca() {
+        return racunPrimaoca;
+    }
+
+    public void setRacunPrimaoca(String racunPrimaoca) {
+        this.racunPrimaoca = racunPrimaoca;
     }
 }

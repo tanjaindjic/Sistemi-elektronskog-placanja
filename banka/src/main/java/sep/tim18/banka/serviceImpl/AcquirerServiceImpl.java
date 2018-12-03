@@ -89,7 +89,7 @@ public class AcquirerServiceImpl implements AcquirerService {
         t.setUplacuje(null);
         t.setPrima(prodavac);
         t.setPaymentURL(null);
-        t.setAcquirerTimestamp(new DateTime());
+        t.setTimestamp(new DateTime());
         t.setStatus(Status.K);
         t.setRacunPrimaoca(prodavac.getKartice().get(0).getBrRacuna());//TODO skontati kako biramo na koju karticu tj. racun uplacujemo novac prodavcu jer u NC pamtimo samo njegov merchantID
         t.setRacunPosiljaoca(null);
@@ -130,7 +130,7 @@ public class AcquirerServiceImpl implements AcquirerService {
 
         if(t!=null){
             //TODO proveriti da li ovo radi kako treba
-            if(t.getAcquirerTimestamp().plusMinutes(tokenDuration).isBeforeNow()){
+            if(t.getTimestamp().plusMinutes(tokenDuration).isBeforeNow()){
                 t.setStatus(Status.E);
                 transakcijaRepository.save(t);
                 return true;
@@ -173,8 +173,8 @@ public class AcquirerServiceImpl implements AcquirerService {
         transakcijaRepository.save(t);
 
         PCCRequestDTO pcCrequestDTO = new PCCRequestDTO();
-        pcCrequestDTO.setAcquirerOrderID(t.getAcquirerOrderID());
-        pcCrequestDTO.setAcquirerTimestamp(t.getAcquirerTimestamp());
+        pcCrequestDTO.setAcquirerOrderID(t.getOrderID());
+        pcCrequestDTO.setAcquirerTimestamp(t.getTimestamp());
         pcCrequestDTO.setCvv(buyerInfoDTO.getCvv());
         pcCrequestDTO.setGodina(buyerInfoDTO.getGodina());
         pcCrequestDTO.setMesec(buyerInfoDTO.getMesec());
@@ -183,6 +183,7 @@ public class AcquirerServiceImpl implements AcquirerService {
         pcCrequestDTO.setPan(buyerInfoDTO.getPan());
         pcCrequestDTO.setIznos(t.getIznos());
         pcCrequestDTO.setReturnURL(siteAddress + "pccReply");
+        pcCrequestDTO.setRacunPrimaoca(t.getRacunPrimaoca());
 
         ObjectMapper mapper = new ObjectMapper();
         String jsonInString = mapper.writeValueAsString(pcCrequestDTO);
@@ -209,8 +210,8 @@ public class AcquirerServiceImpl implements AcquirerService {
         FinishedPaymentDTO finishedPaymentDTO = new FinishedPaymentDTO();
         finishedPaymentDTO.setStatusTransakcije(Status.N);
         finishedPaymentDTO.setMerchantOrderID(t.getMerchantOrderId());
-        finishedPaymentDTO.setAcquirerOrderID(t.getAcquirerOrderID()); //ista banka
-        finishedPaymentDTO.setAcquirerTimestamp(t.getAcquirerTimestamp());
+        finishedPaymentDTO.setAcquirerOrderID(t.getOrderID()); //ista banka
+        finishedPaymentDTO.setAcquirerTimestamp(t.getTimestamp());
         finishedPaymentDTO.setPaymentID(paymentInfo.getPaymentID());
         finishedPaymentDTO.setRedirectURL(t.getFailedURL());
 
@@ -238,10 +239,11 @@ public class AcquirerServiceImpl implements AcquirerService {
                 zaPlacanje = k;
                 break;
             }
+
+        int idx = kupac.getKartice().indexOf(zaPlacanje);
         Float raspolozivo = zaPlacanje.getRaspolozivaSredstva();
         zaPlacanje.setRaspolozivaSredstva(raspolozivo - t.getIznos());
         karticaRepository.save(zaPlacanje);
-        int idx = kupac.getKartice().indexOf(zaPlacanje);
         kupac.getKartice().set(idx, zaPlacanje);
         klijentRepository.save(kupac);
         t.setStatus(Status.U);
@@ -253,8 +255,8 @@ public class AcquirerServiceImpl implements AcquirerService {
         FinishedPaymentDTO finishedPaymentDTO = new FinishedPaymentDTO();
         finishedPaymentDTO.setStatusTransakcije(Status.U);
         finishedPaymentDTO.setMerchantOrderID(t.getMerchantOrderId());
-        finishedPaymentDTO.setAcquirerOrderID(t.getAcquirerOrderID()); //ista banka
-        finishedPaymentDTO.setAcquirerTimestamp(t.getAcquirerTimestamp());
+        finishedPaymentDTO.setAcquirerOrderID(t.getOrderID()); //ista banka
+        finishedPaymentDTO.setAcquirerTimestamp(t.getTimestamp());
         finishedPaymentDTO.setPaymentID(paymentInfo.getPaymentID());
         finishedPaymentDTO.setRedirectURL(t.getSuccessURL());
 

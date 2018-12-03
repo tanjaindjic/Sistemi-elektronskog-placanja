@@ -11,7 +11,7 @@ public class Transakcija {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long acquirerOrderID;
+    private Long orderID;
 
     @ManyToOne
     private Klijent uplacuje;
@@ -19,9 +19,9 @@ public class Transakcija {
     @ManyToOne
     private Klijent prima;
 
-    private String paymentURL;
+    private String paymentURL; //ne treba za issuer transakciju jer je ovo vezano samo za token
 
-    private DateTime acquirerTimestamp;
+    private DateTime timestamp; //ako transakcija u banci prodavca onda Acquirer timestamp a ako je od kupca onda je issuer timestamp
 
     private Status status;
 
@@ -48,7 +48,7 @@ public class Transakcija {
         this.uplacuje = original.uplacuje;
         this.prima = original.prima;
         this.paymentURL = original.paymentURL;
-        this.acquirerTimestamp = new DateTime();
+        this.timestamp = new DateTime();
         this.status = original.status;
         this.racunPrimaoca = original.racunPrimaoca;
         this.racunPosiljaoca = original.racunPosiljaoca;
@@ -60,12 +60,12 @@ public class Transakcija {
         this.merchantTimestamp = original.merchantTimestamp;
     }
 
-    public Long getAcquirerOrderID() {
-        return acquirerOrderID;
+    public Long getOrderID() {
+        return orderID;
     }
 
-    public void setAcquirerOrderID(Long id) {
-        this.acquirerOrderID = id;
+    public void setOrderID(Long id) {
+        this.orderID = id;
     }
 
     public Klijent getUplacuje() {
@@ -93,12 +93,12 @@ public class Transakcija {
         this.paymentURL = paymentURL;
     }
 
-    public DateTime getAcquirerTimestamp() {
-        return acquirerTimestamp;
+    public DateTime getTimestamp() {
+        return timestamp;
     }
 
-    public void setAcquirerTimestamp(DateTime vremeKreiranja) {
-        this.acquirerTimestamp = vremeKreiranja;
+    public void setTimestamp(DateTime vremeKreiranja) {
+        this.timestamp = vremeKreiranja;
     }
 
     public Status getStatus() {

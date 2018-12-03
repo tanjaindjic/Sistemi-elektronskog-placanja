@@ -67,6 +67,11 @@ public class AcquirerController {
 
     }
 
+    @RequestMapping(value = "/pccReply", method = RequestMethod.POST)
+    public ResponseEntity pccReply(){
+        return null;
+    }
+
 
 
 
