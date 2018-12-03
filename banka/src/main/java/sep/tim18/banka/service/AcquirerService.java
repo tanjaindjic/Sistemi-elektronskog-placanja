@@ -16,8 +16,8 @@ public interface AcquirerService {
     Transakcija createTransaction(KPRequestDTO request);
     boolean isTokenExpired(String token);
     ResponseEntity<Map> tryPayment(String token, BuyerInfoDTO buyerInfoDTO) throws JsonProcessingException;
-    ResponseEntity<Map> sendToPCC(Transakcija t, String token, BuyerInfoDTO buyerInfoDTO) throws JsonProcessingException;
-    ResponseEntity<Map> paymentFailed(PaymentInfo paymentInfo, Transakcija t, String token, BuyerInfoDTO buyerInfoDTO) throws JsonProcessingException;
-    ResponseEntity<Map> finishPayment(PaymentInfo paymentInfo, Transakcija t, String token, BuyerInfoDTO buyerInfoDTO) throws JsonProcessingException;
+    ResponseEntity<String> sendToPCC(Transakcija t, String token, BuyerInfoDTO buyerInfoDTO, Long paymentID) throws JsonProcessingException;
+    ResponseEntity<String> paymentFailed(PaymentInfo paymentInfo, Transakcija t, String token, BuyerInfoDTO buyerInfoDTO) throws JsonProcessingException;
+    ResponseEntity<String> finishPayment(PaymentInfo paymentInfo, Transakcija t, String token, BuyerInfoDTO buyerInfoDTO) throws JsonProcessingException;
     PaymentInfo createPaymentDetails(KPRequestDTO request);
 }

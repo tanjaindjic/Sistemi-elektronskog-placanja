@@ -56,12 +56,6 @@ public class AcquirerController {
 
     @RequestMapping(value = "/pay/{token}", method = RequestMethod.POST)
     public ResponseEntity<Map> finishPayment(HttpServletResponse httpServletResponse, @PathVariable String token, @RequestBody BuyerInfoDTO buyerInfoDTO) throws IOException {
-        if(acquirerService.isTokenExpired(token)){
-            //TODO poslati failed na KP
-            Map mapa = new HashMap();
-            mapa.put("location", "/expired");
-            return new ResponseEntity<>(mapa, HttpStatus.BAD_REQUEST);
-        }
 
         return acquirerService.tryPayment(token, buyerInfoDTO);
 

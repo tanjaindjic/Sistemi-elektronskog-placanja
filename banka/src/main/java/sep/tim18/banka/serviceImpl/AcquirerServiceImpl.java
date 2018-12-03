@@ -14,12 +14,9 @@ import org.springframework.web.client.RestTemplate;
 import sep.tim18.banka.model.Kartica;
 import sep.tim18.banka.model.Klijent;
 import sep.tim18.banka.model.PaymentInfo;
-import sep.tim18.banka.model.dto.FinishedPaymentDTO;
-import sep.tim18.banka.model.dto.PCCRequestDTO;
-import sep.tim18.banka.model.dto.BuyerInfoDTO;
+import sep.tim18.banka.model.dto.*;
 import sep.tim18.banka.model.enums.Status;
 import sep.tim18.banka.model.Transakcija;
-import sep.tim18.banka.model.dto.KPRequestDTO;
 import sep.tim18.banka.repository.KarticaRepository;
 import sep.tim18.banka.repository.KlijentRepository;
 import sep.tim18.banka.repository.PaymentInfoRepository;
@@ -45,6 +42,9 @@ public class AcquirerServiceImpl implements AcquirerService {
 
     @Value("${replyToKP}")
     private String replyToKP;
+
+    @Value("${bankNumber}")
+    private String bankNumber;
 
     @Value("${siteAddress}")
     private String siteAddress;
@@ -148,25 +148,51 @@ public class AcquirerServiceImpl implements AcquirerService {
         PaymentInfo paymentInfo = paymentInfoRepository.findByPaymentURL(token);
         Transakcija t = paymentInfo.getTransakcija();
         Klijent kupac = klijentRepository.findByKartice_pan(buyerInfoDTO.getPan());
-        if(kupac==null)
-            return sendToPCC(t, token, buyerInfoDTO);
+        Map retVal = new HashMap();
+        ResponseEntity<String> response = null;
+
+        if (isTokenExpired(token)) {
+            response = paymentFailed(paymentInfo, t, token, buyerInfoDTO);
+            retVal.put("location", "expired");
+            return new ResponseEntity<Map>(retVal, HttpStatus.OK);
+        }
+
+        if (kupac == null) {
+            response = sendToPCC(t, token, buyerInfoDTO, paymentInfo.getPaymentID());
+            if(response.getStatusCode()==HttpStatus.OK){
+                retVal.put("location", "/success");
+                return new ResponseEntity<Map>(retVal, HttpStatus.OK);
+            }else{
+                retVal.put("location", "/failed");
+                return new ResponseEntity<Map>(retVal, HttpStatus.OK);
+            }
+        }
 
         //TODO proveriti filter
         List<Kartica> match = kupac.getKartice().stream()
                 .filter(s -> buyerInfoDTO.getPan().equals(s.getPan()))
                 .collect(Collectors.toList());
 
-        if(match.isEmpty())
-            return paymentFailed(paymentInfo, t, token, buyerInfoDTO);
+        if (match.isEmpty()) {
+            response = paymentFailed(paymentInfo, t, token, buyerInfoDTO);
+            retVal.put("location", "failed");
+            return new ResponseEntity<Map>(retVal, HttpStatus.OK);
+        }
 
-        if(match.get(0).getRaspolozivaSredstva() - t.getIznos()<0)
-            return paymentFailed(paymentInfo, t, token, buyerInfoDTO);
+        if (match.get(0).getRaspolozivaSredstva() - t.getIznos() < 0) {
+            response = paymentFailed(paymentInfo, t, token, buyerInfoDTO);
+            retVal.put("location", "failed");
+            return new ResponseEntity<Map>(retVal, HttpStatus.OK);
+        }
 
-        return finishPayment(paymentInfo, t, token, buyerInfoDTO);
+
+        return new ResponseEntity<Map>(retVal, HttpStatus.I_AM_A_TEAPOT);
+
+
     }
 
     @Override
-    public ResponseEntity<Map> sendToPCC(Transakcija t, String token, BuyerInfoDTO buyerInfoDTO) throws JsonProcessingException {
+    public ResponseEntity<String> sendToPCC(Transakcija t, String token, BuyerInfoDTO buyerInfoDTO, Long paymentID) throws JsonProcessingException {
         t.setStatus(Status.C);
         //TODO proveriti da li ostaviti ovako ili cekati da banka kupca odgovori pcc-u i prosledi pored ostalog i broj racuna kupca sa kojeg je skinut iznos
         t.setRacunPosiljaoca(buyerInfoDTO.getPan());//za sad imamo samo br kartice a ne i racuna onog ko placa
@@ -182,8 +208,9 @@ public class AcquirerServiceImpl implements AcquirerService {
         pcCrequestDTO.setPrezime(buyerInfoDTO.getPrezime());
         pcCrequestDTO.setPan(buyerInfoDTO.getPan());
         pcCrequestDTO.setIznos(t.getIznos());
-        pcCrequestDTO.setReturnURL(siteAddress + "pccReply");
+        //pcCrequestDTO.setReturnURL(siteAddress + "pccReply");
         pcCrequestDTO.setRacunPrimaoca(t.getRacunPrimaoca());
+        pcCrequestDTO.setBrojBankeProdavca(bankNumber);
 
         ObjectMapper mapper = new ObjectMapper();
         String jsonInString = mapper.writeValueAsString(pcCrequestDTO);
@@ -194,15 +221,13 @@ public class AcquirerServiceImpl implements AcquirerService {
 
         HttpEntity<String> entity = new HttpEntity<String>(jsonInString, headers);
         ResponseEntity<String> response = restTemplate.exchange(requestToPCC, HttpMethod.POST, entity, String.class);
-        Map retVal = new HashMap();
-        //TODO dodati paymentSent stranicu jer ne smemo ni dozvoliti pristup i reci da je uplata uspesna, ni reci da je odbijena
-        //bolje reci da je kupovina evidentirana i da ce biti poslat mejl kada bude odobrena da moze da skine sa sajta sta je kupio
-        retVal.put("location", siteAddress + "paymentSent");
-        return new ResponseEntity<Map>(retVal, HttpStatus.OK);
+        KPReply(response, paymentID, t);
+        return response;
+
     }
 
     @Override
-    public ResponseEntity<Map> paymentFailed(PaymentInfo paymentInfo, Transakcija t, String token, BuyerInfoDTO buyerInfoDTO) throws JsonProcessingException {
+    public ResponseEntity<String> paymentFailed(PaymentInfo paymentInfo, Transakcija t, String token, BuyerInfoDTO buyerInfoDTO) throws JsonProcessingException {
         t.setStatus(Status.N);
         t.setRacunPosiljaoca(buyerInfoDTO.getPan());//pokusano da se plati sa ove kartice
         transakcijaRepository.save(t);
@@ -223,15 +248,12 @@ public class AcquirerServiceImpl implements AcquirerService {
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         HttpEntity<String> entity = new HttpEntity<String>(jsonInString, headers);
-        ResponseEntity<String> response = restTemplate.exchange(replyToKP, HttpMethod.POST, entity, String.class);
+        return restTemplate.exchange(replyToKP, HttpMethod.POST, entity, String.class);
 
-        Map retVal = new HashMap();
-        retVal.put("location", "/failed");
-        return new ResponseEntity<Map>(retVal, HttpStatus.OK);
     }
 
     @Override
-    public ResponseEntity<Map> finishPayment(PaymentInfo paymentInfo, Transakcija t, String token, BuyerInfoDTO buyerInfoDTO) throws JsonProcessingException {
+    public ResponseEntity<String> finishPayment(PaymentInfo paymentInfo, Transakcija t, String token, BuyerInfoDTO buyerInfoDTO) throws JsonProcessingException {
         Klijent kupac = klijentRepository.findByKartice_pan(buyerInfoDTO.getPan());
         Kartica zaPlacanje = null;
         for(Kartica k : kupac.getKartice())
@@ -268,11 +290,33 @@ public class AcquirerServiceImpl implements AcquirerService {
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         HttpEntity<String> entity = new HttpEntity<String>(jsonInString, headers);
-        ResponseEntity<String> response = restTemplate.exchange(replyToKP, HttpMethod.POST, entity, String.class);
+        return restTemplate.exchange(replyToKP, HttpMethod.POST, entity, String.class);
 
-        Map retVal = new HashMap();
-        retVal.put("location", "/success");
-        return new ResponseEntity<Map>(retVal, HttpStatus.OK);
+    }
+
+    private void KPReply(ResponseEntity<String> response, Long paymentID, Transakcija t) throws JsonProcessingException {
+        KPReplyDTO kpReplyDTO = new KPReplyDTO();
+        kpReplyDTO.setAcquirerOrderID(t.getOrderID());
+        kpReplyDTO.setAcquirerTimestamp(t.getTimestamp());
+        kpReplyDTO.setMerchantOrderID(t.getMerchantOrderId());
+        kpReplyDTO.setPaymentID(paymentID);
+
+        if(response.getStatusCode()==HttpStatus.BAD_REQUEST)
+            kpReplyDTO.setStatus(Status.N);
+        else if(response.getStatusCode()==HttpStatus.OK)
+            kpReplyDTO.setStatus(Status.U);
+
+        ObjectMapper mapper = new ObjectMapper();
+        String jsonInString = mapper.writeValueAsString(kpReplyDTO);
+
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<String> entity = new HttpEntity<String>(jsonInString, headers);
+        restTemplate.exchange(replyToKP, HttpMethod.POST, entity, String.class);
+
+
     }
 
 

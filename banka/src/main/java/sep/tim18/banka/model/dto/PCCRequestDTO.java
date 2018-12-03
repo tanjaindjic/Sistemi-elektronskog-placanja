@@ -31,6 +31,8 @@ public class PCCRequestDTO {
 
     private String racunPrimaoca;
 
+    private String brojBankeProdavca;
+
     public PCCRequestDTO() {
     }
 
@@ -120,5 +122,13 @@ public class PCCRequestDTO {
 
     public void setRacunPrimaoca(String racunPrimaoca) {
         this.racunPrimaoca = racunPrimaoca;
+    }
+
+    public String getBrojBankeProdavca() {
+        return brojBankeProdavca;
+    }
+
+    public void setBrojBankeProdavca(String brojBankeProdavca) {
+        this.brojBankeProdavca = brojBankeProdavca;
     }
 }
