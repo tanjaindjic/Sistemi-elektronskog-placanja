@@ -18,10 +18,14 @@ mainModule.config(function($stateProvider, $urlRouterProvider) {
         templateUrl: 'appParts/paymentSentComponent/paymentSent.html',
         controller : 'paymentSentController'
     })
-    .state('paymentPassed', {
-        url: '/paymentPassed',
-        templateUrl: 'appParts/paymentPassedComponent/paymentPassed.html',
-        controller : 'paymentPassedController'
+    .state('success', {
+        url: '/success',
+        templateUrl: 'appParts/successComponent/success.html',
+        controller : 'successController'
     })
-
+    .state('failed', {
+        url: '/failed',
+        templateUrl: 'appParts/failedComponent/failed.html',
+        controller : 'failedController'
+    })
 });

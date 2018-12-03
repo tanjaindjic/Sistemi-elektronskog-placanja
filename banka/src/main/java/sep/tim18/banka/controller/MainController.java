@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import sep.tim18.banka.model.PaymentInfo;
 import sep.tim18.banka.model.Transakcija;
 import sep.tim18.banka.model.dto.PaymentDTO;
 import sep.tim18.banka.model.dto.RequestDTO;
@@ -25,18 +26,21 @@ public class MainController {
     @Autowired
     private MainService mainService;
 
-    @RequestMapping(value = "/startPayment", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/initiatePayment", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Map> request(@RequestBody RequestDTO request){
 
         Map retVal = new HashMap<String, String>();
 
-        if(!mainService.validate(request))
-            return new ResponseEntity<Map>(retVal, HttpStatus.I_AM_A_TEAPOT);//https://www.google.com/teapot :D
+        if(!mainService.validate(request)){
+            retVal.put("poruka", "MerchantID ili MerchantPass su neispravni.");
+            return new ResponseEntity<Map>(retVal, HttpStatus.BAD_REQUEST);
 
-        Transakcija t = mainService.createTransaction(request);
-        retVal.put("paymentURL", t.getPaymentURL());
-        retVal.put("paymentID", t.getId());
-        retVal.put("Location", siteAddress + "pay/" + t.getPaymentURL());
+        }
+
+        PaymentInfo paymentInfo = mainService.createPaymentDetails(request);
+
+        retVal.put("paymentURL", siteAddress + "pay/" +paymentInfo.getPaymentURL());
+        retVal.put("paymentID", paymentInfo.getPaymentID());
 
         return new ResponseEntity<Map>(retVal, HttpStatus.OK);
     }
@@ -53,12 +57,11 @@ public class MainController {
 
     @RequestMapping(value = "/pay/{token}", method = RequestMethod.POST)
     public ResponseEntity<Map> finishPayment(HttpServletResponse httpServletResponse, @PathVariable String token, @RequestBody PaymentDTO paymentDTO) throws IOException {
-        System.out.println("USAO U KONTROLER");
         if(mainService.isTokenExpired(token)){
             //TODO poslati failed na KP
             Map mapa = new HashMap();
             mapa.put("location", "/expired");
-            return new ResponseEntity<>(mapa, HttpStatus.OK);
+            return new ResponseEntity<>(mapa, HttpStatus.BAD_REQUEST);
         }
 
         return mainService.tryPayment(token, paymentDTO);

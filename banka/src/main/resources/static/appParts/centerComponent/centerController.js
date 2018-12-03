@@ -14,7 +14,7 @@ mainModule.controller('centerController', ['$scope', '$window', 'mainService', '
         var sendData = function(payload){
             $http({
                 method: 'POST',
-                url:  window.location.pathname + "pay/token", //promeniti kraj
+                url:  window.location.href,
                 data: payload
                 }).then(function successCallback(response) {
                     $location.path(response.data.location);

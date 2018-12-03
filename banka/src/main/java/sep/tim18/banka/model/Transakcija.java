@@ -11,7 +11,7 @@ public class Transakcija {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long acquirerOrderID;
 
     @ManyToOne
     private Klijent uplacuje;
@@ -21,9 +21,7 @@ public class Transakcija {
 
     private String paymentURL;
 
-    private DateTime vremeKreiranja;
-
-    private DateTime vremeIzvrsenja;
+    private DateTime acquirerTimestamp;
 
     private Status status;
 
@@ -38,12 +36,10 @@ public class Transakcija {
     private String failedURL;
 
     private String errorURL;
-
-    private Long parentTransactionId;
     //ovo pise u specifikaciji da se salje sa KP
-    private Long merchantOrderId; //id transakcije sa KP
+    private Long merchantOrderId; //id transakcije sa NC
 
-    private DateTime merchantTimestamp; //timestamp KP transakcije
+    private DateTime merchantTimestamp; //timestamp NC transakcije
 
     public Transakcija() {
     }
@@ -52,8 +48,7 @@ public class Transakcija {
         this.uplacuje = original.uplacuje;
         this.prima = original.prima;
         this.paymentURL = original.paymentURL;
-        this.vremeKreiranja = new DateTime();
-        this.vremeIzvrsenja = null;
+        this.acquirerTimestamp = new DateTime();
         this.status = original.status;
         this.racunPrimaoca = original.racunPrimaoca;
         this.racunPosiljaoca = original.racunPosiljaoca;
@@ -63,15 +58,14 @@ public class Transakcija {
         this.errorURL = original.errorURL;
         this.merchantOrderId = original.merchantOrderId;
         this.merchantTimestamp = original.merchantTimestamp;
-        this.parentTransactionId = original.id;
     }
 
-    public Long getId() {
-        return id;
+    public Long getAcquirerOrderID() {
+        return acquirerOrderID;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setAcquirerOrderID(Long id) {
+        this.acquirerOrderID = id;
     }
 
     public Klijent getUplacuje() {
@@ -99,20 +93,12 @@ public class Transakcija {
         this.paymentURL = paymentURL;
     }
 
-    public DateTime getVremeKreiranja() {
-        return vremeKreiranja;
+    public DateTime getAcquirerTimestamp() {
+        return acquirerTimestamp;
     }
 
-    public void setVremeKreiranja(DateTime vremeKreiranja) {
-        this.vremeKreiranja = vremeKreiranja;
-    }
-
-    public DateTime getVremeIzvrsenja() {
-        return vremeIzvrsenja;
-    }
-
-    public void setVremeIzvrsenja(DateTime vremeIzvrsenja) {
-        this.vremeIzvrsenja = vremeIzvrsenja;
+    public void setAcquirerTimestamp(DateTime vremeKreiranja) {
+        this.acquirerTimestamp = vremeKreiranja;
     }
 
     public Status getStatus() {
@@ -169,14 +155,6 @@ public class Transakcija {
 
     public void setErrorURL(String errorURL) {
         this.errorURL = errorURL;
-    }
-
-    public Long getParentTransactionId() {
-        return parentTransactionId;
-    }
-
-    public void setParentTransactionId(Long parentTransactionId) {
-        this.parentTransactionId = parentTransactionId;
     }
 
     public Long getMerchantOrderId() {

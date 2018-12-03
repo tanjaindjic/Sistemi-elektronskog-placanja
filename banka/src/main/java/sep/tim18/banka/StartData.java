@@ -1,6 +1,7 @@
 package sep.tim18.banka;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import sep.tim18.banka.model.Kartica;
 import sep.tim18.banka.model.Klijent;
@@ -13,6 +14,10 @@ import java.util.ArrayList;
 
 @Component
 public class StartData {
+
+    @Value("${bankNumber}")
+    private String bankNumber;
+
     @Autowired
     private TransakcijaRepository transakcijaRepository;
 
@@ -31,9 +36,9 @@ public class StartData {
         klijentRepository.save(klijent2);
         klijentRepository.save(klijent3);
 
-        Kartica kartica1 = new Kartica("123123123", "111", "01/25", "111222333", 100000000000F, 0F, klijent1 );
-        Kartica kartica2 = new Kartica("234234234", "222", "01/25", "222333444", 100000000000F, 0F, klijent2 );
-        Kartica kartica3 = new Kartica("345345345", "333", "01/25", "333444555", 100000000000F, 0F, klijent3 );
+        Kartica kartica1 = new Kartica(bankNumber + "2233334444", "111", "01/25", bankNumber + "001", 100000000000F, 0F, klijent1 );
+        Kartica kartica2 = new Kartica(bankNumber + "3344445555", "222", "01/25", bankNumber + "002", 100000000000F, 0F, klijent2 );
+        Kartica kartica3 = new Kartica(bankNumber + "4455556666", "333", "01/25", bankNumber + "003", 100000000000F, 0F, klijent3 );
         karticaRepository.save(kartica1);
         karticaRepository.save(kartica2);
         karticaRepository.save(kartica3);

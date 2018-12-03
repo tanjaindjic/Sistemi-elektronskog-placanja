@@ -25,6 +25,10 @@ public class PCCrequestDTO {
 
     private int godina;
 
+    private String returnURL;
+
+    private Float iznos;
+
     public PCCrequestDTO() {
     }
 
@@ -90,5 +94,21 @@ public class PCCrequestDTO {
 
     public void setGodina(int godina) {
         this.godina = godina;
+    }
+
+    public String getReturnURL() {
+        return returnURL;
+    }
+
+    public void setReturnURL(String returnURL) {
+        this.returnURL = returnURL;
+    }
+
+    public void setIznos(Float iznos) {
+        this.iznos = iznos;
+    }
+
+    public Float getIznos() {
+        return iznos;
     }
 }
