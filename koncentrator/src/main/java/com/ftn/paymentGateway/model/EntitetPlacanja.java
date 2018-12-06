@@ -12,7 +12,7 @@ public class EntitetPlacanja {
 	@Column(nullable = false, length = 120)
 	private String naziv;
 	
-	@Column(nullable = false, length = 10)
+	@Column(nullable = false, length = 10, unique = true)
 	private String identifikacioniKod;
 	
 	@Column(nullable = false, length = 10)

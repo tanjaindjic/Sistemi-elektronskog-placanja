@@ -10,6 +10,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 import com.ftn.paymentGateway.enumerations.TransakcijaStatus;
 
@@ -30,6 +32,7 @@ public class Transakcija {
 	private double iznos;
 	
 	@Column(nullable = false)
+	@Temporal(TemporalType.DATE)
 	private Date vreme;
 	
 	@Column(nullable = false)
@@ -39,7 +42,7 @@ public class Transakcija {
 	@Column(nullable = false, length = 90)
 	private String jedinstveniToken;
 	
-	@ManyToOne(optional = true)
+	@ManyToOne(optional = false)
 	private EntitetPlacanja entitetPlacanja;
 	
 	@ManyToOne(optional = true)

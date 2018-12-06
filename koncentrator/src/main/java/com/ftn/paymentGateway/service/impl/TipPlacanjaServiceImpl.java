@@ -24,6 +24,12 @@ public class TipPlacanjaServiceImpl implements TipPlacanjaService{
 		
 		return tipPlacanjaRepository.getOne(id);
 	}
+
+	@Override
+	public TipPlacanja getByKod(String kod) {
+		
+		return tipPlacanjaRepository.findByKod(kod);
+	}
 	
 	
 

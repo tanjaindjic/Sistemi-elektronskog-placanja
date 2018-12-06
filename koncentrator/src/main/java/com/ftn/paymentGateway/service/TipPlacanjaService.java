@@ -8,4 +8,6 @@ public interface TipPlacanjaService {
 	
 	public TipPlacanja getById(Long id);
 	
+	public TipPlacanja getByKod(String kod);
+	
 }

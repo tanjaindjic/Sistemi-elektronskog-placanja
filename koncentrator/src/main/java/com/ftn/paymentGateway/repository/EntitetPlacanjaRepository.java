@@ -6,4 +6,6 @@ import com.ftn.paymentGateway.model.EntitetPlacanja;
 
 public interface EntitetPlacanjaRepository extends JpaRepository<EntitetPlacanja, Long>{
 
+	public EntitetPlacanja findByIdentifikacioniKod(String identifikacioniKod);
+	
 }
