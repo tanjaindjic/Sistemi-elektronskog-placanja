@@ -87,6 +87,7 @@ public class StartData {
 		String token2 = randomStringGenerator.genRandomString(90);
 		String token3 = randomStringGenerator.genRandomString(90);
 		
+		/* Transakcije */
 		Transakcija tr1 = new Transakcija(null, new Long(1), null, 1750.00, new Date(System.currentTimeMillis()), TransakcijaStatus.C, token1, ep3, tp1);
 		Transakcija tr2 = new Transakcija(null, new Long(2), null, 500.00, new Date(System.currentTimeMillis()), TransakcijaStatus.C, token2, ep4, tp1);
 		Transakcija tr3 = new Transakcija(null, new Long(3), null, 3200.00, new Date(System.currentTimeMillis()), TransakcijaStatus.C, token3, ep5, tp1);
