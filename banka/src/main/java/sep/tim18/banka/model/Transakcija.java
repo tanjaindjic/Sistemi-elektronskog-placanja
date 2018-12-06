@@ -13,32 +13,46 @@ public class Transakcija {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long orderID;
 
-    @ManyToOne
+
+    @ManyToOne(optional=false)
     private Klijent uplacuje;
 
-    @ManyToOne
+    @ManyToOne(optional=false)
     private Klijent prima;
 
+    @Column(nullable = false, length=256)
     private String paymentURL; //ne treba za issuer transakciju jer je ovo vezano samo za token
 
+    @Column(nullable = true)
     private DateTime timestamp; //ako transakcija u banci prodavca onda Acquirer timestamp a ako je od kupca onda je issuer timestamp
 
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private Status status;
 
+    @Column(nullable = false, length=18)
     private String racunPrimaoca;
 
+    @Column(nullable = false, length=18)
     private String racunPosiljaoca;
 
+    @Column(nullable = false)
     private Float iznos;
 
+    @Column(nullable = false)
     private String successURL;
 
+    @Column(nullable = false)
     private String failedURL;
 
+    @Column(nullable = false)
     private String errorURL;
+    
+    @Column(nullable = false)
     //ovo pise u specifikaciji da se salje sa KP
     private Long merchantOrderId; //id transakcije sa NC
 
+    @Column(nullable = false)
     private DateTime merchantTimestamp; //timestamp NC transakcije
 
     public Transakcija() {

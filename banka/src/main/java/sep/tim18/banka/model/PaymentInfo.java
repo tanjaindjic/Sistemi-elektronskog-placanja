@@ -1,5 +1,6 @@
 package sep.tim18.banka.model;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -12,6 +13,7 @@ public class PaymentInfo {
     @GeneratedValue
     private Long paymentID;
 
+    @Column(nullable = false, length=256)
     private String paymentURL;
 
     @OneToOne

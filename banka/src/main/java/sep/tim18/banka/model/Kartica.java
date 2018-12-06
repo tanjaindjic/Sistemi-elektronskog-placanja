@@ -10,18 +10,25 @@ public class Kartica {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
+	@Column(nullable = false)
     @Length(min = 8, max = 19)
     private String pan;
 
+	@Column(nullable = false)
     @Length(min = 3, max = 4)
     private String ccv;
 
+	@Column(nullable = false, length=4)
     private String expDate;
 
+	@Column(nullable = false)
+    @Length(max = 18)
     private String brRacuna;
 
+	@Column(nullable = false)
     private Float raspolozivaSredstva;
 
+	@Column(nullable = false)
     private Float rezervisanaSredstva;
 
     @ManyToOne
