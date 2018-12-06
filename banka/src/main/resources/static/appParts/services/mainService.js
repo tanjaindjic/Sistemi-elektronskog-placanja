@@ -43,7 +43,7 @@ mainModule.service('mainService', [ '$http','jwtHelper','$window','$localStorage
             if(cardNumber<0)
                 return "Broj kartice kod nije ispravan.";
 
-            if(cardNumber.toString().length<13)
+            if(cardNumber.toString().length<8)
                 return "Broj kartice je previše kratak.";
 
             if(cvv.toString().length<3)

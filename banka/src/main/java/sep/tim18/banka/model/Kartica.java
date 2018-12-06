@@ -2,43 +2,49 @@ package sep.tim18.banka.model;
 
 import org.hibernate.validator.constraints.Length;
 
-import javax.persistence.Entity;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity
 public class Kartica {
-    @GeneratedValue
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Length(min = 16, max = 16)
+	@Column(nullable = false)
+    @Length(min = 8, max = 19)
     private String pan;
 
+	@Column(nullable = false)
     @Length(min = 3, max = 4)
     private String ccv;
 
-    @Length(min = 4, max = 4)
+	@Column(nullable = false, length=4)
     private String expDate;
 
-    @Length(min = 5, max = 18)
+	@Column(nullable = false)
+    @Length(max = 18)
     private String brRacuna;
 
+	@Column(nullable = false)
     private Float raspolozivaSredstva;
 
+	@Column(nullable = false)
     private Float rezervisanaSredstva;
+
+    @ManyToOne
+    private Klijent vlasnik;
 
     public Kartica() {
     }
 
-    public Kartica(@Length(min = 16, max = 16) String pan, @Length(min = 3, max = 4) String ccv, @Length(min = 4, max = 4) String expDate, @Length(min = 5, max = 18) String brRacuna, Float raspolozivaSredstva, Float rezervisanaSredstva) {
+    public Kartica(@Length(min = 8, max = 19) String pan, @Length(min = 3, max = 4) String ccv, String expDate, String brRacuna, Float raspolozivaSredstva, Float rezervisanaSredstva, Klijent vlasnik) {
         this.pan = pan;
         this.ccv = ccv;
         this.expDate = expDate;
         this.brRacuna = brRacuna;
         this.raspolozivaSredstva = raspolozivaSredstva;
         this.rezervisanaSredstva = rezervisanaSredstva;
+        this.vlasnik = vlasnik;
     }
 
     public String getPan() {
@@ -95,5 +101,13 @@ public class Kartica {
 
     public void setId(long id) {
         this.id = id;
+    }
+
+    public Klijent getVlasnik() {
+        return vlasnik;
+    }
+
+    public void setVlasnik(Klijent vlasnik) {
+        this.vlasnik = vlasnik;
     }
 }

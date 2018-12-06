@@ -1,19 +1,21 @@
 package sep.tim18.banka.model.dto;
 
+import org.joda.time.DateTime;
+
 import java.sql.Time;
 import java.sql.Timestamp;
 
-public class RequestDTO {
+public class KPRequestDTO {
     private String merchantID;
     private String merchantPass;
     private Float iznos;
-    private int merchantOrderID;
-    private Timestamp merchantTimestamp;
+    private Long merchantOrderID;
+    private DateTime merchantTimestamp;
     private String successURL;
     private String failedURL;
     private String errorURL;
 
-    public RequestDTO() {
+    public KPRequestDTO() {
     }
 
     public String getMerchantID() {
@@ -40,19 +42,19 @@ public class RequestDTO {
         this.iznos = iznos;
     }
 
-    public int getMerchantOrderID() {
+    public Long getMerchantOrderID() {
         return merchantOrderID;
     }
 
-    public void setMerchantOrderID(int merchantOrderID) {
+    public void setMerchantOrderID(Long merchantOrderID) {
         this.merchantOrderID = merchantOrderID;
     }
 
-    public Timestamp getMerchantTimestamp() {
+    public DateTime getMerchantTimestamp() {
         return merchantTimestamp;
     }
 
-    public void setMerchantTimestamp(Timestamp merchantTimestamp) {
+    public void setMerchantTimestamp(DateTime merchantTimestamp) {
         this.merchantTimestamp = merchantTimestamp;
     }
 

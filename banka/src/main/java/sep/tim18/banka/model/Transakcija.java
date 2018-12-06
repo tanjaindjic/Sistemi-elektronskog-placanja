@@ -1,41 +1,85 @@
 package sep.tim18.banka.model;
 
-import org.hibernate.validator.constraints.Length;
 import sep.tim18.banka.model.enums.Status;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
+import javax.persistence.*;
+
 import org.joda.time.DateTime;
 
 @Entity
 public class Transakcija {
 
-    @GeneratedValue
     @Id
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long orderID;
 
-    @ManyToOne
+
+    @ManyToOne(optional=false)
     private Klijent uplacuje;
 
-    @ManyToOne
+    @ManyToOne(optional=false)
     private Klijent prima;
 
-    private String paymentURL;
+    @Column(nullable = false, length=256)
+    private String paymentURL; //ne treba za issuer transakciju jer je ovo vezano samo za token
 
-    private DateTime vremeKreiranja;
+    @Column(nullable = true)
+    private DateTime timestamp; //ako transakcija u banci prodavca onda Acquirer timestamp a ako je od kupca onda je issuer timestamp
 
-    private DateTime vremeIzvrsenja;
-
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private Status status;
 
-    public Long getId() {
-        return id;
+    @Column(nullable = false, length=18)
+    private String racunPrimaoca;
+
+    @Column(nullable = false, length=18)
+    private String racunPosiljaoca;
+
+    @Column(nullable = false)
+    private Float iznos;
+
+    @Column(nullable = false)
+    private String successURL;
+
+    @Column(nullable = false)
+    private String failedURL;
+
+    @Column(nullable = false)
+    private String errorURL;
+    
+    @Column(nullable = false)
+    //ovo pise u specifikaciji da se salje sa KP
+    private Long merchantOrderId; //id transakcije sa NC
+
+    @Column(nullable = false)
+    private DateTime merchantTimestamp; //timestamp NC transakcije
+
+    public Transakcija() {
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public Transakcija(Transakcija original) {
+        this.uplacuje = original.uplacuje;
+        this.prima = original.prima;
+        this.paymentURL = original.paymentURL;
+        this.timestamp = new DateTime();
+        this.status = original.status;
+        this.racunPrimaoca = original.racunPrimaoca;
+        this.racunPosiljaoca = original.racunPosiljaoca;
+        this.iznos = original.iznos;
+        this.successURL = original.successURL;
+        this.failedURL = original.failedURL;
+        this.errorURL = original.errorURL;
+        this.merchantOrderId = original.merchantOrderId;
+        this.merchantTimestamp = original.merchantTimestamp;
+    }
+
+    public Long getOrderID() {
+        return orderID;
+    }
+
+    public void setOrderID(Long id) {
+        this.orderID = id;
     }
 
     public Klijent getUplacuje() {
@@ -54,16 +98,6 @@ public class Transakcija {
         this.prima = prima;
     }
 
-    @Length(max=18)
-    private String racunPrimaoca;
-
-    @Length(max=18)
-    private String racunPosiljaoca;
-
-    private Float iznos;
-
-    public Transakcija() {
-    }
 
     public String getPaymentURL() {
         return paymentURL;
@@ -73,20 +107,12 @@ public class Transakcija {
         this.paymentURL = paymentURL;
     }
 
-    public DateTime getVremeKreiranja() {
-        return vremeKreiranja;
+    public DateTime getTimestamp() {
+        return timestamp;
     }
 
-    public void setVremeKreiranja(DateTime vremeKreiranja) {
-        this.vremeKreiranja = vremeKreiranja;
-    }
-
-    public DateTime getVremeIzvrsenja() {
-        return vremeIzvrsenja;
-    }
-
-    public void setVremeIzvrsenja(DateTime vremeIzvrsenja) {
-        this.vremeIzvrsenja = vremeIzvrsenja;
+    public void setTimestamp(DateTime vremeKreiranja) {
+        this.timestamp = vremeKreiranja;
     }
 
     public Status getStatus() {
@@ -119,6 +145,46 @@ public class Transakcija {
 
     public void setIznos(Float iznos) {
         this.iznos = iznos;
+    }
+
+    public String getSuccessURL() {
+        return successURL;
+    }
+
+    public void setSuccessURL(String successURL) {
+        this.successURL = successURL;
+    }
+
+    public String getFailedURL() {
+        return failedURL;
+    }
+
+    public void setFailedURL(String failedURL) {
+        this.failedURL = failedURL;
+    }
+
+    public String getErrorURL() {
+        return errorURL;
+    }
+
+    public void setErrorURL(String errorURL) {
+        this.errorURL = errorURL;
+    }
+
+    public Long getMerchantOrderId() {
+        return merchantOrderId;
+    }
+
+    public void setMerchantOrderId(Long merchantOrderId) {
+        this.merchantOrderId = merchantOrderId;
+    }
+
+    public DateTime getMerchantTimestamp() {
+        return merchantTimestamp;
+    }
+
+    public void setMerchantTimestamp(DateTime merchantTimestamp) {
+        this.merchantTimestamp = merchantTimestamp;
     }
 }
 

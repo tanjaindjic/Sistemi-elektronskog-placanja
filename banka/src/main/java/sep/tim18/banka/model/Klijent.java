@@ -1,23 +1,30 @@
 package sep.tim18.banka.model;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
 import java.util.List;
 
 @Entity
 public class Klijent {
 
-    @GeneratedValue
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
+    
+    @Column(nullable = true, length=90)
     private String ime;
+
+    @Column(nullable = true, length=90)
     private String prezime;
+
+    @Column(nullable = true, length=30)
     private String merchantID;
+
+    @Column(nullable = true, length=100)
     private String merchantPass;
+
+    @Column(nullable = false, length=90)
     private String email;
+    
     @OneToMany
     private List<Kartica> kartice;
 
