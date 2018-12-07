@@ -1,7 +1,9 @@
 package com.ftn.paymentGateway.controller;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLEncoder;
 
 import javax.validation.Valid;
 
@@ -52,7 +54,7 @@ public class PaymentController {
 	
 	
 	@RequestMapping(value = "sendPaymentRequest", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<PaymentResponseDTO> recivePayment(@Valid @RequestBody PaymentRequestDTO paymentRequest, BindingResult bindingResult) throws URISyntaxException {
+	public ResponseEntity<PaymentResponseDTO> recivePayment(@Valid @RequestBody PaymentRequestDTO paymentRequest, BindingResult bindingResult) throws URISyntaxException, UnsupportedEncodingException {
 		
 		if(bindingResult.hasErrors()) {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -70,9 +72,13 @@ public class PaymentController {
 			return new ResponseEntity<PaymentResponseDTO>(new PaymentResponseDTO(paymentRequest.getMaticnaTransakcija(), TransakcijaStatus.N, "Neuspesno placanje, pokusajte kasnije."), HttpStatus.OK);
 		}
 		
-		URI theUrl = new URI(redirectionUrl+novaTransakcija.getJedinstveniToken());
-	    HttpHeaders httpHeaders = new HttpHeaders();
-	    httpHeaders.setLocation(theUrl);
+		System.out.println(redirectionUrl+novaTransakcija.getJedinstveniToken());
+		
+		URI theUrl = new URI(URLEncoder.encode(redirectionUrl+novaTransakcija.getJedinstveniToken(), java.nio.charset.StandardCharsets.UTF_8.toString()));
+		HttpHeaders httpHeaders = new HttpHeaders();
+		httpHeaders.setLocation(theUrl);
+		
+		System.out.println(theUrl.getPath());
 		
 		return new ResponseEntity<PaymentResponseDTO>(new PaymentResponseDTO(paymentRequest.getMaticnaTransakcija(), TransakcijaStatus.C, "Transakcija je uspesno zabelezena, bicete preusmereni na panel za placanje."), httpHeaders, HttpStatus.OK);
 	}

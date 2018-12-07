@@ -3,6 +3,7 @@ package com.ftn.paymentGateway.service.impl;
 import java.util.Date;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.ftn.paymentGateway.dto.PaymentRequestDTO;
@@ -21,6 +22,9 @@ public class TransakcijaServiceImpl implements TransakcijaService{
 	
 	@Autowired
 	private RandomStringGenerator randomStringGenerator;
+	
+	@Value("${frontend.tokenLength}")
+	private int len;
 
 	@Override
 	public Transakcija getById(Long id) {
@@ -35,10 +39,27 @@ public class TransakcijaServiceImpl implements TransakcijaService{
 			return null;
 		}
 		
+		String uniqueToken = generateUniqueToken();
+		
 		Transakcija newPayment = new Transakcija(null, paymentInfo.getMaticnaTransakcija(), null, paymentInfo.getIznos(),
-				new Date(System.currentTimeMillis()), TransakcijaStatus.C, randomStringGenerator.genRandomString(90), entitetPlacanja, null);
+				new Date(System.currentTimeMillis()), TransakcijaStatus.C, uniqueToken, entitetPlacanja, null);
 		
 		return transakcijaRepository.save(newPayment);
+	}
+
+	@Override
+	public Transakcija getByJedinstveniToken(String jedinstveniToken) {
+		
+		return transakcijaRepository.findByJedinstveniToken(jedinstveniToken);
+	}
+	
+	private String generateUniqueToken() {
+		String retVal = randomStringGenerator.genRandomString(len);
+		
+		if(transakcijaRepository.findByJedinstveniToken(retVal) == null) {
+			return retVal;
+		}
+		return generateUniqueToken();
 	}
 
 }

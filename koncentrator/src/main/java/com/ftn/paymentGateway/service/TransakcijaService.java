@@ -10,4 +10,6 @@ public interface TransakcijaService {
 	
 	public Transakcija insertNewTransaction(EntitetPlacanja entitetPlacanja, PaymentRequestDTO paymentInfo);
 	
+	public Transakcija getByJedinstveniToken(String jedinstveniToken);
+	
 }

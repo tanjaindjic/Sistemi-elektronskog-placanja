@@ -6,4 +6,6 @@ import com.ftn.paymentGateway.model.Transakcija;
 
 public interface TransakcijaRepository extends JpaRepository<Transakcija, Long>{
 
+	public Transakcija findByJedinstveniToken(String jedinstveniToken);
+	
 }

@@ -14,4 +14,5 @@ public interface PodrzanoPlacanjeService {
 	
 	public ArrayList<PodrzanoPlacanje> getByEntitetPlacanjaAndTipPlacanja(EntitetPlacanja entitetPlacanja, TipPlacanja tipPlacanja);
 	
+	public ArrayList<PodrzanoPlacanje> getByEntitetPlacanja(EntitetPlacanja entitetPlacanja);
 }

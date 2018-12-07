@@ -39,7 +39,7 @@ public class Transakcija {
 	@Enumerated(EnumType.STRING)
 	private TransakcijaStatus status;
 	
-	@Column(nullable = false, length = 90)
+	@Column(nullable = false, length = 90, unique = true)
 	private String jedinstveniToken;
 	
 	@ManyToOne(optional = false)

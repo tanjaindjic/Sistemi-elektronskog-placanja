@@ -1,8 +1,8 @@
 (function() { "use strict";
 
-    mainModule.controller('mainPanelController', [ '$scope','$window','$localStorage','$location', 'mainService',
-        function($scope, $window, $localStorage, $location, mainService) {
-
+    mainModule.controller('mainPanelController', [ '$scope','$window','$localStorage','$location', '$stateParams','mainService',
+        function($scope, $window, $localStorage, $location, $stateParams, mainService) {
+            $scope.token = $stateParams.token;
             $scope.paymentIdx = -1;
 
             $scope.selectPayment = function(idx){

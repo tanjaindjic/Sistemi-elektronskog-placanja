@@ -12,4 +12,6 @@ public interface PodrzanoPlacanjeRepository extends JpaRepository<PodrzanoPlacan
 
 	public ArrayList<PodrzanoPlacanje> findByEntitetPlacanjaAndTipPlacanja(EntitetPlacanja entitetPlacanja, TipPlacanja tipPlacanja);
 	
+	public ArrayList<PodrzanoPlacanje> findByEntitetPlacanja(EntitetPlacanja entitetPlacanja);
+	
 }

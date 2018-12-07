@@ -92,9 +92,14 @@ public class StartData {
 		Transakcija tr2 = new Transakcija(null, new Long(2), null, 500.00, new Date(System.currentTimeMillis()), TransakcijaStatus.C, token2, ep4, tp1);
 		Transakcija tr3 = new Transakcija(null, new Long(3), null, 3200.00, new Date(System.currentTimeMillis()), TransakcijaStatus.C, token3, ep5, tp1);
 		
+		Transakcija tr4 = new Transakcija(null, new Long(4), null, 145.00, new Date(System.currentTimeMillis()), TransakcijaStatus.C, "AAA", ep3, tp1);
+		Transakcija tr5 = new Transakcija(null, new Long(5), null, 10.00, new Date(System.currentTimeMillis()), TransakcijaStatus.C, "BBB", ep4, tp1);
+		
 		transakcijaRepository.save(tr1);
 		transakcijaRepository.save(tr2);
 		transakcijaRepository.save(tr3);
+		transakcijaRepository.save(tr4);
+		transakcijaRepository.save(tr5);
 	}
 
 }

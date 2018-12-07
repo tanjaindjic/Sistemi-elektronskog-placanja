@@ -8,6 +8,10 @@ mainModule.config(function($stateProvider, $urlRouterProvider) {
 
     $stateProvider.state('home', {
         url: '/home',
+        templateUrl : 'appParts/welcomePage/welcomePage.html'
+    })
+    .state('payment', {
+        url: '/payment/{token}',
         templateUrl : 'appParts/mainPanel/mainPanel.html',
         controller : 'mainPanelController'
     })

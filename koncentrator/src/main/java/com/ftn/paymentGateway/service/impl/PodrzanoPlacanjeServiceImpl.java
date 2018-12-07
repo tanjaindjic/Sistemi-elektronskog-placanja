@@ -35,5 +35,11 @@ public class PodrzanoPlacanjeServiceImpl implements PodrzanoPlacanjeService{
 		
 		return podrzanoPlacanjeRepository.findByEntitetPlacanjaAndTipPlacanja(entitetPlacanja, tipPlacanja);
 	}
+
+	@Override
+	public ArrayList<PodrzanoPlacanje> getByEntitetPlacanja(EntitetPlacanja entitetPlacanja) {
+		
+		return podrzanoPlacanjeRepository.findByEntitetPlacanja(entitetPlacanja);
+	}
 	
 }
