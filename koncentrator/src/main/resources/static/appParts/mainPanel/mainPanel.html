@@ -1,4 +1,4 @@
-<div class="container">
+<div class="container" ng-init="init()">
     <div class="row">
         <div class="col-md-2 col-lg-2"></div>
         <div class="col-xs-12 col-md-8 col-lg-8 gap-top-lg div-padding-sm card card-block bg-faded">
@@ -9,19 +9,9 @@
                     </h3>
                 </div>
                 <div class="panel-body">
-                    <div class="text-center gap-top-md div-padding-sm div-padding-payments">
-                        <div ng-click="selectPayment(1)" ng-class="{'bg1': paymentIdx === 1}">
-                            <img class="div-padding-sm" src="../../paymentGateway/assets/images/cc.jpg" height="120" width="180" />
-                        </div>
-                    </div>
-                    <div class="text-center gap-top-md div-padding-sm div-padding-payments">
-                        <div ng-click="selectPayment(2)" ng-class="{'bg1': paymentIdx === 2}">
-                            <img class="div-padding-sm" src="../../paymentGateway/assets/images/pp.png" height="100" width="250" />
-                        </div>
-                    </div>
-                    <div class="text-center gap-top-md div-padding-sm div-padding-payments">
-                        <div ng-click="selectPayment(3)" ng-class="{'bg1': paymentIdx === 3}">
-                            <img class="div-padding-sm" src="../../paymentGateway/assets/images/bc.png" height="100" width="250" />
+                    <div ng-repeat="tipPlacanja in tipoviPlacanja" class="text-center gap-top-md div-padding-sm div-padding-payments">
+                        <div ng-click="selectPayment(tipPlacanja.id)" ng-class="{'bg1': paymentIdx === tipPlacanja.id}">
+                            <img class="div-padding-sm" ng-src="{{tipPlacanja.putanjaSlike}}" height="100" width="180" />
                         </div>
                     </div>
                 </div>

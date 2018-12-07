@@ -4,6 +4,19 @@
         function($scope, $window, $localStorage, $location, $stateParams, mainService) {
             $scope.token = $stateParams.token;
             $scope.paymentIdx = -1;
+            $scope.tipoviPlacanja = [];
+
+            $scope.init = function(){
+
+                mainService.dobaviTipovePlacanja($scope.token).then(
+                    function successCallback(response){
+                        $scope.tipoviPlacanja = response.data;
+                    },
+                    function errorCallback(response){
+                        alert("Greska prilikom dobavljanja tipova placanja.");
+                    }
+                );
+            }
 
             $scope.selectPayment = function(idx){
                 if(!isNaN(idx)){
@@ -14,15 +27,7 @@
             }
 
             $scope.potvrdi = function(){
-                
-                mainService.testiraj().then( 
-                    function(response){
-                        alert(response.data)
-                    },
-                    function(error){
-                        alert('Greska prilikom potvrde placanja.');
-                    }
-                );
+                alert("To be continued...")
             }            
 
         }

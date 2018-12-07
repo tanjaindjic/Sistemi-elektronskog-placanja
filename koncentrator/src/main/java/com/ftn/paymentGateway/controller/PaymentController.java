@@ -72,15 +72,10 @@ public class PaymentController {
 			return new ResponseEntity<PaymentResponseDTO>(new PaymentResponseDTO(paymentRequest.getMaticnaTransakcija(), TransakcijaStatus.N, "Neuspesno placanje, pokusajte kasnije."), HttpStatus.OK);
 		}
 		
-		System.out.println(redirectionUrl+novaTransakcija.getJedinstveniToken());
+		HttpHeaders headers = new HttpHeaders();
+		headers.add("Location", redirectionUrl+novaTransakcija.getJedinstveniToken());
 		
-		URI theUrl = new URI(URLEncoder.encode(redirectionUrl+novaTransakcija.getJedinstveniToken(), java.nio.charset.StandardCharsets.UTF_8.toString()));
-		HttpHeaders httpHeaders = new HttpHeaders();
-		httpHeaders.setLocation(theUrl);
-		
-		System.out.println(theUrl.getPath());
-		
-		return new ResponseEntity<PaymentResponseDTO>(new PaymentResponseDTO(paymentRequest.getMaticnaTransakcija(), TransakcijaStatus.C, "Transakcija je uspesno zabelezena, bicete preusmereni na panel za placanje."), httpHeaders, HttpStatus.OK);
+		return new ResponseEntity<PaymentResponseDTO>(new PaymentResponseDTO(paymentRequest.getMaticnaTransakcija(), TransakcijaStatus.C, "Transakcija je uspesno zabelezena, bicete preusmereni na panel za placanje."), headers, HttpStatus.FOUND);
 	}
 
 }

@@ -3,11 +3,11 @@
     mainModule.service('mainService', [ '$http', '$window','$localStorage', 
         function($http, $window, $localStorage) {
 
-            this.testiraj = function(idNaloga){
+            this.dobaviTipovePlacanja = function(token){
 
                 var req = {
                     method: 'GET',
-                    url: ROOT_PATH+'test',
+                    url: ROOT_PATH+'getSupportedPaymentTypes/'+token,
                 }
                 return $http(req);
             }

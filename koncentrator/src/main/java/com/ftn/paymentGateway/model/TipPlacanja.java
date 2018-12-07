@@ -17,17 +17,21 @@ public class TipPlacanja {
 	
 	@Column(nullable = true, length = 120)
 	private String klasa;
+	
+	@Column(nullable = true)
+	private String putanjaSlike;
 
 	public TipPlacanja() {
 		super();
 	}
 
-	public TipPlacanja(Long id, String kod, String naziv, String klasa) {
+	public TipPlacanja(Long id, String kod, String naziv, String klasa, String putanjaSlike) {
 		super();
 		this.id = id;
 		this.kod = kod;
 		this.naziv = naziv;
 		this.klasa = klasa;
+		this.putanjaSlike = putanjaSlike;
 	}
 
 	public Long getId() {
@@ -60,6 +64,14 @@ public class TipPlacanja {
 
 	public void setKlasa(String klasa) {
 		this.klasa = klasa;
+	}
+
+	public String getPutanjaSlike() {
+		return putanjaSlike;
+	}
+
+	public void setPutanjaSlike(String putanjaSlike) {
+		this.putanjaSlike = putanjaSlike;
 	}
 	
 }

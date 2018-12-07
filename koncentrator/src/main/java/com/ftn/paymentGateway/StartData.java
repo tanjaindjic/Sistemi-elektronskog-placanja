@@ -40,9 +40,9 @@ public class StartData {
 	
 	@PostConstruct
 	private void init() {
-		TipPlacanja tp1 = new TipPlacanja(null, "CCP", "Kreditna Kartica", "CreditCardPayment");
-		TipPlacanja tp2 = new TipPlacanja(null, "PPP", "Pay Pal", "PayPalPayment");
-		TipPlacanja tp3 = new TipPlacanja(null, "BCP", "Bitcoin", "BitcoinPayment");
+		TipPlacanja tp1 = new TipPlacanja(null, "CCP", "Kreditna Kartica", "CreditCardPayment", "../../paymentGateway/assets/images/cc.jpg");
+		TipPlacanja tp2 = new TipPlacanja(null, "PPP", "Pay Pal", "PayPalPayment", "../../paymentGateway/assets/images/pp.png");
+		TipPlacanja tp3 = new TipPlacanja(null, "BCP", "Bitcoin", "BitcoinPayment", "../../paymentGateway/assets/images/bc.png");
 		
 		tp1 = tipPlacanjaRepository.save(tp1);
 		tp2 = tipPlacanjaRepository.save(tp2);
@@ -76,12 +76,18 @@ public class StartData {
 		PodrzanoPlacanje pp5 = new PodrzanoPlacanje(null, "Merchant1", "pass1", ep3, tp2);
 		PodrzanoPlacanje pp6 = new PodrzanoPlacanje(null, "Merchant1", "pass1", ep5, tp2);
 		
+		/* Bitcoin */
+		PodrzanoPlacanje pp7 = new PodrzanoPlacanje(null, "Merchant1", "pass1", ep3, tp3);
+		PodrzanoPlacanje pp8 = new PodrzanoPlacanje(null, "Merchant1", "pass1", ep4, tp3);
+		
 		podrzanoPlacanjeRepository.save(pp1);
 		podrzanoPlacanjeRepository.save(pp2);
 		podrzanoPlacanjeRepository.save(pp3);
 		podrzanoPlacanjeRepository.save(pp4);
 		podrzanoPlacanjeRepository.save(pp5);
 		podrzanoPlacanjeRepository.save(pp6);
+		podrzanoPlacanjeRepository.save(pp7);
+		podrzanoPlacanjeRepository.save(pp8);
 		
 		String token1 = randomStringGenerator.genRandomString(90);
 		String token2 = randomStringGenerator.genRandomString(90);
