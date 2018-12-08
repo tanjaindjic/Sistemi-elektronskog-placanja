@@ -18,7 +18,7 @@ public class Kartica {
     @Length(min = 3, max = 4)
     private String ccv;
 
-	@Column(nullable = false, length=4)
+	@Column(nullable = false, length=5)
     private String expDate;
 
 	@Column(nullable = false)

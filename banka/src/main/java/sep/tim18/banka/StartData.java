@@ -1,17 +1,18 @@
 package sep.tim18.banka;
 
+import java.util.ArrayList;
+
+import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
+
 import sep.tim18.banka.model.Kartica;
 import sep.tim18.banka.model.Klijent;
 import sep.tim18.banka.repository.KarticaRepository;
 import sep.tim18.banka.repository.KlijentRepository;
-import sep.tim18.banka.repository.TransakcijaRepository;
-
-import javax.annotation.PostConstruct;
-import java.util.ArrayList;
 
 
 @PropertySource(ignoreResourceNotFound = true, value = "classpath:application.properties")
@@ -25,8 +26,6 @@ public class StartData {
         BNumber = bank1No;
     }
 
-    @Autowired
-    private TransakcijaRepository transakcijaRepository;
 
     @Autowired
     private KlijentRepository klijentRepository;
