@@ -27,7 +27,16 @@
             }
 
             $scope.potvrdi = function(){
-                alert("To be continued...")
+                alert("Under construction...")
+                
+                mainService.preusmeriNaBanku($scope.token).then(
+                        function successCallback(response){
+                            
+                        },
+                        function errorCallback(response){
+                            alert("Greska prilikom redirekcije.");
+                        }
+                    );
             }            
 
         }

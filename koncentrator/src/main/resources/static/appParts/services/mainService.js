@@ -7,11 +7,19 @@
 
                 var req = {
                     method: 'GET',
-                    url: ROOT_PATH+'getSupportedPaymentTypes/'+token,
+                    url: ROOT_PATH+'getSupportedPaymentTypes/AAA'+token,
                 }
                 return $http(req);
             }
 
+            this.preusmeriNaBanku = function(token){
+
+                var req = {
+                    method: 'GET',
+                    url: ROOT_PATH+'sendRedirectToBanka/AAA'+token,
+                }
+                return $http(req);
+            }
         }
     ]);
 })()
