@@ -1,4 +1,4 @@
-const ROOT_PATH = "http://localhost:8098/paymentGateway/rest/";
+const ROOT_PATH = "/paymentGateway/rest/";
 
 var mainModule = angular.module('mainModule', [ 'ui.router', 'ngStorage', 'angular-jwt' ]);
 
