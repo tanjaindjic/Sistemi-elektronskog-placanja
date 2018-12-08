@@ -26,7 +26,6 @@ public class PaymentFactory {
 		}
 		
 		try {
-			System.out.println("Proba");
 			return (PaymentStrategy) Class.forName("com.ftn.paymentGateway.paymentStrategy.impl."+tp.getKlasa()).newInstance(); 
 		}catch(Exception e) {
 			throw new InvalidPaymentTypeException();

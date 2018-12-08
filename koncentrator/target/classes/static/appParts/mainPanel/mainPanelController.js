@@ -27,17 +27,16 @@
             }
 
             $scope.potvrdi = function(){
-                alert("Under construction...")
-                
-                mainService.preusmeriNaBanku($scope.token).then(
-                        function successCallback(response){
-                            
-                        },
-                        function errorCallback(response){
-                            alert("Greska prilikom redirekcije.");
-                        }
-                    );
-            }            
+
+                mainService.obaviPlacanje($scope.paymentIdx, $scope.token).then(
+                    function successCallback(response){
+                        alert('Placanje zabelezeno')
+                    },
+                    function errorCallback(response){
+                        alert("Greska prilikom obavljanja placanja.");
+                    }
+                );
+            }
 
         }
     ]);

@@ -93,6 +93,9 @@ public class PaymentController {
 			@RequestParam(value="paymentTypeId", required = true) Long paymentTypeId,
 			@RequestParam(value="uniqueToken", required = true) String uniqueToken){
 		
+		System.out.println(paymentTypeId);
+		System.out.println(uniqueToken);
+		
 		Transakcija transakcija = transakcijaService.getByJedinstveniToken(uniqueToken);
 		
 		if(transakcija == null) {
@@ -115,7 +118,7 @@ public class PaymentController {
 		
 		TransakcijaStatus retVal;
 		try {
-			retVal = paymentFactory.getPaymentStrategy(tipPlacanja.getKlasa()).doPayment(transakcija, podrzanoPlacanje);
+			retVal = paymentFactory.getPaymentStrategy(tipPlacanja.getKod()).doPayment(transakcija, podrzanoPlacanje);
 		} catch (InvalidPaymentTypeException e) {
 			System.out.println("Nevalidan tip placanja!");
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);

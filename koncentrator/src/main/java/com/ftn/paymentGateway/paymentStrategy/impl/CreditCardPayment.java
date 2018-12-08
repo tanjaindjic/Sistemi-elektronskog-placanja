@@ -47,6 +47,7 @@ public class CreditCardPayment implements PaymentStrategy{
 		RestTemplate restTemplate = new RestTemplate();
 		HttpsURLConnection.setDefaultHostnameVerifier ((hostname, session) -> true);
 		
+		/*
 	    ResponseEntity<BankResponseDTO> response = null;
 		try {
 			response = restTemplate.postForEntity(new URI(bankRequestUrl1), theBankReq, BankResponseDTO.class);
@@ -56,12 +57,11 @@ public class CreditCardPayment implements PaymentStrategy{
 		}
 		
 		BankResponseDTO retVal = (BankResponseDTO) response.getBody();
-	    System.out.println("*** Stiglo iz Banke ***");
-	    System.out.println(retVal.toString());
+	    */
 	    
 	    /* Dalja obrada odgovora... */
 	
-		return retVal.getStatus();
+		return TransakcijaStatus.C;
 	}
 
 }
