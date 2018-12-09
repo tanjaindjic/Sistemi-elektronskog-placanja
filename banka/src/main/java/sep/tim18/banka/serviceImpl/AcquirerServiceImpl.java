@@ -1,33 +1,45 @@
 package sep.tim18.banka.serviceImpl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.joda.time.DateTime;
+import java.security.SecureRandom;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import sep.tim18.banka.model.Kartica;
 import sep.tim18.banka.model.Klijent;
 import sep.tim18.banka.model.PaymentInfo;
-import sep.tim18.banka.model.dto.*;
-import sep.tim18.banka.model.enums.Status;
 import sep.tim18.banka.model.Transakcija;
+import sep.tim18.banka.model.dto.BuyerInfoDTO;
+import sep.tim18.banka.model.dto.FinishedPaymentDTO;
+import sep.tim18.banka.model.dto.KPReplyDTO;
+import sep.tim18.banka.model.dto.KPRequestDTO;
+import sep.tim18.banka.model.dto.PCCRequestDTO;
+import sep.tim18.banka.model.enums.Status;
 import sep.tim18.banka.repository.KarticaRepository;
 import sep.tim18.banka.repository.KlijentRepository;
 import sep.tim18.banka.repository.PaymentInfoRepository;
 import sep.tim18.banka.repository.TransakcijaRepository;
 import sep.tim18.banka.service.AcquirerService;
-
-import java.security.SecureRandom;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 public class AcquirerServiceImpl implements AcquirerService {
@@ -110,7 +122,7 @@ public class AcquirerServiceImpl implements AcquirerService {
         t.setUplacuje(null);
         t.setPrima(prodavac);
         t.setPaymentURL(null);
-        t.setTimestamp(new DateTime());
+        t.setTimestamp(new Date());
         t.setStatus(Status.K);
         t.setRacunPrimaoca(prodavac.getKartice().get(0).getBrRacuna());//TODO skontati kako biramo na koju karticu tj. racun uplacujemo novac prodavcu jer u NC pamtimo samo njegov merchantID
         t.setRacunPosiljaoca(null);
@@ -151,8 +163,18 @@ public class AcquirerServiceImpl implements AcquirerService {
 
         if(t!=null){
             //TODO proveriti da li ovo radi kako treba
-            if(t.getTimestamp().plusMinutes(tokenDuration).isBeforeNow()){
-                t.setStatus(Status.E);
+        	Date d0 = t.getTimestamp();
+        	Calendar cl = Calendar.getInstance();
+        	System.out.println("trenutno vreme: "+cl.toString());
+            cl.setTime(d0);
+        	System.out.println("postavljeno vreme: "+cl.toString());
+            cl.add(Calendar.MINUTE, 5);
+        	System.out.println("postavljeno vreme + 5 minuta: "+cl.toString());
+            
+            
+          //  if(t.getTimestamp().plusMinutes(tokenDuration).isBeforeNow()){
+            if(cl.after(Calendar.getInstance())){    
+            	t.setStatus(Status.E);
                 transakcijaRepository.save(t);
                 return true;
             }

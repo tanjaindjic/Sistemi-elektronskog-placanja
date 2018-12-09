@@ -1,13 +1,17 @@
 package sep.tim18.banka.serviceImpl;
 
+import java.util.Date;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.joda.time.DateTime;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
-import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
+
 import sep.tim18.banka.model.Kartica;
 import sep.tim18.banka.model.Klijent;
 import sep.tim18.banka.model.Transakcija;
@@ -39,7 +43,7 @@ public class IssuerServiceImpl implements IssuerService {
         t.setUplacuje(k);
         t.setPrima(null);
         t.setPaymentURL(null);
-        t.setTimestamp(new DateTime());
+        t.setTimestamp(new Date());
         t.setStatus(Status.K);
         t.setRacunPrimaoca(request.getRacunPrimaoca());
         t.setRacunPosiljaoca(kartica.getBrRacuna());

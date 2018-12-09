@@ -1,13 +1,14 @@
 package sep.tim18.banka.model.dto;
 
-import org.joda.time.DateTime;
+import java.util.Date;
+
 import sep.tim18.banka.model.enums.Status;
 
 public class KPReplyDTO {
 
     private Long merchantOrderID;
     private Long acquirerOrderID;
-    private DateTime acquirerTimestamp;
+    private Date acquirerTimestamp;
     private Long paymentID;
     private Status status;
 
@@ -29,11 +30,11 @@ public class KPReplyDTO {
         this.acquirerOrderID = acquirerOrderID;
     }
 
-    public DateTime getAcquirerTimestamp() {
+    public Date getAcquirerTimestamp() {
         return acquirerTimestamp;
     }
 
-    public void setAcquirerTimestamp(DateTime acquirerTimestamp) {
+    public void setAcquirerTimestamp(Date acquirerTimestamp) {
         this.acquirerTimestamp = acquirerTimestamp;
     }
 

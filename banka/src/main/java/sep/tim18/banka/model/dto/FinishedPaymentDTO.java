@@ -1,6 +1,7 @@
 package sep.tim18.banka.model.dto;
 
-import org.joda.time.DateTime;
+import java.util.Date;
+
 import sep.tim18.banka.model.enums.Status;
 
 public class FinishedPaymentDTO {
@@ -11,7 +12,7 @@ public class FinishedPaymentDTO {
 
     private Long acquirerOrderID; //isto kao gore ako je ista banka ili drugi id od kreirane druge transakcije
 
-    private DateTime acquirerTimestamp; //-||-
+    private Date acquirerTimestamp; //-||-
 
     private Long paymentID; //id pocetne transakcije
 
@@ -44,11 +45,11 @@ public class FinishedPaymentDTO {
         this.acquirerOrderID = acquirerOrderID;
     }
 
-    public DateTime getAcquirerTimestamp() {
+    public Date getAcquirerTimestamp() {
         return acquirerTimestamp;
     }
 
-    public void setAcquirerTimestamp(DateTime acquirerTimestamp) {
+    public void setAcquirerTimestamp(Date acquirerTimestamp) {
         this.acquirerTimestamp = acquirerTimestamp;
     }
 

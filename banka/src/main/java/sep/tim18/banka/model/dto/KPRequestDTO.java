@@ -1,16 +1,13 @@
 package sep.tim18.banka.model.dto;
 
-import org.joda.time.DateTime;
-
-import java.sql.Time;
-import java.sql.Timestamp;
+import java.util.Date;
 
 public class KPRequestDTO {
     private String merchantID;
     private String merchantPass;
     private Float iznos;
     private Long merchantOrderID;
-    private DateTime merchantTimestamp;
+    private Date merchantTimestamp;
     private String successURL;
     private String failedURL;
     private String errorURL;
@@ -50,11 +47,11 @@ public class KPRequestDTO {
         this.merchantOrderID = merchantOrderID;
     }
 
-    public DateTime getMerchantTimestamp() {
+    public Date getMerchantTimestamp() {
         return merchantTimestamp;
     }
 
-    public void setMerchantTimestamp(DateTime merchantTimestamp) {
+    public void setMerchantTimestamp(Date merchantTimestamp) {
         this.merchantTimestamp = merchantTimestamp;
     }
 

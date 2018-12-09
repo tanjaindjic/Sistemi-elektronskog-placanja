@@ -2,9 +2,12 @@ package sep.tim18.banka.model;
 
 import sep.tim18.banka.model.enums.Status;
 
+import java.util.Date;
+
 import javax.persistence.*;
 
 import org.joda.time.DateTime;
+
 
 @Entity
 public class Transakcija {
@@ -23,8 +26,9 @@ public class Transakcija {
     @Column(nullable = false, length=256)
     private String paymentURL; //ne treba za issuer transakciju jer je ovo vezano samo za token
 
-    @Column(nullable = true)
-    private DateTime timestamp; //ako transakcija u banci prodavca onda Acquirer timestamp a ako je od kupca onda je issuer timestamp
+    @Column(nullable = false)
+	@Temporal(TemporalType.DATE)
+    private Date timestamp; //ako transakcija u banci prodavca onda Acquirer timestamp a ako je od kupca onda je issuer timestamp
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
@@ -53,7 +57,8 @@ public class Transakcija {
     private Long merchantOrderId; //id transakcije sa NC
 
     @Column(nullable = false)
-    private DateTime merchantTimestamp; //timestamp NC transakcije
+	@Temporal(TemporalType.DATE)
+    private Date merchantTimestamp; //timestamp NC transakcije
 
     public Transakcija() {
     }
@@ -62,7 +67,7 @@ public class Transakcija {
         this.uplacuje = original.uplacuje;
         this.prima = original.prima;
         this.paymentURL = original.paymentURL;
-        this.timestamp = new DateTime();
+        this.timestamp = new Date();
         this.status = original.status;
         this.racunPrimaoca = original.racunPrimaoca;
         this.racunPosiljaoca = original.racunPosiljaoca;
@@ -107,11 +112,11 @@ public class Transakcija {
         this.paymentURL = paymentURL;
     }
 
-    public DateTime getTimestamp() {
+    public Date getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(DateTime vremeKreiranja) {
+    public void setTimestamp(Date vremeKreiranja) {
         this.timestamp = vremeKreiranja;
     }
 
@@ -179,12 +184,12 @@ public class Transakcija {
         this.merchantOrderId = merchantOrderId;
     }
 
-    public DateTime getMerchantTimestamp() {
+    public Date getMerchantTimestamp() {
         return merchantTimestamp;
     }
 
-    public void setMerchantTimestamp(DateTime merchantTimestamp) {
-        this.merchantTimestamp = merchantTimestamp;
+    public void setMerchantTimestamp(Date dateTime) {
+        this.merchantTimestamp = dateTime;
     }
 }
 

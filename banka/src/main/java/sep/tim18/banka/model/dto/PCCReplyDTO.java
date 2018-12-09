@@ -1,13 +1,13 @@
 package sep.tim18.banka.model.dto;
 
-import org.joda.time.DateTime;
+import java.util.Date;
 
 public class PCCReplyDTO {
 
     private Long acquirerOrderID;
-    private DateTime acquirerTimestamp;
+    private Date acquirerTimestamp;
     private Long issuerOrderID;
-    private DateTime issuerTimestamp;
+    private Date issuerTimestamp;
 
     public PCCReplyDTO() {
     }
@@ -20,11 +20,11 @@ public class PCCReplyDTO {
         this.acquirerOrderID = acquirerOrderID;
     }
 
-    public DateTime getAcquirerTimestamp() {
+    public Date getAcquirerTimestamp() {
         return acquirerTimestamp;
     }
 
-    public void setAcquirerTimestamp(DateTime acquirerTimestamp) {
+    public void setAcquirerTimestamp(Date acquirerTimestamp) {
         this.acquirerTimestamp = acquirerTimestamp;
     }
 
@@ -36,11 +36,11 @@ public class PCCReplyDTO {
         this.issuerOrderID = issuerOrderID;
     }
 
-    public DateTime getIssuerTimestamp() {
+    public Date getIssuerTimestamp() {
         return issuerTimestamp;
     }
 
-    public void setIssuerTimestamp(DateTime issuerTimestamp) {
+    public void setIssuerTimestamp(Date issuerTimestamp) {
         this.issuerTimestamp = issuerTimestamp;
     }
 }

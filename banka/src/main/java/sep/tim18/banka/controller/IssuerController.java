@@ -1,6 +1,5 @@
 package sep.tim18.banka.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -9,16 +8,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+
 import sep.tim18.banka.model.Klijent;
 import sep.tim18.banka.model.Transakcija;
-import sep.tim18.banka.model.dto.KPRequestDTO;
 import sep.tim18.banka.model.dto.PCCRequestDTO;
 import sep.tim18.banka.repository.KlijentRepository;
 import sep.tim18.banka.repository.TransakcijaRepository;
 import sep.tim18.banka.service.IssuerService;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @RestController
 public class IssuerController {
