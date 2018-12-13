@@ -4,7 +4,6 @@ import org.hibernate.validator.constraints.Length;
 import org.joda.time.DateTime;
 
 public class PCCRequestDTO {
-    //TODO proveriti da li treba nova transakcija ili za postojecu saljem i samo menjam status na CEKANJE
     private Long acquirerOrderID;
 
     private DateTime acquirerTimestamp;

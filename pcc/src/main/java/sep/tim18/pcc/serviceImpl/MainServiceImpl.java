@@ -6,14 +6,20 @@ import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.web.reactive.function.client.ClientResponse;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 import sep.tim18.pcc.model.Banka;
 import sep.tim18.pcc.model.Zahtev;
+import sep.tim18.pcc.model.dto.PCCReplyDTO;
 import sep.tim18.pcc.model.dto.PCCRequestDTO;
 import sep.tim18.pcc.model.enums.Status;
 import sep.tim18.pcc.repository.BankaRepository;
 import sep.tim18.pcc.repository.ZahtevRepository;
 import sep.tim18.pcc.service.MainService;
+
+import java.net.URI;
 
 @Service
 public class MainServiceImpl implements MainService {
@@ -26,33 +32,69 @@ public class MainServiceImpl implements MainService {
     private ZahtevRepository zahtevRepository;
 
     @Override
-    public Banka getBanka(String pan) {
+    public Banka getBankaByPan(String pan) {
         String brojBanke = pan.substring(0,6);
         return bankaRepository.findByBrojBanke(brojBanke);
 
     }
 
     @Override
-    public ResponseEntity forward(Zahtev zahtev, PCCRequestDTO pcCrequestDTO, String url) throws JsonProcessingException {
+    public Banka getBanka(String brBanke) {
+        return bankaRepository.findByBrojBanke(brBanke);
+    }
+
+
+    @Override
+    public Mono<ResponseEntity> forward(Zahtev zahtev, PCCRequestDTO pccRequestDTO, String url) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
-        String jsonInString = mapper.writeValueAsString(pcCrequestDTO);
-        HttpStatus statusCode = null;
+        String jsonInString = mapper.writeValueAsString(pccRequestDTO);
 
-        RestTemplate restTemplate = new RestTemplate();
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
+        WebClient client = WebClient
+                .builder()
+                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .build();
 
-        HttpEntity<String> entity = new HttpEntity<String>(jsonInString, headers);
-        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
-        statusCode = response.getStatusCode();
-        if (statusCode == HttpStatus.OK){
-            //ako je banka kupca uspesno obradila transakciju
-            zahtev.setStatus(Status.U);
-            zahtevRepository.save(zahtev);
-            return new ResponseEntity(HttpStatus.OK);
-        }
+        WebClient.RequestHeadersSpec<?> requestSpec = WebClient
+                .create()
+                .post()
+                .uri(URI.create(url))
+                .body(BodyInserters.fromObject(jsonInString));
 
-        return new ResponseEntity(HttpStatus.BAD_REQUEST); //banka kupca nije obradial transakciju
+        Mono<ClientResponse> clientResponse = requestSpec
+                .accept(MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN)
+                .exchange();
+
+        clientResponse.subscribe((response)->{
+            ClientResponse.Headers headers = response.headers();
+            HttpStatus statusCode = response.statusCode();
+            if (statusCode == HttpStatus.OK){
+                //ako je banka kupca uspesno obradila transakciju
+                Mono<PCCReplyDTO> bodyToMono = response.bodyToMono(PCCReplyDTO.class);
+                // the second subscribe to access the body
+                bodyToMono.subscribe((body) -> {
+
+                    System.out.println("body:" + body);
+                    System.out.println("headers:" + headers.asHttpHeaders());
+                    System.out.println("stausCode:" + statusCode);
+                    zahtev.setIssuerOrderID(body.getIssuerOrderID());
+
+                }, (ex) -> {
+                    // handle error
+                });
+
+                zahtev.setStatus(Status.U);
+                zahtevRepository.save(zahtev);
+            }else{
+                zahtev.setStatus(Status.N);
+                zahtevRepository.save(zahtev);
+            }
+
+        });
+
+        if(zahtev.getStatus()==Status.U)
+            return Mono.just(new ResponseEntity(HttpStatus.OK));
+        else return Mono.just(new ResponseEntity(HttpStatus.BAD_REQUEST)); //banka kupca nije obradial transakciju
+
     }
 
     @Override

@@ -1,6 +1,24 @@
 mainModule.controller('centerController', ['$scope', '$window', 'mainService', '$http', '$location',
     function($scope, $window, mainService, $http, $location){
 
+        var init = function(){
+            console.log(ROOT_PATH + "pay/" + /[^/]*$/.exec(window.location.href)[0])
+            $http({
+                 method: 'GET',
+                 url:  ROOT_PATH + "pay/" + /[^/]*$/.exec(window.location.href)[0]
+
+                 }).then(function successCallback(response) {
+                      console.log("ok: " + JSON.stringify(response))
+                      $location.path(response.data.Location);
+                 }, function errorCallback(response) {
+                     $location.path(response.data.Location);
+                     console.log("grerska" + JSON.stringify(response))
+             });
+             console.log("uradio init")
+
+        }
+        init();
+
         $scope.cardNumber = "";
         $scope.format = function(){
             document.getElementById('cardNumber').addEventListener('input', function (e) {
@@ -12,14 +30,16 @@ mainModule.controller('centerController', ['$scope', '$window', 'mainService', '
         }
 
         var sendData = function(payload){
+
             $http({
                 method: 'POST',
-                url:  window.location.href,
+                url:  ROOT_PATH + "pay/" + /[^/]*$/.exec(window.location.href)[0],
                 data: payload
                 }).then(function successCallback(response) {
-                    $location.path(response.data.location);
+                    console.log(response)
+                    $location.path(response.data.Location);
                 }, function errorCallback(response) {
-                    alert("Greska u zahtevu!");
+                    $location.path(response.data.Location);
             });
 
         }

@@ -2,6 +2,7 @@ package sep.tim18.banka.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +14,7 @@ import sep.tim18.banka.service.AcquirerService;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -49,27 +51,26 @@ public class AcquirerController {
     }
 
     @RequestMapping(value = "/pay/{token}", method = RequestMethod.GET)
-    public void method(HttpServletResponse httpServletResponse, @PathVariable String token) throws IOException {
-
-        //TODO promeniti na https posle
-        if(acquirerService.isTokenExpired(token)){
-            httpServletResponse.sendRedirect(BAddress + "/expired");
-        }else httpServletResponse.sendRedirect(BAddress + "/pay/" + token);
+    public ResponseEntity<Map>  method(HttpServletResponse httpServletResponse, @PathVariable String token) throws IOException {
+        System.out.println("USAO U GET PAY");
+        Map retVal = new HashMap<String, String>();
+        if(acquirerService.isTokenExpired(token)) {
+            retVal.put("Location", "/expired");
+            return new ResponseEntity<Map>(retVal, HttpStatus.BAD_REQUEST);
+        }
+        else{
+            retVal.put("Location", "pay/" + token);
+            return new ResponseEntity<Map>(retVal, HttpStatus.OK);
+        }
 
     }
 
-    @RequestMapping(value = "/pay/{token}", method = RequestMethod.POST)
+    @RequestMapping(value = "/pay/{token}", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Map> finishPayment(HttpServletResponse httpServletResponse, @PathVariable String token, @RequestBody BuyerInfoDTO buyerInfoDTO) throws IOException {
 
-        return acquirerService.tryPayment(token, buyerInfoDTO);
+        return acquirerService.tryPayment(token, buyerInfoDTO, httpServletResponse);
 
     }
-
-    @RequestMapping(value = "/pccReply", method = RequestMethod.POST)
-    public ResponseEntity pccReply(){
-        return null;
-    }
-
 
 
 

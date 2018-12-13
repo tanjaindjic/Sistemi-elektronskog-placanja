@@ -1,4 +1,4 @@
-package sep.tim18.banka.serviceImpl;
+package sep.tim18.banka.service.serviceImpl;
 
 import java.util.Date;
 
@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import reactor.core.publisher.Mono;
 import sep.tim18.banka.model.Kartica;
 import sep.tim18.banka.model.Klijent;
 import sep.tim18.banka.model.Transakcija;
@@ -53,12 +54,13 @@ public class IssuerServiceImpl implements IssuerService {
     }
 
     @Override
-    public ResponseEntity<String> tryPayment(PCCRequestDTO request, Transakcija t, Klijent k) throws JsonProcessingException {
+
+    public Mono<ResponseEntity> tryPayment(PCCRequestDTO request, Transakcija t, Klijent k) throws JsonProcessingException {
 
         Kartica kartica = karticaRepository.findByBrRacuna(t.getRacunPosiljaoca());
         int idx = k.getKartice().indexOf(kartica);
         if(kartica.getRaspolozivaSredstva()-t.getIznos()<0){
-            return new ResponseEntity(HttpStatus.BAD_REQUEST);
+            return Mono.just(new ResponseEntity(HttpStatus.BAD_REQUEST));
         }
         Float raspolozivo = kartica.getRaspolozivaSredstva();
         kartica.setRaspolozivaSredstva(raspolozivo - t.getIznos());
@@ -67,8 +69,6 @@ public class IssuerServiceImpl implements IssuerService {
         klijentRepository.save(k);
 
         PCCReplyDTO pccReplyDTO = new PCCReplyDTO();
-        pccReplyDTO.setAcquirerOrderID(request.getAcquirerOrderID());
-        pccReplyDTO.setAcquirerTimestamp(request.getAcquirerTimestamp());
         pccReplyDTO.setIssuerOrderID(t.getOrderID());
         pccReplyDTO.setIssuerTimestamp(t.getTimestamp());
 
@@ -78,8 +78,7 @@ public class IssuerServiceImpl implements IssuerService {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        return new ResponseEntity<String>(jsonInString, headers, HttpStatus.OK);
-
+        return Mono.just(new ResponseEntity(jsonInString, headers, HttpStatus.OK));
 
     }
 }
