@@ -17,9 +17,7 @@ public class PaymentFactory {
 		super();
 	}
 
-	public PaymentStrategy getPaymentStrategy(String paymentType) throws InvalidPaymentTypeException{
-		
-		TipPlacanja tp = tipPlacanjaRepository.findByKod(paymentType);
+	public PaymentStrategy getPaymentStrategy(TipPlacanja tp) throws InvalidPaymentTypeException{
 		
 		if(tp == null) {
 			throw new InvalidPaymentTypeException();

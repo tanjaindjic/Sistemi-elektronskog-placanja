@@ -28,8 +28,11 @@ import com.ftn.paymentGateway.dto.BankRequestDTO;
 import com.ftn.paymentGateway.dto.BankResponseDTO;
 import com.ftn.paymentGateway.dto.PaymentRequestDTO;
 import com.ftn.paymentGateway.dto.PaymentResponseDTO;
+import com.ftn.paymentGateway.dto.TransakcijaIshodDTO;
 import com.ftn.paymentGateway.enumerations.TransakcijaStatus;
 import com.ftn.paymentGateway.exceptions.InvalidPaymentTypeException;
+import com.ftn.paymentGateway.exceptions.PaymentErrorException;
+import com.ftn.paymentGateway.exceptions.TransactionUpdateExeption;
 import com.ftn.paymentGateway.model.EntitetPlacanja;
 import com.ftn.paymentGateway.model.PodrzanoPlacanje;
 import com.ftn.paymentGateway.model.TipPlacanja;
@@ -89,12 +92,9 @@ public class PaymentController {
 	}
 	
 	@RequestMapping(value = "doPayment", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<TransakcijaStatus> doPayment(
+	public ResponseEntity<Boolean> doPayment(
 			@RequestParam(value="paymentTypeId", required = true) Long paymentTypeId,
 			@RequestParam(value="uniqueToken", required = true) String uniqueToken){
-		
-		System.out.println(paymentTypeId);
-		System.out.println(uniqueToken);
 		
 		Transakcija transakcija = transakcijaService.getByJedinstveniToken(uniqueToken);
 		
@@ -116,15 +116,30 @@ public class PaymentController {
 		
 		PodrzanoPlacanje podrzanoPlacanje = podrzanaPlacanja.get(0);
 		
-		TransakcijaStatus retVal;
+		TransakcijaIshodDTO retVal = null;
 		try {
-			retVal = paymentFactory.getPaymentStrategy(tipPlacanja.getKod()).doPayment(transakcija, podrzanoPlacanje);
-		} catch (InvalidPaymentTypeException e) {
-			System.out.println("Nevalidan tip placanja!");
+			retVal = paymentFactory.getPaymentStrategy(tipPlacanja).doPayment(transakcija, podrzanoPlacanje);
+		} catch (InvalidPaymentTypeException | PaymentErrorException e) {
+			System.out.println(e.getMessage());
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
+		
+		try {
+			transakcijaService.update(retVal, transakcija);
+		} catch (TransactionUpdateExeption e) {
+			System.out.println(e.getMessage());
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		}
+		
+		if(retVal.isRedirekcija()) {
+			HttpHeaders headers = new HttpHeaders();
+			headers.add("Location", retVal.getNovaPutanja());
+			headers.add("Access-Control-Allow-Origin", "*");
+			System.out.println(retVal.getNovaPutanja());
+			return new ResponseEntity<Boolean>(retVal.isUspesno(), headers, HttpStatus.OK);
+		}
 	    
-		return new ResponseEntity<TransakcijaStatus>(retVal, HttpStatus.OK);
+		return new ResponseEntity<Boolean>(retVal.isUspesno(), HttpStatus.OK);
 	}
 
 }

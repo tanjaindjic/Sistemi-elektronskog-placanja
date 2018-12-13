@@ -11,7 +11,7 @@
                 <div class="panel-body">
                     <div ng-repeat="tipPlacanja in tipoviPlacanja" class="text-center gap-top-md div-padding-sm div-padding-payments">
                         <div ng-click="selectPayment(tipPlacanja.id)" ng-class="{'bg1': paymentIdx === tipPlacanja.id}">
-                            <img class="div-padding-sm" ng-src="{{tipPlacanja.putanjaSlike}}" height="100" width="180" />
+                            <img class="div-padding-sm resize" ng-src="{{tipPlacanja.putanjaSlike}}" />
                         </div>
                     </div>
                 </div>

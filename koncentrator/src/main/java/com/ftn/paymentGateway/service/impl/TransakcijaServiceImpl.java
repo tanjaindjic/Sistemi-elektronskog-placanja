@@ -5,9 +5,14 @@ import java.util.Date;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.ftn.paymentGateway.dto.PaymentRequestDTO;
+import com.ftn.paymentGateway.dto.TransakcijaIshodDTO;
 import com.ftn.paymentGateway.enumerations.TransakcijaStatus;
+import com.ftn.paymentGateway.exceptions.TransactionUpdateExeption;
 import com.ftn.paymentGateway.helpClasses.RandomStringGenerator;
 import com.ftn.paymentGateway.model.EntitetPlacanja;
 import com.ftn.paymentGateway.model.Transakcija;
@@ -60,6 +65,26 @@ public class TransakcijaServiceImpl implements TransakcijaService{
 			return retVal;
 		}
 		return generateUniqueToken();
+	}
+
+	@Override
+	@Transactional(readOnly = false, rollbackFor = Exception.class, propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
+	public Transakcija update(TransakcijaIshodDTO transakcijaIshod, Transakcija transakcija) throws TransactionUpdateExeption{
+		
+		if(transakcija == null || transakcijaIshod == null) {
+			throw new TransactionUpdateExeption();
+		}
+		
+		if(!transakcijaIshod.isUspesno()) {
+			transakcija.setStatus(TransakcijaStatus.N);
+			transakcija = transakcijaRepository.save(transakcija);
+			return transakcija;
+		}
+		
+		transakcija.setStatus(transakcijaIshod.getNoviStatus());
+		transakcija.setIzvrsnaTransakcija(transakcijaIshod.getIzvrsnaTransakcija());
+		
+		return transakcijaRepository.save(transakcija);
 	}
 
 }

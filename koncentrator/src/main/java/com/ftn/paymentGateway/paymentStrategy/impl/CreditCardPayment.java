@@ -1,18 +1,15 @@
 package com.ftn.paymentGateway.paymentStrategy.impl;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-
 import javax.net.ssl.HttpsURLConnection;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.RestClientException;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import com.ftn.paymentGateway.dto.BankRequestDTO;
-import com.ftn.paymentGateway.dto.BankResponseDTO;
+import com.ftn.paymentGateway.dto.TransakcijaIshodDTO;
 import com.ftn.paymentGateway.enumerations.TransakcijaStatus;
+import com.ftn.paymentGateway.exceptions.PaymentErrorException;
 import com.ftn.paymentGateway.model.PodrzanoPlacanje;
 import com.ftn.paymentGateway.model.Transakcija;
 import com.ftn.paymentGateway.paymentStrategy.PaymentStrategy;
@@ -35,10 +32,10 @@ public class CreditCardPayment implements PaymentStrategy{
 	private String bankRequestUrl2;
 
 	@Override
-	public TransakcijaStatus doPayment(Transakcija transakcija, PodrzanoPlacanje podrzanoPlacanje) {
+	public TransakcijaIshodDTO doPayment(Transakcija transakcija, PodrzanoPlacanje podrzanoPlacanje) throws PaymentErrorException{
 		
 		if(transakcija == null || podrzanoPlacanje == null) {
-			return TransakcijaStatus.N;
+			return new TransakcijaIshodDTO(false, false, TransakcijaStatus.N, null, null);
 		}
 		
 		BankRequestDTO theBankReq = new BankRequestDTO(podrzanoPlacanje.getIdNaloga(), podrzanoPlacanje.getIdNaloga(), transakcija.getIznos(),
@@ -61,7 +58,7 @@ public class CreditCardPayment implements PaymentStrategy{
 	    
 	    /* Dalja obrada odgovora... */
 	
-		return TransakcijaStatus.C;
+		return new TransakcijaIshodDTO();
 	}
 
 }

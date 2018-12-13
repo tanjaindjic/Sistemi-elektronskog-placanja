@@ -30,7 +30,11 @@
 
                 mainService.obaviPlacanje($scope.paymentIdx, $scope.token).then(
                     function successCallback(response){
-                        alert('Placanje zabelezeno')
+                        if(response.headers('Location')){
+                            $window.location.href = response.headers('Location');
+                        }else{
+                            alert("Placanje uspesno zabelezeno.");
+                        }
                     },
                     function errorCallback(response){
                         alert("Greska prilikom obavljanja placanja.");

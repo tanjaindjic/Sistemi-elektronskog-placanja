@@ -39,3 +39,10 @@
     text-align:center;
     line-height:200px;
 }
+
+img.resize {
+    height: auto; 
+    width: auto; 
+    max-width: 250px; 
+    max-height: 120px;
+}
