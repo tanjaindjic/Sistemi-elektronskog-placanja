@@ -135,7 +135,6 @@ public class PaymentController {
 			HttpHeaders headers = new HttpHeaders();
 			headers.add("Location", retVal.getNovaPutanja());
 			headers.add("Access-Control-Allow-Origin", "*");
-			System.out.println(retVal.getNovaPutanja());
 			return new ResponseEntity<Boolean>(retVal.isUspesno(), headers, HttpStatus.OK);
 		}
 	    
