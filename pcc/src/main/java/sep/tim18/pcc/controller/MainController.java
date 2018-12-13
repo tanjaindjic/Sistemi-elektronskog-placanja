@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Mono;
 import sep.tim18.pcc.model.Banka;
 import sep.tim18.pcc.model.Zahtev;
 import sep.tim18.pcc.model.dto.PCCRequestDTO;
@@ -26,16 +27,18 @@ public class MainController {
     private ZahtevRepository zahtevRepository;
 
     @RequestMapping(value = "/request", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity request(@RequestBody PCCRequestDTO request) throws JsonProcessingException {
+    public Mono<ResponseEntity> request(@RequestBody PCCRequestDTO request) throws JsonProcessingException {
         Zahtev zahtev = mainService.createZahtev(request);
-        Banka odKupca = mainService.getBanka(request.getPan());
+        Banka odKupca = mainService.getBankaByPan(request.getPan());
+        Banka odProdavca = mainService.getBanka(request.getBrojBankeProdavca());
 
         if(odKupca==null){ //nema kojoj banci da posalje
             zahtev.setStatus(Status.N);
             zahtevRepository.save(zahtev);
-            return new ResponseEntity(HttpStatus.BAD_REQUEST);
+            return Mono.just(new ResponseEntity(HttpStatus.BAD_REQUEST));
         }else{
             zahtev.setBankaKupca(odKupca);
+            zahtev.setBankaProdavca(odProdavca);
             zahtev.setStatus(Status.P);
             zahtevRepository.save(zahtev);
             return mainService.forward(zahtev, request, odKupca.getUrlBanke()); //npr /requestPayment

@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
+import reactor.core.publisher.Mono;
 import sep.tim18.banka.model.Klijent;
 import sep.tim18.banka.model.Transakcija;
 import sep.tim18.banka.model.dto.PCCRequestDTO;
@@ -31,11 +32,11 @@ public class IssuerController {
     private TransakcijaRepository transakcijaRepository;
 
     @RequestMapping(value = "/paymentRequest", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> request(@RequestBody PCCRequestDTO request) throws JsonProcessingException {
+    public Mono<ResponseEntity> request(@RequestBody PCCRequestDTO request) throws JsonProcessingException {
 
         Klijent k = klijentRepository.findByKartice_pan(request.getPan());
         if (k == null)
-            return new ResponseEntity(HttpStatus.BAD_REQUEST);
+            return Mono.just(new ResponseEntity(HttpStatus.BAD_REQUEST));
 
         Transakcija t = issuerService.createTransakcija(request, k);
         transakcijaRepository.save(t);

@@ -1,10 +1,20 @@
+const ROOT_PATH = "http://localhost:8082/";
+
 var mainModule = angular.module('mainModule', [ 'ui.router', 'ngStorage', 'angular-jwt' ]);
+/*
+mainModule.config(['$locationProvider', function($locationProvider) {
+             $locationProvider.html5Mode({
+                    enabled: true,
+                    requireBase: false
+             });
+           }]);
+*/
 
 mainModule.config(function($stateProvider, $urlRouterProvider) {
 
-    $urlRouterProvider.otherwise('/pay/');
+    $urlRouterProvider.otherwise('/404');
 
-    $stateProvider.state('home', {
+    $stateProvider.state('pay', {
         url: '/pay/{token}',
         templateUrl : 'appParts/centerComponent/center.html',
     })
@@ -27,5 +37,10 @@ mainModule.config(function($stateProvider, $urlRouterProvider) {
         url: '/failed',
         templateUrl: 'appParts/failedComponent/failed.html',
         controller : 'failedController'
+    })
+    .state('404', {
+        url: '/404',
+        templateUrl: 'appParts/404Component/404.html',
+        controller : '404Controller'
     })
 });

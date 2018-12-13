@@ -1,4 +1,4 @@
-package sep.tim18.banka.model.dto;
+package sep.tim18.pcc.model.dto;
 
 import java.util.Date;
 
@@ -9,7 +9,6 @@ public class PCCReplyDTO {
 
     public PCCReplyDTO() {
     }
-
 
     public Long getIssuerOrderID() {
         return issuerOrderID;
