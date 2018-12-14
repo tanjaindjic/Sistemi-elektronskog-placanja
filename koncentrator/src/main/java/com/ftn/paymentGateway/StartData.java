@@ -73,8 +73,8 @@ public class StartData {
 		PodrzanoPlacanje pp4 = new PodrzanoPlacanje(null, "Merchant1", "pass1", ep6, tp1);
 		
 		/* PayPal */
-		PodrzanoPlacanje pp5 = new PodrzanoPlacanje(null, "Merchant1", "pass1", ep3, tp2);
-		PodrzanoPlacanje pp6 = new PodrzanoPlacanje(null, "Merchant1", "pass1", ep5, tp2);
+		PodrzanoPlacanje pp5 = new PodrzanoPlacanje(null, "AS5IMk8HPdQhY6_LF4MismGdr9j73ERw2K9fYVhtH1O5cTQPqX5ec5vaEm5MlSl8GosBEczyC8UcJo1-", "EHijiYCc4J0QRBlB475fXO23eUBSatQONjw-OaGrTjPgEv2J-uKEBkLFsQuSeFFjX9KwMIxkjXbS_yjw", ep3, tp2);
+		PodrzanoPlacanje pp6 = new PodrzanoPlacanje(null, "AS5IMk8HPdQhY6_LF4MismGdr9j73ERw2K9fYVhtH1O5cTQPqX5ec5vaEm5MlSl8GosBEczyC8UcJo1-", "EHijiYCc4J0QRBlB475fXO23eUBSatQONjw-OaGrTjPgEv2J-uKEBkLFsQuSeFFjX9KwMIxkjXbS_yjw", ep5, tp2);
 		
 		/* Bitcoin */
 		PodrzanoPlacanje pp7 = new PodrzanoPlacanje(null, "Merchant1", "pass1", ep3, tp3);
@@ -107,8 +107,8 @@ public class StartData {
 		transakcijaRepository.save(tr4);
 		transakcijaRepository.save(tr5);
 		
-		for(Transakcija t0 : transakcijaRepository.findAll())
-			System.out.println(t0.getJedinstveniToken());
+	//	for(Transakcija t0 : transakcijaRepository.findAll())
+	//		System.out.println(t0.getJedinstveniToken());
 	}
 
 }

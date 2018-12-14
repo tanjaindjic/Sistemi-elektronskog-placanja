@@ -1,12 +1,10 @@
 package com.ftn.paymentGateway.controller;
 
 import java.io.UnsupportedEncodingException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Date;
 
-import javax.net.ssl.HttpsURLConnection;
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,11 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.RestClientException;
-import org.springframework.web.client.RestTemplate;
 
-import com.ftn.paymentGateway.dto.BankRequestDTO;
-import com.ftn.paymentGateway.dto.BankResponseDTO;
 import com.ftn.paymentGateway.dto.PaymentRequestDTO;
 import com.ftn.paymentGateway.dto.PaymentResponseDTO;
 import com.ftn.paymentGateway.dto.TransakcijaIshodDTO;
@@ -38,6 +32,7 @@ import com.ftn.paymentGateway.model.PodrzanoPlacanje;
 import com.ftn.paymentGateway.model.TipPlacanja;
 import com.ftn.paymentGateway.model.Transakcija;
 import com.ftn.paymentGateway.paymentStrategy.PaymentFactory;
+import com.ftn.paymentGateway.paymentStrategy.impl.PayPalPayment;
 import com.ftn.paymentGateway.service.EntitetPlacanjaService;
 import com.ftn.paymentGateway.service.PodrzanoPlacanjeService;
 import com.ftn.paymentGateway.service.TipPlacanjaService;
@@ -64,6 +59,8 @@ public class PaymentController {
 	
 	@Autowired 
 	private PaymentFactory paymentFactory;
+	@Autowired 
+	private PayPalPayment payPalPayment;
 	
 	
 	@RequestMapping(value = "sendPaymentRequest", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -140,5 +137,29 @@ public class PaymentController {
 	    
 		return new ResponseEntity<Boolean>(retVal.isUspesno(), HttpStatus.OK);
 	}
+	
+	@RequestMapping(value = "success", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<PaymentResponseDTO> completePayment(HttpServletRequest request, @RequestParam("paymentId") String paymentId, @RequestParam("payerId") String payerId, @RequestParam("token") String token){
+		Transakcija transakcija = transakcijaService.findByIzvrsnaTransakcija(Long.decode(request.getParameter("paymentId")));
+		TipPlacanja tipPlacanja = tipPlacanjaService.getByKod("PPP");
+		ArrayList<PodrzanoPlacanje> podrzanaPlacanja = podrzanoPlacanjeService.getByEntitetPlacanjaAndTipPlacanja(transakcija.getEntitetPlacanja(), tipPlacanja);
+		if(podrzanaPlacanja.isEmpty()) {
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		}		
+		PodrzanoPlacanje podrzanoPlacanje = podrzanaPlacanja.get(0);
+		
+        Boolean uspesno = payPalPayment.completePayment(request, podrzanoPlacanje);
+        PaymentResponseDTO response = new PaymentResponseDTO();
+        if(!uspesno){
+            response.setPoruka("PayPal uplata je uspesno izvrsena");
+            response.setStatus(TransakcijaStatus.N);
+            transakcija.setStatus(TransakcijaStatus.N);
+        }
+        response.setMaticnaTransakcija(transakcija.getMaticnaTransakcija());
+        response.setPoruka("PayPal uplata je uspesno izvrsena");
+        response.setStatus(TransakcijaStatus.U);
+        System.out.println("NINA CAREEEEE");
+		return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 
 }

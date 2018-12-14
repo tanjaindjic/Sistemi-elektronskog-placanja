@@ -87,4 +87,9 @@ public class TransakcijaServiceImpl implements TransakcijaService{
 		return transakcijaRepository.save(transakcija);
 	}
 
+	@Override
+	public Transakcija findByIzvrsnaTransakcija(Long decode) {
+		return transakcijaRepository.findByIzvrsnaTransakcija(decode);
+	}
+
 }

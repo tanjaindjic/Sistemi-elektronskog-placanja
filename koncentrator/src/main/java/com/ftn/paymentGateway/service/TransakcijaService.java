@@ -15,5 +15,7 @@ public interface TransakcijaService {
 	public Transakcija getByJedinstveniToken(String jedinstveniToken);
 	
 	public Transakcija update(TransakcijaIshodDTO transakcijaIshod, Transakcija transakcija) throws TransactionUpdateExeption;
+
+	public Transakcija findByIzvrsnaTransakcija(Long decode);
 	
 }
