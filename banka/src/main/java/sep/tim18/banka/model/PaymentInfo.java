@@ -19,6 +19,9 @@ public class PaymentInfo {
     @OneToOne
     private Transakcija transakcija;
 
+    public PaymentInfo() {
+    }
+
     public PaymentInfo(Transakcija t, String token) {
         this.transakcija = t;
         this.paymentURL = token;

@@ -140,6 +140,8 @@ public class AcquirerServiceImpl implements AcquirerService {
     public PaymentInfo createPaymentDetails(KPRequestDTO request) {
         Transakcija t = createTransaction(request);
         PaymentInfo paymentInfo = new PaymentInfo(t, getToken());
+        t.setPaymentURL(paymentInfo.getPaymentURL());
+        transakcijaRepository.save(t);
         paymentInfoRepository.save(paymentInfo);
         return paymentInfo;
     }
@@ -159,18 +161,17 @@ public class AcquirerServiceImpl implements AcquirerService {
             return true;
 
         if(t!=null){
-            //TODO proveriti da li ovo radi kako treba
-        	Date d0 = t.getTimestamp();
-        	Calendar cl = Calendar.getInstance();
-        	System.out.println("trenutno vreme: "+cl.toString());
-            cl.setTime(d0);
-        	System.out.println("postavljeno vreme: "+cl.toString());
-            cl.add(Calendar.MINUTE, 5);
-        	System.out.println("postavljeno vreme + 5 minuta: "+cl.toString());
-            
-            
-          //  if(t.getTimestamp().plusMinutes(tokenDuration).isBeforeNow()){
-            if(cl.after(Calendar.getInstance())){    
+            Calendar postavljeno = Calendar.getInstance();
+            postavljeno.setTime(t.getTimestamp());
+            Calendar max = Calendar.getInstance();
+            max.setTime(t.getTimestamp());
+            max.add(Calendar.MINUTE, tokenDuration);
+
+        	System.out.println("postavljeno vreme: "+postavljeno.getTime().toString());
+            System.out.println("max vreme: "+max.getTime().toString());
+
+            if(!max.after(postavljeno)){
+                System.out.println("postavljoeno vreme nije nakon trenutnog -> isteklo");
             	t.setStatus(Status.E);
                 transakcijaRepository.save(t);
                 return true;
@@ -202,7 +203,7 @@ public class AcquirerServiceImpl implements AcquirerService {
         }
 
         if (kupac == null) {
-            sendToPCC(t, token, buyerInfoDTO, paymentInfo.getPaymentID(), response);
+            sendToPCC(t, token, buyerInfoDTO, paymentInfo, response);
             map.put("Location", "/paymentSent");
             return new ResponseEntity<>(map, HttpStatus.OK);
         }
@@ -232,7 +233,7 @@ public class AcquirerServiceImpl implements AcquirerService {
     }
 
     @Override
-    public void sendToPCC(Transakcija t, String token, BuyerInfoDTO buyerInfoDTO, Long paymentID, HttpServletResponse resp) throws JsonProcessingException {
+    public void sendToPCC(Transakcija t, String token, BuyerInfoDTO buyerInfoDTO, PaymentInfo paymentInfo, HttpServletResponse resp) throws JsonProcessingException {
         t.setStatus(Status.C);
         t.setRacunPosiljaoca(buyerInfoDTO.getPan());
         transakcijaRepository.save(t);
@@ -252,13 +253,22 @@ public class AcquirerServiceImpl implements AcquirerService {
         pccRequestDTO.setBrojBankeProdavca(BNumber);
 
         //saljem na pcc pa kad dobijem odgovor prosledim koncentratoru
-        Mono<ClientResponse> clientResponse = exchange(pccRequestDTO, requestToPCC);
+        Mono<ClientResponse> clientResponse = exchange(pccRequestDTO, requestToPCC).doOnError(e-> {
+            try {
+                System.out.println("Neuspesan pokusaj kontaktiranja pcc, nema odgovora");
+                paymentFailed(paymentInfo,t,token,buyerInfoDTO);
+            } catch (JsonProcessingException e1) {
+                e1.printStackTrace();
+            }
+        });
 
         clientResponse.subscribe((response)->{
             HttpStatus statusCode = response.statusCode();
+            System.out.println("KOD: " + statusCode);
             try {
                 //saljem koncentratoru rezultat placanja
-                KPReply(statusCode, paymentID, t, resp);
+                KPReply(statusCode, paymentInfo.getPaymentID(), t, resp);
+
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -270,6 +280,7 @@ public class AcquirerServiceImpl implements AcquirerService {
 
     @Override
     public void paymentFailed(PaymentInfo paymentInfo, Transakcija t, String token, BuyerInfoDTO buyerInfoDTO) throws JsonProcessingException {
+        System.out.println("Usao u paymentFailed");
         t.setStatus(Status.N);
         t.setRacunPosiljaoca(buyerInfoDTO.getPan());//pokusano da se plati sa ove kartice
         transakcijaRepository.save(t);
@@ -282,7 +293,10 @@ public class AcquirerServiceImpl implements AcquirerService {
         finishedPaymentDTO.setPaymentID(paymentInfo.getPaymentID());
         finishedPaymentDTO.setRedirectURL(t.getFailedURL());
 
-        exchange(finishedPaymentDTO, replyToKP);
+        exchange(finishedPaymentDTO, replyToKP).doOnError(e-> {
+                System.out.println("Transakcija je neuspesno zavrsena, koncentrator nedostupan");
+                //TODO dodati ponavljajucu funkciju da posalje posle ponovo kp-u
+        });
 
     }
 
@@ -315,7 +329,11 @@ public class AcquirerServiceImpl implements AcquirerService {
         finishedPaymentDTO.setPaymentID(paymentInfo.getPaymentID());
         finishedPaymentDTO.setRedirectURL(t.getSuccessURL());
 
-        exchange(finishedPaymentDTO, replyToKP);
+        exchange(finishedPaymentDTO, replyToKP).doOnError(e-> {
+            System.out.println("Transakcija je uspesno zavrsena, koncentrator nedostupan");
+            //TODO dodati ponavljajucu funkciju da posalje posle ponovo kp-u
+        });
+        ;
 
     }
 

@@ -63,6 +63,22 @@ public class Transakcija {
     public Transakcija() {
     }
 
+    public Transakcija(Klijent uplacuje, Klijent prima, String paymentURL, Date timestamp, Status status, String racunPrimaoca, String racunPosiljaoca, Float iznos, String successURL, String failedURL, String errorURL, Long merchantOrderId, Date merchantTimestamp) {
+        this.uplacuje = uplacuje;
+        this.prima = prima;
+        this.paymentURL = paymentURL;
+        this.timestamp = timestamp;
+        this.status = status;
+        this.racunPrimaoca = racunPrimaoca;
+        this.racunPosiljaoca = racunPosiljaoca;
+        this.iznos = iznos;
+        this.successURL = successURL;
+        this.failedURL = failedURL;
+        this.errorURL = errorURL;
+        this.merchantOrderId = merchantOrderId;
+        this.merchantTimestamp = merchantTimestamp;
+    }
+
     public Transakcija(Transakcija original) {
         this.uplacuje = original.uplacuje;
         this.prima = original.prima;

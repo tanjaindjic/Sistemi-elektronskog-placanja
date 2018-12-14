@@ -1,6 +1,7 @@
 package sep.tim18.banka;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 import javax.annotation.PostConstruct;
 
@@ -11,8 +12,13 @@ import org.springframework.stereotype.Component;
 
 import sep.tim18.banka.model.Kartica;
 import sep.tim18.banka.model.Klijent;
+import sep.tim18.banka.model.PaymentInfo;
+import sep.tim18.banka.model.Transakcija;
+import sep.tim18.banka.model.enums.Status;
 import sep.tim18.banka.repository.KarticaRepository;
 import sep.tim18.banka.repository.KlijentRepository;
+import sep.tim18.banka.repository.PaymentInfoRepository;
+import sep.tim18.banka.repository.TransakcijaRepository;
 
 
 @PropertySource(ignoreResourceNotFound = true, value = "classpath:application.properties")
@@ -26,12 +32,17 @@ public class StartData {
         BNumber = bank1No;
     }
 
+    @Autowired
+    private TransakcijaRepository transakcijaRepository;
 
     @Autowired
     private KlijentRepository klijentRepository;
 
     @Autowired
     private KarticaRepository karticaRepository;
+
+    @Autowired
+    private PaymentInfoRepository paymentInfoRepository;
 
     @PostConstruct
     private void init(){
@@ -56,6 +67,11 @@ public class StartData {
         klijentRepository.save(klijent2);
         klijentRepository.save(klijent3);
 
+        Transakcija transakcija1 = new Transakcija(klijent1, klijent2, "1", new Date(System.currentTimeMillis()), Status.K,
+                kartica1.getPan(), kartica2.getPan(), 100F, "", "", "", 5L, new Date(System.currentTimeMillis()));
+        transakcijaRepository.save(transakcija1);
+        PaymentInfo paymentInfo = new PaymentInfo(transakcija1, "1");
+        paymentInfoRepository.save(paymentInfo);
 
 
     }

@@ -1,4 +1,4 @@
-const ROOT_PATH = "http://localhost:8082/";
+const ROOT_PATH = "https://localhost:8082/";
 
 var mainModule = angular.module('mainModule', [ 'ui.router', 'ngStorage', 'angular-jwt' ]);
 /*

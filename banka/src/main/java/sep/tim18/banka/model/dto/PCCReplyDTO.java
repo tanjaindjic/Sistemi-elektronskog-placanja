@@ -26,6 +26,14 @@ public class PCCReplyDTO {
     public void setIssuerTimestamp(Date issuerTimestamp) {
         this.issuerTimestamp = issuerTimestamp;
     }
+
+    @Override
+    public String toString() {
+        return "PCCReplyDTO{" +
+                "issuerOrderID=" + issuerOrderID +
+                ", issuerTimestamp=" + issuerTimestamp +
+                '}';
+    }
 }
 
 
