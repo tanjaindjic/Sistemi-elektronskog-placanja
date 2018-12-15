@@ -53,9 +53,9 @@ public class StartData {
         klijentRepository.save(klijent2);
         klijentRepository.save(klijent3);
 
-        Kartica kartica1 = new Kartica(BNumber + "2233334444", "111", "01/25", BNumber + "001", 100000000000F, 0F, klijent1 );
-        Kartica kartica2 = new Kartica(BNumber + "3344445555", "222", "01/25", BNumber + "002", 100000000000F, 0F, klijent2 );
-        Kartica kartica3 = new Kartica(BNumber + "4455556666", "333", "01/25", BNumber + "003", 100000000000F, 0F, klijent3 );
+        Kartica kartica1 = new Kartica(BNumber + "2233334444", "111", "01/25", BNumber + "001", 10000F, 0F, klijent1 );
+        Kartica kartica2 = new Kartica(BNumber + "3344445555", "222", "01/25", BNumber + "002", 10000F, 0F, klijent2 );
+        Kartica kartica3 = new Kartica(BNumber + "4455556666", "333", "01/25", BNumber + "003", 10000F, 0F, klijent3 );
         karticaRepository.save(kartica1);
         karticaRepository.save(kartica2);
         karticaRepository.save(kartica3);

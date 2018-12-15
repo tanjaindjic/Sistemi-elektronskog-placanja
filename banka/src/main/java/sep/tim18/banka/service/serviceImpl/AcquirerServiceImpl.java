@@ -149,6 +149,14 @@ public class AcquirerServiceImpl implements AcquirerService {
         return paymentInfo;
     }
 
+    @Override
+    public boolean finishedPayment(String token) {
+        PaymentInfo paymentInfo = paymentInfoRepository.findByPaymentURL(token);
+        Transakcija t = paymentInfo.getTransakcija();
+        if(t.getStatus()==Status.U || t.getStatus()==Status.N)
+            return true;
+        else return false;
+    }
 
     @Override
     public boolean isTokenExpired(String token) {
@@ -161,7 +169,7 @@ public class AcquirerServiceImpl implements AcquirerService {
         if(t==null)
             return true;
 
-        if(t.getStatus()==Status.E)
+        if(t.getStatus()==Status.E || t.getStatus()==Status.U || t.getStatus()==Status.N)
             return true;
 
         if(t!=null){
@@ -201,6 +209,10 @@ public class AcquirerServiceImpl implements AcquirerService {
         Klijent kupac = klijentRepository.findByKartice_pan(buyerInfoDTO.getPan());
         t.setRacunPosiljaoca(buyerInfoDTO.getPan());//pokusano da se plati sa ove kartice
 
+        if(finishedPayment(token)){
+            map.put("Location", "/failed");
+            return new ResponseEntity<>(map, HttpStatus.BAD_REQUEST);
+        }
         if (isTokenExpired(token)) {
             t.setStatus(Status.N);
             transakcijaRepository.save(t);
@@ -254,6 +266,16 @@ public class AcquirerServiceImpl implements AcquirerService {
             karticaRepository.save(zaPlacanje);
             kupac.getKartice().set(idx, zaPlacanje);
             klijentRepository.save(kupac);
+
+            Kartica primalac = karticaRepository.findByPan(t.getRacunPrimaoca());
+            raspolozivo = primalac.getRaspolozivaSredstva();
+            primalac.setRaspolozivaSredstva(raspolozivo + t.getIznos());
+            karticaRepository.save(primalac);
+            Klijent prodavac = klijentRepository.findByKartice_pan(primalac.getPan());
+            idx = prodavac.getKartice().indexOf(primalac);
+            prodavac.getKartice().set(idx, primalac);
+            klijentRepository.save(prodavac);
+
             t.setStatus(Status.U);
             t.setRacunPrimaoca(kupac.getKartice().get(0).getBrRacuna());
             transakcijaRepository.save(t);
@@ -265,6 +287,7 @@ public class AcquirerServiceImpl implements AcquirerService {
 
 
     }
+
 
     @Override
     public void sendToPCC(Transakcija t, String token, BuyerInfoDTO buyerInfoDTO, PaymentInfo paymentInfo, HttpServletResponse resp) throws JsonProcessingException {
@@ -304,8 +327,12 @@ public class AcquirerServiceImpl implements AcquirerService {
 
         HttpsURLConnection.setDefaultHostnameVerifier((hostname, session)->true);
         RestTemplate template = new RestTemplate();
-        template.postForEntity(replyToKP, finishedPaymentDTO, FinishedPaymentDTO.class);
+        try{
+            template.postForEntity(replyToKP, finishedPaymentDTO, FinishedPaymentDTO.class);
+        }catch(Exception e){
+            System.out.println("KP nije dostupan");
 
+        }
 
     }
 
@@ -324,8 +351,12 @@ public class AcquirerServiceImpl implements AcquirerService {
 
         HttpsURLConnection.setDefaultHostnameVerifier((hostname, session)->true);
         RestTemplate template = new RestTemplate();
-        template.postForEntity(replyToKP, finishedPaymentDTO, FinishedPaymentDTO.class);
+        try {
+            template.postForEntity(replyToKP, finishedPaymentDTO, FinishedPaymentDTO.class);
+        } catch(Exception e) {
+            System.out.println("KP nije dostupan");
 
+        }
 
     }
 
@@ -359,28 +390,15 @@ public class AcquirerServiceImpl implements AcquirerService {
 
     }
 
-/*
+   /* private Klijent getByPanKartice(String pan){
+        Kartica k = karticaRepository.findByPan(pan);
+        for(Klijent kl : klijentRepository.findAll())
+            for(Kartica ka : kl.getKartice())
+                if(ka==k)
+                    return kl;
 
-    private void KPReply(HttpStatus responseCode, Long paymentID, Transakcija t, HttpServletResponse response) throws IOException {
-        KPReplyDTO kpReplyDTO = new KPReplyDTO();
-        kpReplyDTO.setAcquirerOrderID(t.getOrderID());
-        kpReplyDTO.setAcquirerTimestamp(t.getTimestamp());
-        kpReplyDTO.setMerchantOrderID(t.getMerchantOrderId());
-        kpReplyDTO.setPaymentID(paymentID);
-
-        if(responseCode==HttpStatus.BAD_REQUEST) {
-            kpReplyDTO.setStatus(Status.N);
-            response.sendRedirect("/failed");
-        }
-        else if(responseCode==HttpStatus.OK) {
-            kpReplyDTO.setStatus(Status.U);
-            response.sendRedirect("/success");
-        }
-        exchange(kpReplyDTO, replyToKP);
-
-    }
-*/
-
+        return null;
+    }*/
 
 
 

@@ -59,6 +59,13 @@ public class AcquirerController {
     public ResponseEntity<Map>  method(HttpServletResponse httpServletResponse, @PathVariable String token) throws IOException {
         System.out.println("USAO U GET PAY");
         Map retVal = new HashMap<String, String>();
+
+        if(acquirerService.finishedPayment(token)) {
+            System.out.println("transakcija je gotova");
+            retVal.put("Location", "/failed");
+            return new ResponseEntity<Map>(retVal, HttpStatus.BAD_REQUEST);
+        }
+
         if(acquirerService.isTokenExpired(token)) {
             System.out.println("token " + token + " je istekao");
             retVal.put("Location", "/expired");

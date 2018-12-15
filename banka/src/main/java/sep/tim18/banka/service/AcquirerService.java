@@ -24,4 +24,5 @@ public interface AcquirerService {
     void finishPayment(PaymentInfo paymentInfo, Transakcija t, String token, BuyerInfoDTO buyerInfoDTO) throws JsonProcessingException;
     PaymentInfo createPaymentDetails(KPRequestDTO request);
     void finalizePayment(PCCReplyDTO pccReplyDTO);
+    boolean finishedPayment(String token);
 }
