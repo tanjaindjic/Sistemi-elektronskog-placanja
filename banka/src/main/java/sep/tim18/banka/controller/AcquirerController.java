@@ -12,6 +12,7 @@ import sep.tim18.banka.model.PaymentInfo;
 import sep.tim18.banka.model.dto.BuyerInfoDTO;
 import sep.tim18.banka.model.dto.KPRequestDTO;
 import sep.tim18.banka.model.dto.PCCReplyDTO;
+import sep.tim18.banka.model.dto.PCCRequestDTO;
 import sep.tim18.banka.service.AcquirerService;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -77,7 +78,15 @@ public class AcquirerController {
         return acquirerService.tryPayment(token, buyerInfoDTO, httpServletResponse);
 
     }
-  /*  @RequestMapping(value = "/test", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+
+    @RequestMapping(value = "/pccReply", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public void odgPCC(@RequestBody PCCReplyDTO pccReplyDTO){
+        System.out.println("pccreply primio: " + pccReplyDTO.toString());
+        acquirerService.finalizePayment(pccReplyDTO);
+    }
+
+
+   /* @RequestMapping(value = "/test", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public void salji(){
         PCCReplyDTO novi = new PCCReplyDTO();
         novi.setIssuerOrderID(226883L);
@@ -85,7 +94,7 @@ public class AcquirerController {
         RestTemplate t = new RestTemplate();
 
         HttpsURLConnection.setDefaultHostnameVerifier((hostname, session)->true);
-        ResponseEntity<PCCReplyDTO> response = t.postForEntity("https://localhost:8086/test3", novi, PCCReplyDTO.class);
+        ResponseEntity<PCCReplyDTO> response = t.postForEntity("https://localhost:8083/test3", novi, PCCReplyDTO.class);
         System.out.println("test: " + response.getBody());
     }
 
@@ -95,19 +104,7 @@ public class AcquirerController {
         System.out.println("test1 primio: " + pccReplyDTO.toString());
     }
 
-    @RequestMapping(value = "/test3", method = RequestMethod.POST,consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<PCCReplyDTO> salji(@RequestBody PCCReplyDTO pccReplyDTO){
-        System.out.println("test 3 primio 1: " + pccReplyDTO.toString());
-
-        PCCReplyDTO novi = new PCCReplyDTO();
-        novi.setIssuerOrderID(515L);
-        novi.setIssuerTimestamp(new Date(System.currentTimeMillis()));
-        RestTemplate t = new RestTemplate();
-        HttpsURLConnection.setDefaultHostnameVerifier((hostname, session)->true);
-        ResponseEntity<PCCReplyDTO> response = t.postForEntity("https://localhost:8082/test1", novi, PCCReplyDTO.class);
-
-        return new ResponseEntity<>(novi, HttpStatus.OK);
-    }
 */
+
 
 }

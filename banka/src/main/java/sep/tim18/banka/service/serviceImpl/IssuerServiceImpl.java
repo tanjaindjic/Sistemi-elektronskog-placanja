@@ -3,6 +3,7 @@ package sep.tim18.banka.service.serviceImpl;
 import java.util.Date;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import org.springframework.web.client.RestTemplate;
 import reactor.core.publisher.Mono;
 import sep.tim18.banka.model.Kartica;
 import sep.tim18.banka.model.Klijent;
@@ -24,6 +26,8 @@ import sep.tim18.banka.repository.KlijentRepository;
 import sep.tim18.banka.repository.TransakcijaRepository;
 import sep.tim18.banka.service.IssuerService;
 
+import javax.net.ssl.HttpsURLConnection;
+
 @Service
 public class IssuerServiceImpl implements IssuerService {
 
@@ -35,6 +39,13 @@ public class IssuerServiceImpl implements IssuerService {
 
     @Autowired
     private KlijentRepository klijentRepository;
+
+    private static String replyToPCC;
+
+    @Value("${replyToPCC}")
+    public void setsss(String s) {
+        replyToPCC = s;
+    }
 
     @Override
     public Transakcija createTransakcija(PCCRequestDTO request, Klijent k) {
@@ -54,31 +65,37 @@ public class IssuerServiceImpl implements IssuerService {
     }
 
     @Override
+    public void tryPayment(PCCRequestDTO request, Transakcija t, Klijent k) throws JsonProcessingException {
 
-    public Mono<ResponseEntity> tryPayment(PCCRequestDTO request, Transakcija t, Klijent k) throws JsonProcessingException {
-
+        PCCReplyDTO pccReplyDTO = new PCCReplyDTO();
+        pccReplyDTO.setAcquirerOrderID(request.getAcquirerOrderID());
         Kartica kartica = karticaRepository.findByBrRacuna(t.getRacunPosiljaoca());
         int idx = k.getKartice().indexOf(kartica);
         if(kartica.getRaspolozivaSredstva()-t.getIznos()<0){
-            return Mono.just(new ResponseEntity(HttpStatus.BAD_REQUEST));
+            t.setStatus(Status.N);
+            transakcijaRepository.save(t);
+            pccReplyDTO.setStatus(Status.N);
+            sendReply(pccReplyDTO);
         }
         Float raspolozivo = kartica.getRaspolozivaSredstva();
         kartica.setRaspolozivaSredstva(raspolozivo - t.getIznos());
         karticaRepository.save(kartica);
         k.getKartice().set(idx, kartica);
         klijentRepository.save(k);
+        t.setStatus(Status.U);
+        transakcijaRepository.save(t);
 
-        PCCReplyDTO pccReplyDTO = new PCCReplyDTO();
         pccReplyDTO.setIssuerOrderID(t.getOrderID());
         pccReplyDTO.setIssuerTimestamp(t.getTimestamp());
+        pccReplyDTO.setStatus(Status.U);
+        sendReply(pccReplyDTO);
 
-        ObjectMapper mapper = new ObjectMapper();
-        String jsonInString = mapper.writeValueAsString(pccReplyDTO);
+    }
 
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        return Mono.just(new ResponseEntity(jsonInString, headers, HttpStatus.OK));
-
+    @Override
+    public void sendReply(PCCReplyDTO reply) {
+        HttpsURLConnection.setDefaultHostnameVerifier((hostname, session)->true);
+        RestTemplate template = new RestTemplate();
+        template.postForEntity(replyToPCC, reply, PCCReplyDTO.class);
     }
 }

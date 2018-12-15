@@ -6,6 +6,7 @@ import sep.tim18.banka.model.PaymentInfo;
 import sep.tim18.banka.model.Transakcija;
 import sep.tim18.banka.model.dto.BuyerInfoDTO;
 import sep.tim18.banka.model.dto.KPRequestDTO;
+import sep.tim18.banka.model.dto.PCCReplyDTO;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -22,4 +23,5 @@ public interface AcquirerService {
     void paymentFailed(PaymentInfo paymentInfo, Transakcija t, String token, BuyerInfoDTO buyerInfoDTO) throws JsonProcessingException;
     void finishPayment(PaymentInfo paymentInfo, Transakcija t, String token, BuyerInfoDTO buyerInfoDTO) throws JsonProcessingException;
     PaymentInfo createPaymentDetails(KPRequestDTO request);
+    void finalizePayment(PCCReplyDTO pccReplyDTO);
 }

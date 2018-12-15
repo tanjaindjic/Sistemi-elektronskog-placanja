@@ -20,6 +20,8 @@ import org.springframework.transaction.annotation.Transactional;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -36,6 +38,7 @@ import sep.tim18.banka.repository.PaymentInfoRepository;
 import sep.tim18.banka.repository.TransakcijaRepository;
 import sep.tim18.banka.service.AcquirerService;
 
+import javax.net.ssl.HttpsURLConnection;
 import javax.servlet.http.HttpServletResponse;
 
 @Service
@@ -146,6 +149,7 @@ public class AcquirerServiceImpl implements AcquirerService {
         return paymentInfo;
     }
 
+
     @Override
     public boolean isTokenExpired(String token) {
         PaymentInfo paymentInfo = paymentInfoRepository.findByPaymentURL(token);
@@ -182,8 +186,8 @@ public class AcquirerServiceImpl implements AcquirerService {
         }else return true;
     }
 
-    @Override
-    @Transactional(readOnly = false, rollbackFor = Exception.class, propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
+    @Override//propagation never jer inace traje transakcija i nakon komunikacije sa pcc-om i dobije se lock table timeout
+    @Transactional(readOnly = false, rollbackFor = Exception.class, propagation = Propagation.NEVER, isolation = Isolation.SERIALIZABLE)
     public ResponseEntity<Map> tryPayment(String token, BuyerInfoDTO buyerInfoDTO, HttpServletResponse response) throws IOException {
 
         Map<String, String> map = new HashMap<>();
@@ -195,14 +199,21 @@ public class AcquirerServiceImpl implements AcquirerService {
 
         Transakcija t = paymentInfo.getTransakcija();
         Klijent kupac = klijentRepository.findByKartice_pan(buyerInfoDTO.getPan());
+        t.setRacunPosiljaoca(buyerInfoDTO.getPan());//pokusano da se plati sa ove kartice
 
         if (isTokenExpired(token)) {
+            t.setStatus(Status.N);
+            transakcijaRepository.save(t);
+
             paymentFailed(paymentInfo, t, token, buyerInfoDTO);
             map.put("Location", "/expired");
             return new ResponseEntity<>(map, HttpStatus.BAD_REQUEST);
         }
 
         if (kupac == null) {
+            t.setStatus(Status.C);
+            transakcijaRepository.save(t);
+
             sendToPCC(t, token, buyerInfoDTO, paymentInfo, response);
             map.put("Location", "/paymentSent");
             return new ResponseEntity<>(map, HttpStatus.OK);
@@ -214,16 +225,39 @@ public class AcquirerServiceImpl implements AcquirerService {
                 .collect(Collectors.toList());
 
         if (match.isEmpty()) {
+            t.setStatus(Status.N);
+            transakcijaRepository.save(t);
+
             paymentFailed(paymentInfo, t, token, buyerInfoDTO);
             map.put("Location", "/failed");
             return new ResponseEntity<>(map, HttpStatus.BAD_REQUEST);
         }
 
         if (match.get(0).getRaspolozivaSredstva() - t.getIznos() < 0) {
+            t.setStatus(Status.N);
+            transakcijaRepository.save(t);
+
             paymentFailed(paymentInfo, t, token, buyerInfoDTO);
             map.put("Location", "/failed");
             return new ResponseEntity<>(map, HttpStatus.BAD_REQUEST);
         }else{
+            Kartica zaPlacanje = null;
+            for(Kartica k : kupac.getKartice())
+                if(k.getPan().equals(buyerInfoDTO.getPan())){
+                    zaPlacanje = k;
+                    break;
+                }
+
+            int idx = kupac.getKartice().indexOf(zaPlacanje);
+            Float raspolozivo = zaPlacanje.getRaspolozivaSredstva();
+            zaPlacanje.setRaspolozivaSredstva(raspolozivo - t.getIznos());
+            karticaRepository.save(zaPlacanje);
+            kupac.getKartice().set(idx, zaPlacanje);
+            klijentRepository.save(kupac);
+            t.setStatus(Status.U);
+            t.setRacunPrimaoca(kupac.getKartice().get(0).getBrRacuna());
+            transakcijaRepository.save(t);
+
             finishPayment(paymentInfo, t, token, buyerInfoDTO);
             map.put("Location", "/success");
             return new ResponseEntity<>(map, HttpStatus.OK);
@@ -234,10 +268,6 @@ public class AcquirerServiceImpl implements AcquirerService {
 
     @Override
     public void sendToPCC(Transakcija t, String token, BuyerInfoDTO buyerInfoDTO, PaymentInfo paymentInfo, HttpServletResponse resp) throws JsonProcessingException {
-        t.setStatus(Status.C);
-        t.setRacunPosiljaoca(buyerInfoDTO.getPan());
-        transakcijaRepository.save(t);
-
         PCCRequestDTO pccRequestDTO = new PCCRequestDTO();
         pccRequestDTO.setAcquirerOrderID(t.getOrderID());
         pccRequestDTO.setAcquirerTimestamp(t.getTimestamp());
@@ -248,42 +278,21 @@ public class AcquirerServiceImpl implements AcquirerService {
         pccRequestDTO.setPrezime(buyerInfoDTO.getPrezime());
         pccRequestDTO.setPan(buyerInfoDTO.getPan());
         pccRequestDTO.setIznos(t.getIznos());
-        //pccRequestDTO.setReturnURL(siteAddress + "pccReply");
+        pccRequestDTO.setReturnURL(BAddress + "pccReply");
         pccRequestDTO.setRacunPrimaoca(t.getRacunPrimaoca());
         pccRequestDTO.setBrojBankeProdavca(BNumber);
 
         //saljem na pcc pa kad dobijem odgovor prosledim koncentratoru
-        Mono<ClientResponse> clientResponse = exchange(pccRequestDTO, requestToPCC).doOnError(e-> {
-            try {
-                System.out.println("Neuspesan pokusaj kontaktiranja pcc, nema odgovora");
-                paymentFailed(paymentInfo,t,token,buyerInfoDTO);
-            } catch (JsonProcessingException e1) {
-                e1.printStackTrace();
-            }
-        });
-
-        clientResponse.subscribe((response)->{
-            HttpStatus statusCode = response.statusCode();
-            System.out.println("KOD: " + statusCode);
-            try {
-                //saljem koncentratoru rezultat placanja
-                KPReply(statusCode, paymentInfo.getPaymentID(), t, resp);
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-        });
-
+        HttpsURLConnection.setDefaultHostnameVerifier((hostname, session)->true);
+        RestTemplate template = new RestTemplate();
+        template.postForEntity(requestToPCC, pccRequestDTO, PCCRequestDTO.class);
 
     }
+
 
     @Override
     public void paymentFailed(PaymentInfo paymentInfo, Transakcija t, String token, BuyerInfoDTO buyerInfoDTO) throws JsonProcessingException {
         System.out.println("Usao u paymentFailed");
-        t.setStatus(Status.N);
-        t.setRacunPosiljaoca(buyerInfoDTO.getPan());//pokusano da se plati sa ove kartice
-        transakcijaRepository.save(t);
 
         FinishedPaymentDTO finishedPaymentDTO = new FinishedPaymentDTO();
         finishedPaymentDTO.setStatusTransakcije(Status.N);
@@ -293,32 +302,16 @@ public class AcquirerServiceImpl implements AcquirerService {
         finishedPaymentDTO.setPaymentID(paymentInfo.getPaymentID());
         finishedPaymentDTO.setRedirectURL(t.getFailedURL());
 
-        exchange(finishedPaymentDTO, replyToKP).doOnError(e-> {
-                System.out.println("Transakcija je neuspesno zavrsena, koncentrator nedostupan");
-                //TODO dodati ponavljajucu funkciju da posalje posle ponovo kp-u
-        });
+        HttpsURLConnection.setDefaultHostnameVerifier((hostname, session)->true);
+        RestTemplate template = new RestTemplate();
+        template.postForEntity(replyToKP, finishedPaymentDTO, FinishedPaymentDTO.class);
+
 
     }
 
     @Override
     public void finishPayment(PaymentInfo paymentInfo, Transakcija t, String token, BuyerInfoDTO buyerInfoDTO) throws JsonProcessingException {
-        Klijent kupac = klijentRepository.findByKartice_pan(buyerInfoDTO.getPan());
-        Kartica zaPlacanje = null;
-        for(Kartica k : kupac.getKartice())
-            if(k.getPan().equals(buyerInfoDTO.getPan())){
-                zaPlacanje = k;
-                break;
-            }
 
-        int idx = kupac.getKartice().indexOf(zaPlacanje);
-        Float raspolozivo = zaPlacanje.getRaspolozivaSredstva();
-        zaPlacanje.setRaspolozivaSredstva(raspolozivo - t.getIznos());
-        karticaRepository.save(zaPlacanje);
-        kupac.getKartice().set(idx, zaPlacanje);
-        klijentRepository.save(kupac);
-        t.setStatus(Status.U);
-        t.setRacunPrimaoca(kupac.getKartice().get(0).getBrRacuna());
-        transakcijaRepository.save(t);
         //ovde su i merchant i acquirer isti jer je ista banka
 
         FinishedPaymentDTO finishedPaymentDTO = new FinishedPaymentDTO();
@@ -329,13 +322,44 @@ public class AcquirerServiceImpl implements AcquirerService {
         finishedPaymentDTO.setPaymentID(paymentInfo.getPaymentID());
         finishedPaymentDTO.setRedirectURL(t.getSuccessURL());
 
-        exchange(finishedPaymentDTO, replyToKP).doOnError(e-> {
-            System.out.println("Transakcija je uspesno zavrsena, koncentrator nedostupan");
-            //TODO dodati ponavljajucu funkciju da posalje posle ponovo kp-u
-        });
-        ;
+        HttpsURLConnection.setDefaultHostnameVerifier((hostname, session)->true);
+        RestTemplate template = new RestTemplate();
+        template.postForEntity(replyToKP, finishedPaymentDTO, FinishedPaymentDTO.class);
+
 
     }
+
+    @Override
+    public void finalizePayment(PCCReplyDTO pccReplyDTO) {
+        Transakcija t = transakcijaRepository.findById(pccReplyDTO.getAcquirerOrderID()).get();
+        PaymentInfo paymentInfo = paymentInfoRepository.findByTransakcija(t);
+        if(pccReplyDTO.getStatus()==Status.N)
+            t.setStatus(Status.N);
+        else t.setStatus(Status.U);
+        transakcijaRepository.save(t);
+
+        FinishedPaymentDTO finishedPaymentDTO = new FinishedPaymentDTO();
+        finishedPaymentDTO.setStatusTransakcije(t.getStatus());
+        finishedPaymentDTO.setMerchantOrderID(t.getMerchantOrderId());
+        finishedPaymentDTO.setAcquirerOrderID(t.getOrderID()); //ista banka
+        finishedPaymentDTO.setAcquirerTimestamp(t.getTimestamp());
+        finishedPaymentDTO.setPaymentID(paymentInfo.getPaymentID());
+        if(t.getStatus()==Status.N)
+            finishedPaymentDTO.setRedirectURL(t.getFailedURL());
+        else finishedPaymentDTO.setRedirectURL(t.getSuccessURL());
+
+        HttpsURLConnection.setDefaultHostnameVerifier((hostname, session)->true);
+        RestTemplate template = new RestTemplate();
+        try {
+            template.postForEntity(replyToKP, finishedPaymentDTO, FinishedPaymentDTO.class);
+        }catch(Exception e){
+            System.out.println("KP nije dostupan");
+
+        }
+
+    }
+
+/*
 
     private void KPReply(HttpStatus responseCode, Long paymentID, Transakcija t, HttpServletResponse response) throws IOException {
         KPReplyDTO kpReplyDTO = new KPReplyDTO();
@@ -355,27 +379,9 @@ public class AcquirerServiceImpl implements AcquirerService {
         exchange(kpReplyDTO, replyToKP);
 
     }
+*/
 
-    private Mono<ClientResponse> exchange(Object object, String uri) throws JsonProcessingException {
-        ObjectMapper mapper = new ObjectMapper();
-        String jsonInString = mapper.writeValueAsString(object);
 
-        WebClient client = WebClient
-                .builder()
-                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                .build();
-
-        WebClient.RequestHeadersSpec<?> requestSpec = WebClient
-                .create()
-                .post()
-                .uri(URI.create(uri))
-                .body(BodyInserters.fromObject(jsonInString));
-
-        Mono<ClientResponse> clientResponse = requestSpec
-                .accept(MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN)
-                .exchange();
-        return clientResponse;
-    }
 
 
 }

@@ -1,13 +1,34 @@
 package sep.tim18.banka.model.dto;
 
+import sep.tim18.banka.model.enums.Status;
+
 import java.util.Date;
 
 public class PCCReplyDTO {
 
     private Long issuerOrderID;
     private Date issuerTimestamp;
+    private Status status;
+    private Long acquirerOrderID;
 
     public PCCReplyDTO() {
+    }
+
+
+    public Long getAcquirerOrderID() {
+        return acquirerOrderID;
+    }
+
+    public void setAcquirerOrderID(Long acquirerOrderID) {
+        this.acquirerOrderID = acquirerOrderID;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
     }
 
 

@@ -1,6 +1,7 @@
 package sep.tim18.banka.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -14,7 +15,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import reactor.core.publisher.Mono;
 import sep.tim18.banka.model.Klijent;
 import sep.tim18.banka.model.Transakcija;
+import sep.tim18.banka.model.dto.PCCReplyDTO;
 import sep.tim18.banka.model.dto.PCCRequestDTO;
+import sep.tim18.banka.model.enums.Status;
 import sep.tim18.banka.repository.KlijentRepository;
 import sep.tim18.banka.repository.TransakcijaRepository;
 import sep.tim18.banka.service.IssuerService;
@@ -31,16 +34,28 @@ public class IssuerController {
     @Autowired
     private TransakcijaRepository transakcijaRepository;
 
+    private static String replyToPCC;
+
+    @Value("${replyToPCC}")
+    public void setsss(String s) {
+        replyToPCC = s;
+    }
+
     @RequestMapping(value = "/paymentRequest", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public Mono<ResponseEntity> request(@RequestBody PCCRequestDTO request) throws JsonProcessingException {
+    public void request(@RequestBody PCCRequestDTO request) throws JsonProcessingException {
 
         Klijent k = klijentRepository.findByKartice_pan(request.getPan());
-        if (k == null)
-            return Mono.just(new ResponseEntity(HttpStatus.BAD_REQUEST));
+        if (k == null){
+            PCCReplyDTO pccReplyDTO = new PCCReplyDTO();
+            pccReplyDTO.setAcquirerOrderID(request.getAcquirerOrderID());
+            pccReplyDTO.setStatus(Status.N);
+            issuerService.sendReply(pccReplyDTO);
+        }
+
 
         Transakcija t = issuerService.createTransakcija(request, k);
         transakcijaRepository.save(t);
-        return issuerService.tryPayment(request, t, k);
+        issuerService.tryPayment(request, t, k);
 
     }
 }

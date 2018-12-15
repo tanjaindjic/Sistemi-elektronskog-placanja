@@ -17,10 +17,10 @@ public class Transakcija {
     private Long orderID;
 
 
-    @ManyToOne(optional=false)
+    @ManyToOne//(optional=false) ne moze jer kod banke prodavca ovo moze biti null ako nisu iz iste banke
     private Klijent uplacuje;
 
-    @ManyToOne(optional=false)
+    @ManyToOne//(optional=false) ne moze jer kod banke kupca ovo moze biti null jer nisu iz iste banke
     private Klijent prima;
 
     @Column(nullable = false, length=256)
@@ -37,7 +37,7 @@ public class Transakcija {
     @Column(nullable = false, length=18)
     private String racunPrimaoca;
 
-    @Column(nullable = false, length=18)
+    @Column(length=18)
     private String racunPosiljaoca;
 
     @Column(nullable = false)

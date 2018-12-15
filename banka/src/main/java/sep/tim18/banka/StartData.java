@@ -67,8 +67,8 @@ public class StartData {
         klijentRepository.save(klijent2);
         klijentRepository.save(klijent3);
 
-        Transakcija transakcija1 = new Transakcija(klijent1, klijent2, "1", new Date(System.currentTimeMillis()), Status.K,
-                kartica1.getPan(), kartica2.getPan(), 100F, "", "", "", 5L, new Date(System.currentTimeMillis()));
+        Transakcija transakcija1 = new Transakcija(null, klijent2, "1", new Date(System.currentTimeMillis()), Status.K,
+                kartica1.getPan(), null, 100F, "succ", "fail", "", 5L, new Date(System.currentTimeMillis()));
         transakcijaRepository.save(transakcija1);
         PaymentInfo paymentInfo = new PaymentInfo(transakcija1, "1");
         paymentInfoRepository.save(paymentInfo);
