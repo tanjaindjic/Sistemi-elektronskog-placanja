@@ -26,6 +26,7 @@ public class MainController {
 
     @RequestMapping(value = "/request", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     public void request(@RequestBody PCCRequestDTO request) throws JsonProcessingException {
+
         Zahtev zahtev = mainService.createZahtev(request);
         Banka odKupca = mainService.getBankaByPan(request.getPanPosaljioca());
         Banka odProdavca = mainService.getBanka(request.getBrojBankeProdavca());
@@ -34,17 +35,16 @@ public class MainController {
         if(odKupca==null){ //nema kojoj banci da posalje
             zahtev.setStatus(Status.N);
             zahtevRepository.save(zahtev);
+
             PCCReplyDTO pccReplyDTO = new PCCReplyDTO();
             pccReplyDTO.setAcquirerOrderID(request.getAcquirerOrderID());
             pccReplyDTO.setStatus(Status.N);
             mainService.sendReply(pccReplyDTO, zahtev.getReturnURL());
-
         }else{
             zahtev.setBankaKupca(odKupca);
             zahtev.setStatus(Status.C);
             zahtevRepository.save(zahtev);
             mainService.forward(zahtev, request, odKupca.getUrlBanke()); //npr /requestPayment
-
         }
 
 
@@ -52,22 +52,9 @@ public class MainController {
 
     @RequestMapping(value = "/reply", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     public void reply(@RequestBody PCCReplyDTO replyDTO){
-        System.out.println("pccreply primio: " + replyDTO.toString());
+        System.out.println("PCC primio odgovor: " + replyDTO.toString());
         mainService.finish(replyDTO);
     }
 
 
-   /* @RequestMapping(value = "/test3", method = RequestMethod.POST,consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<PCCReplyDTO> salji(@RequestBody PCCReplyDTO pccReplyDTO){
-        System.out.println("STILGO: " + pccReplyDTO.toString());
-
-        PCCReplyDTO novi = new PCCReplyDTO();
-        novi.setIssuerOrderID(515L);
-        novi.setIssuerTimestamp(new Date(System.currentTimeMillis()));
-        RestTemplate t = new RestTemplate();
-        HttpsURLConnection.setDefaultHostnameVerifier((hostname, session)->true);
-        ResponseEntity<PCCReplyDTO> response = t.postForEntity("https://localhost:8081/test1", novi, PCCReplyDTO.class);
-        System.out.println(response.getBody());
-        return new ResponseEntity<>(novi, HttpStatus.OK);
-    }*/
 }

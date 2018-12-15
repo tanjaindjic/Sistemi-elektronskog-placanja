@@ -4,34 +4,36 @@ import java.util.Date;
 
 import org.hibernate.validator.constraints.Length;
 
+import javax.validation.constraints.NotNull;
+
 public class PCCRequestDTO {
-    //TODO proveriti da li treba nova transakcija ili za postojecu saljem i samo menjam status na CEKANJE
+    @NotNull
     private Long acquirerOrderID;
-
+    @NotNull
     private Date acquirerTimestamp;
-
+    @NotNull
     private Long merchantOrderID;
-
+    @NotNull
     private Date merchantTimestamp;
 
     @Length(min = 8, max = 19)
     private String panPosaljioca;
-
+    @NotNull
     @Length(min = 3, max = 4)
     private String cvv;
-
+    @NotNull
     @Length(min = 1)
     private String ime;
-
+    @NotNull
     @Length(min = 1)
     private String prezime;
-
+    @NotNull
     private int mesec;
-
+    @NotNull
     private int godina;
 
     private String returnURL;
-
+    @NotNull
     private Float iznos;
 
     private String panPrimaoca;
@@ -151,5 +153,25 @@ public class PCCRequestDTO {
 
     public void setMerchantTimestamp(Date merchantTimestamp) {
         this.merchantTimestamp = merchantTimestamp;
+    }
+
+    @Override
+    public String toString() {
+        return "PCCRequestDTO{" +
+                "acquirerOrderID=" + acquirerOrderID +
+                ", acquirerTimestamp=" + acquirerTimestamp +
+                ", merchantOrderID=" + merchantOrderID +
+                ", merchantTimestamp=" + merchantTimestamp +
+                ", panPosaljioca='" + panPosaljioca + '\'' +
+                ", cvv='" + cvv + '\'' +
+                ", ime='" + ime + '\'' +
+                ", prezime='" + prezime + '\'' +
+                ", mesec=" + mesec +
+                ", godina=" + godina +
+                ", returnURL='" + returnURL + '\'' +
+                ", iznos=" + iznos +
+                ", panPrimaoca='" + panPrimaoca + '\'' +
+                ", brojBankeProdavca='" + brojBankeProdavca + '\'' +
+                '}';
     }
 }

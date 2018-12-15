@@ -2,22 +2,24 @@ package sep.tim18.banka.model.dto;
 
 import org.hibernate.validator.constraints.Length;
 
-public class BuyerInfoDTO {
+import javax.validation.constraints.NotNull;
 
+public class BuyerInfoDTO {
+    @NotNull
     @Length(min = 8, max = 19)
     private String pan;
-
+    @NotNull
     @Length(min = 3, max = 4)
     private String cvv;
-
+    @NotNull
     @Length(min = 1)
     private String ime;
-
+    @NotNull
     @Length(min = 1)
     private String prezime;
-
+    @NotNull
     private int mesec;
-
+    @NotNull
     private int godina;
 
     public BuyerInfoDTO() {

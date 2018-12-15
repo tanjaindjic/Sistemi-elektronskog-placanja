@@ -41,19 +41,20 @@ public class MainServiceImpl implements MainService {
 
     @Override
     public void forward(Zahtev zahtev, PCCRequestDTO pccRequestDTO, String url) throws JsonProcessingException {
+
         HttpsURLConnection.setDefaultHostnameVerifier((hostname, session)->true);
         RestTemplate template = new RestTemplate();
         try {
             template.postForEntity(url, pccRequestDTO, PCCRequestDTO.class);
         }catch(Exception e){
-            System.out.println("greska kod slanja na banku 2");
-
+            System.out.println("Greska kod slanja zahteva na banku kupca.");
         }
 
     }
 
     @Override
     public Zahtev createZahtev(PCCRequestDTO request) {
+
         Banka prodavca = bankaRepository.findByBrojBanke(request.getBrojBankeProdavca());
         Banka kupca = bankaRepository.findByBrojBanke(request.getPanPosaljioca().substring(0,6));
         Zahtev zahtev = new Zahtev();
@@ -86,6 +87,10 @@ public class MainServiceImpl implements MainService {
 
         HttpsURLConnection.setDefaultHostnameVerifier((hostname, session)->true);
         RestTemplate template = new RestTemplate();
-        template.postForEntity(returnURL, pccReplyDTO, PCCReplyDTO.class);
+        try {
+            template.postForEntity(returnURL, pccReplyDTO, PCCReplyDTO.class);
+        }catch(Exception e){
+            System.out.println("Greska kod slanja odgovora na banku prodavca.");
+        }
     }
 }

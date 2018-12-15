@@ -67,14 +67,12 @@ public class StartData {
         klijentRepository.save(klijent2);
         klijentRepository.save(klijent3);
 
-/*
         Transakcija transakcija1 = new Transakcija(null, klijent2, "1", new Date(System.currentTimeMillis()), Status.K,
                 kartica1.getPan(), null, 100F, "succ", "fail", "error", 5L, new Date(System.currentTimeMillis()));
         transakcijaRepository.save(transakcija1);
         PaymentInfo paymentInfo = new PaymentInfo(transakcija1, "1");
         paymentInfoRepository.save(paymentInfo);
 
-*/
 
     }
 

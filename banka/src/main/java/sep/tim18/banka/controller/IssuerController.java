@@ -19,6 +19,8 @@ import sep.tim18.banka.repository.KlijentRepository;
 import sep.tim18.banka.repository.TransakcijaRepository;
 import sep.tim18.banka.service.IssuerService;
 
+import javax.validation.Valid;
+
 @RestController
 public class IssuerController {
 
@@ -39,25 +41,10 @@ public class IssuerController {
     }
 
     @RequestMapping(value = "/paymentRequest", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public void request(@RequestBody PCCRequestDTO request) throws JsonProcessingException {
+    public void request(@Valid @RequestBody PCCRequestDTO request) throws JsonProcessingException {
 
-        Klijent k = klijentRepository.findByKartice_pan(request.getPanPosaljioca());
-        if (k != null) {
-            if (issuerService.checkCredentials(request, k)) {
-                Transakcija t = issuerService.createTransakcija(request, k);
-                transakcijaRepository.save(t);
-                issuerService.tryPayment(request, t, k);
-            }else {
-                PCCReplyDTO pccReplyDTO = new PCCReplyDTO();
-                pccReplyDTO.setAcquirerOrderID(request.getAcquirerOrderID());
-                pccReplyDTO.setStatus(Status.N);
-                issuerService.sendReply(pccReplyDTO);
-            }
-        }else {
-            PCCReplyDTO pccReplyDTO = new PCCReplyDTO();
-            pccReplyDTO.setAcquirerOrderID(request.getAcquirerOrderID());
-            pccReplyDTO.setStatus(Status.N);
-            issuerService.sendReply(pccReplyDTO);
-        }
+        System.out.println("Zahtev od PCC-a: " + request.toString());
+        issuerService.startPayment(request);
+
     }
 }
