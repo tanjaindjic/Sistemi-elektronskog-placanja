@@ -1,7 +1,6 @@
 package sep.tim18.pcc.serviceImpl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -56,7 +55,7 @@ public class MainServiceImpl implements MainService {
     @Override
     public Zahtev createZahtev(PCCRequestDTO request) {
         Banka prodavca = bankaRepository.findByBrojBanke(request.getBrojBankeProdavca());
-        Banka kupca = bankaRepository.findByBrojBanke(request.getPan().substring(0,6));
+        Banka kupca = bankaRepository.findByBrojBanke(request.getPanPosaljioca().substring(0,6));
         Zahtev zahtev = new Zahtev();
         zahtev.setStatus(Status.K);
         zahtev.setAcquirerOrderID(request.getAcquirerOrderID());

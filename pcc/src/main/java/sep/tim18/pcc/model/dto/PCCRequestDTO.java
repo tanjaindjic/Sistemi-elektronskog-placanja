@@ -1,7 +1,6 @@
 package sep.tim18.pcc.model.dto;
 
 import org.hibernate.validator.constraints.Length;
-import org.joda.time.DateTime;
 
 import java.util.Date;
 
@@ -15,7 +14,7 @@ public class PCCRequestDTO {
     private Date merchantTimestamp;
 
     @Length(min = 8, max = 19)
-    private String pan;
+    private String panPosaljioca;
 
     @Length(min = 3, max = 4)
     private String cvv;
@@ -34,7 +33,7 @@ public class PCCRequestDTO {
 
     private Float iznos;
 
-    private String racunPrimaoca;
+    private String panPrimaoca;
 
     private String brojBankeProdavca;
 
@@ -57,12 +56,12 @@ public class PCCRequestDTO {
         this.acquirerTimestamp = acquirerTimestamp;
     }
 
-    public String getPan() {
-        return pan;
+    public String getPanPosaljioca() {
+        return panPosaljioca;
     }
 
-    public void setPan(String pan) {
-        this.pan = pan;
+    public void setPanPosaljioca(String panPosaljioca) {
+        this.panPosaljioca = panPosaljioca;
     }
 
     public String getCvv() {
@@ -121,12 +120,12 @@ public class PCCRequestDTO {
         return iznos;
     }
 
-    public String getRacunPrimaoca() {
-        return racunPrimaoca;
+    public String getPanPrimaoca() {
+        return panPrimaoca;
     }
 
-    public void setRacunPrimaoca(String racunPrimaoca) {
-        this.racunPrimaoca = racunPrimaoca;
+    public void setPanPrimaoca(String panPrimaoca) {
+        this.panPrimaoca = panPrimaoca;
     }
 
     public String getBrojBankeProdavca() {

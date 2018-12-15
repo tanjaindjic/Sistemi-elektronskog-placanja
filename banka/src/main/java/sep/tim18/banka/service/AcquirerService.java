@@ -25,4 +25,5 @@ public interface AcquirerService {
     PaymentInfo createPaymentDetails(KPRequestDTO request);
     void finalizePayment(PCCReplyDTO pccReplyDTO);
     boolean finishedPayment(String token);
+    boolean checkCredentials(String token, BuyerInfoDTO buyerInfoDTO);
 }

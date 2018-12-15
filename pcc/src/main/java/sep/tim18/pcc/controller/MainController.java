@@ -27,7 +27,7 @@ public class MainController {
     @RequestMapping(value = "/request", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     public void request(@RequestBody PCCRequestDTO request) throws JsonProcessingException {
         Zahtev zahtev = mainService.createZahtev(request);
-        Banka odKupca = mainService.getBankaByPan(request.getPan());
+        Banka odKupca = mainService.getBankaByPan(request.getPanPosaljioca());
         Banka odProdavca = mainService.getBanka(request.getBrojBankeProdavca());
         zahtev.setBankaProdavca(odProdavca);
 

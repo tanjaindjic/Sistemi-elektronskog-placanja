@@ -4,17 +4,14 @@ import java.util.Date;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
-import reactor.core.publisher.Mono;
 import sep.tim18.banka.model.Kartica;
 import sep.tim18.banka.model.Klijent;
 import sep.tim18.banka.model.Transakcija;
@@ -50,31 +47,33 @@ public class IssuerServiceImpl implements IssuerService {
     @Override
     public Transakcija createTransakcija(PCCRequestDTO request, Klijent k) {
 
-        Kartica kartica = karticaRepository.findByPan(request.getPan());
+        Kartica kartica = karticaRepository.findByPan(request.getPanPosaljioca());
         Transakcija t = new Transakcija();
         t.setUplacuje(k);
         t.setPrima(null);
         t.setPaymentURL("");
         t.setTimestamp(new Date());
         t.setStatus(Status.K);
-        t.setRacunPrimaoca(request.getRacunPrimaoca());
-        t.setRacunPosiljaoca(kartica.getBrRacuna());
+        t.setPanPrimaoca(request.getPanPrimaoca());
+        t.setPanPosaljioca(kartica.getPan());
         t.setIznos(request.getIznos());
         t.setErrorURL("");
         t.setFailedURL("");
         t.setSuccessURL("");
         t.setMerchantOrderId(request.getMerchantOrderID());
         t.setMerchantTimestamp(request.getMerchantTimestamp());
+        transakcijaRepository.save(t);
         return t;
 
     }
 
     @Override
+    @Transactional(readOnly = false, rollbackFor = Exception.class, propagation = Propagation.NEVER, isolation = Isolation.SERIALIZABLE)
     public void tryPayment(PCCRequestDTO request, Transakcija t, Klijent k) throws JsonProcessingException {
 
         PCCReplyDTO pccReplyDTO = new PCCReplyDTO();
         pccReplyDTO.setAcquirerOrderID(request.getAcquirerOrderID());
-        Kartica kartica = karticaRepository.findByBrRacuna(t.getRacunPosiljaoca());
+        Kartica kartica = karticaRepository.findByPan(t.getPanPosaljioca());
         int idx = k.getKartice().indexOf(kartica);
         if(kartica.getRaspolozivaSredstva()-t.getIznos()<0){
             t.setStatus(Status.N);
@@ -105,7 +104,26 @@ public class IssuerServiceImpl implements IssuerService {
         try {
             template.postForEntity(replyToPCC, reply, PCCReplyDTO.class);
         }catch (Exception e){
-            System.out.println("KP nedostupan");
+            System.out.println("PCC nedostupan");
         }
+    }
+
+    @Override
+    public boolean checkCredentials(PCCRequestDTO request, Klijent k) {
+
+        if(k==null)
+            return false;
+        if(!k.getIme().toLowerCase().equals(request.getIme().toLowerCase().trim()))
+            return false;
+        if(!k.getPrezime().toLowerCase().equals(request.getPrezime().toLowerCase().trim()))
+            return false;
+        if(!k.getKartice().get(0).getCcv().equals(request.getCvv().trim()))
+            return false;
+        String expDate = request.getMesec() + "/" + request.getGodina();
+        if(!k.getKartice().get(0).getExpDate().equals(expDate))
+            return false;
+
+        return true;
+
     }
 }

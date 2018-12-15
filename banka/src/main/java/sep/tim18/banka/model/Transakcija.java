@@ -6,8 +6,6 @@ import java.util.Date;
 
 import javax.persistence.*;
 
-import org.joda.time.DateTime;
-
 
 @Entity
 public class Transakcija {
@@ -35,10 +33,10 @@ public class Transakcija {
     private Status status;
 
     @Column(nullable = false, length=18)
-    private String racunPrimaoca;
+    private String panPrimaoca;
 
     @Column(length=18)
-    private String racunPosiljaoca;
+    private String panPosaljioca;
 
     @Column(nullable = false)
     private Float iznos;
@@ -63,14 +61,14 @@ public class Transakcija {
     public Transakcija() {
     }
 
-    public Transakcija(Klijent uplacuje, Klijent prima, String paymentURL, Date timestamp, Status status, String racunPrimaoca, String racunPosiljaoca, Float iznos, String successURL, String failedURL, String errorURL, Long merchantOrderId, Date merchantTimestamp) {
+    public Transakcija(Klijent uplacuje, Klijent prima, String paymentURL, Date timestamp, Status status, String panPrimaoca, String panPosaljioca, Float iznos, String successURL, String failedURL, String errorURL, Long merchantOrderId, Date merchantTimestamp) {
         this.uplacuje = uplacuje;
         this.prima = prima;
         this.paymentURL = paymentURL;
         this.timestamp = timestamp;
         this.status = status;
-        this.racunPrimaoca = racunPrimaoca;
-        this.racunPosiljaoca = racunPosiljaoca;
+        this.panPrimaoca = panPrimaoca;
+        this.panPosaljioca = panPosaljioca;
         this.iznos = iznos;
         this.successURL = successURL;
         this.failedURL = failedURL;
@@ -85,8 +83,8 @@ public class Transakcija {
         this.paymentURL = original.paymentURL;
         this.timestamp = new Date();
         this.status = original.status;
-        this.racunPrimaoca = original.racunPrimaoca;
-        this.racunPosiljaoca = original.racunPosiljaoca;
+        this.panPrimaoca = original.panPrimaoca;
+        this.panPosaljioca = original.panPosaljioca;
         this.iznos = original.iznos;
         this.successURL = original.successURL;
         this.failedURL = original.failedURL;
@@ -144,20 +142,20 @@ public class Transakcija {
         this.status = status;
     }
 
-    public String getRacunPrimaoca() {
-        return racunPrimaoca;
+    public String getPanPrimaoca() {
+        return panPrimaoca;
     }
 
-    public void setRacunPrimaoca(String racunPrimaoca) {
-        this.racunPrimaoca = racunPrimaoca;
+    public void setPanPrimaoca(String panPrimaoca) {
+        this.panPrimaoca = panPrimaoca;
     }
 
-    public String getRacunPosiljaoca() {
-        return racunPosiljaoca;
+    public String getPanPosaljioca() {
+        return panPosaljioca;
     }
 
-    public void setRacunPosiljaoca(String racunPosiljaoca) {
-        this.racunPosiljaoca = racunPosiljaoca;
+    public void setPanPosaljioca(String panPosaljioca) {
+        this.panPosaljioca = panPosaljioca;
     }
 
     public Float getIznos() {

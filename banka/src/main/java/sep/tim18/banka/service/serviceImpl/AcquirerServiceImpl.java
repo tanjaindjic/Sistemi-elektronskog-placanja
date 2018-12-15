@@ -1,16 +1,13 @@
 package sep.tim18.banka.service.serviceImpl;
 
 import java.io.IOException;
-import java.net.URI;
 import java.security.SecureRandom;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
@@ -18,14 +15,8 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
-import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.client.ClientResponse;
-import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
 import sep.tim18.banka.model.Kartica;
 import sep.tim18.banka.model.Klijent;
 import sep.tim18.banka.model.PaymentInfo;
@@ -124,8 +115,8 @@ public class AcquirerServiceImpl implements AcquirerService {
         t.setPaymentURL(null);
         t.setTimestamp(new Date());
         t.setStatus(Status.K);
-        t.setRacunPrimaoca(prodavac.getKartice().get(0).getBrRacuna());//TODO skontati kako biramo na koju karticu tj. racun uplacujemo novac prodavcu jer u NC pamtimo samo njegov merchantID
-        t.setRacunPosiljaoca(null);
+        t.setPanPrimaoca(prodavac.getKartice().get(0).getPan());
+        t.setPanPosaljioca(null);
         t.setIznos(request.getIznos());
         t.setSuccessURL(request.getSuccessURL());
         t.setFailedURL(request.getFailedURL());
@@ -156,6 +147,32 @@ public class AcquirerServiceImpl implements AcquirerService {
         if(t.getStatus()==Status.U || t.getStatus()==Status.N)
             return true;
         else return false;
+    }
+
+
+    @Override
+    public boolean checkCredentials(String token, BuyerInfoDTO buyerInfoDTO) {
+        PaymentInfo paymentInfo = paymentInfoRepository.findByPaymentURL(token);
+        if(paymentInfo==null)
+            return false;
+        Transakcija t = paymentInfo.getTransakcija();
+        if(t==null)
+            return false;
+
+        Klijent kupac = klijentRepository.findByKartice_pan(buyerInfoDTO.getPan());
+        if(kupac==null) //onda nije iz nase banke pa issuer treba ovo da proveri
+            return true;
+        if(!kupac.getIme().toLowerCase().equals(buyerInfoDTO.getIme().toLowerCase().trim()))
+            return false;
+        if(!kupac.getPrezime().toLowerCase().equals(buyerInfoDTO.getPrezime().toLowerCase().trim()))
+            return false;
+        if(!kupac.getKartice().get(0).getCcv().equals(buyerInfoDTO.getCvv().trim()))
+            return false;
+        String expDate = buyerInfoDTO.getMesec() + "/" + buyerInfoDTO.getGodina();
+        if(!kupac.getKartice().get(0).getExpDate().equals(expDate))
+            return false;
+
+        return true;
     }
 
     @Override
@@ -207,7 +224,7 @@ public class AcquirerServiceImpl implements AcquirerService {
 
         Transakcija t = paymentInfo.getTransakcija();
         Klijent kupac = klijentRepository.findByKartice_pan(buyerInfoDTO.getPan());
-        t.setRacunPosiljaoca(buyerInfoDTO.getPan());//pokusano da se plati sa ove kartice
+        t.setPanPosaljioca(buyerInfoDTO.getPan());//pokusano da se plati sa ove kartice
 
         if(finishedPayment(token)){
             map.put("Location", "/failed");
@@ -267,7 +284,7 @@ public class AcquirerServiceImpl implements AcquirerService {
             kupac.getKartice().set(idx, zaPlacanje);
             klijentRepository.save(kupac);
 
-            Kartica primalac = karticaRepository.findByPan(t.getRacunPrimaoca());
+            Kartica primalac = karticaRepository.findByPan(t.getPanPrimaoca());
             raspolozivo = primalac.getRaspolozivaSredstva();
             primalac.setRaspolozivaSredstva(raspolozivo + t.getIznos());
             karticaRepository.save(primalac);
@@ -277,7 +294,7 @@ public class AcquirerServiceImpl implements AcquirerService {
             klijentRepository.save(prodavac);
 
             t.setStatus(Status.U);
-            t.setRacunPrimaoca(kupac.getKartice().get(0).getBrRacuna());
+            t.setPanPrimaoca(kupac.getKartice().get(0).getBrRacuna());
             transakcijaRepository.save(t);
 
             finishPayment(paymentInfo, t, token, buyerInfoDTO);
@@ -299,10 +316,10 @@ public class AcquirerServiceImpl implements AcquirerService {
         pccRequestDTO.setMesec(buyerInfoDTO.getMesec());
         pccRequestDTO.setIme(buyerInfoDTO.getIme());
         pccRequestDTO.setPrezime(buyerInfoDTO.getPrezime());
-        pccRequestDTO.setPan(buyerInfoDTO.getPan());
+        pccRequestDTO.setPanPosaljioca(buyerInfoDTO.getPan());
         pccRequestDTO.setIznos(t.getIznos());
         pccRequestDTO.setReturnURL(BAddress + "pccReply");
-        pccRequestDTO.setRacunPrimaoca(t.getRacunPrimaoca());
+        pccRequestDTO.setPanPrimaoca(t.getPanPrimaoca());
         pccRequestDTO.setBrojBankeProdavca(BNumber);
         pccRequestDTO.setMerchantOrderID(t.getMerchantOrderId());
         pccRequestDTO.setMerchantTimestamp(t.getMerchantTimestamp());
@@ -376,7 +393,7 @@ public class AcquirerServiceImpl implements AcquirerService {
             t.setStatus(Status.N);
         else{
             t.setStatus(Status.U);
-            Kartica primalac = karticaRepository.findByPan(t.getRacunPrimaoca());
+            Kartica primalac = karticaRepository.findByPan(t.getPanPrimaoca());
             Float raspolozivo = primalac.getRaspolozivaSredstva();
             primalac.setRaspolozivaSredstva(raspolozivo + t.getIznos());
             karticaRepository.save(primalac);

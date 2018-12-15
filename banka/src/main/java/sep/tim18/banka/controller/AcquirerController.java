@@ -62,7 +62,7 @@ public class AcquirerController {
 
         if(acquirerService.finishedPayment(token)) {
             System.out.println("transakcija je gotova");
-            retVal.put("Location", "/failed");
+            retVal.put("Location", "/404");
             return new ResponseEntity<Map>(retVal, HttpStatus.BAD_REQUEST);
         }
 
@@ -82,8 +82,13 @@ public class AcquirerController {
     @RequestMapping(value = "/pay/{token}", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Map> finishPayment(HttpServletResponse httpServletResponse, @PathVariable String token, @RequestBody BuyerInfoDTO buyerInfoDTO) throws IOException {
 
-        return acquirerService.tryPayment(token, buyerInfoDTO, httpServletResponse);
-
+        Map<String, String> map = new HashMap<>();
+        if(acquirerService.checkCredentials(token, buyerInfoDTO))
+            return acquirerService.tryPayment(token, buyerInfoDTO, httpServletResponse);
+        else{
+            map.put("Location", "/failed");
+            return new ResponseEntity<>(map, HttpStatus.BAD_REQUEST);
+        }
     }
 
     @RequestMapping(value = "/pccReply", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)

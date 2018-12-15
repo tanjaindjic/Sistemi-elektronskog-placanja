@@ -53,8 +53,8 @@ mainModule.controller('centerController', ['$scope', '$window', 'mainService', '
                 "cvv" : document.getElementById("cvv").value,
                 "ime": document.getElementById("owner").value,
                 "prezime": document.getElementById("ownerL").value,
-                "mesec" : month.options[month.selectedIndex].text,
-                "godina" : year.options[year.selectedIndex].text
+                "mesec" : month.options[month.selectedIndex].value,
+                "godina" : year.options[year.selectedIndex].value
             }
 
             return data;

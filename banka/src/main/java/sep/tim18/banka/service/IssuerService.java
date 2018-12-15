@@ -11,4 +11,5 @@ public interface IssuerService {
     Transakcija createTransakcija(PCCRequestDTO request, Klijent klijent);
     void tryPayment(PCCRequestDTO request, Transakcija t, Klijent k) throws JsonProcessingException;
     void sendReply(PCCReplyDTO reply);
+    boolean checkCredentials(PCCRequestDTO request, Klijent k);
 }

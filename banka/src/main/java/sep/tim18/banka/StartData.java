@@ -46,16 +46,16 @@ public class StartData {
 
     @PostConstruct
     private void init(){
-        Klijent klijent1 = new Klijent("ime1", "prez1", "01", "pass1", "mejl1", new ArrayList<>());
-        Klijent klijent2 = new Klijent("ime2", "prez2", "02", "pass2", "mejl2", new ArrayList<>());
-        Klijent klijent3 = new Klijent("ime3", "prez3", "03", "pass3", "mejl3", new ArrayList<>());
+        Klijent klijent1 = new Klijent("prvi", "prvic", "1", "pass1", "mejl1", new ArrayList<>());
+        Klijent klijent2 = new Klijent("drugi", "drugic", "2", "pass2", "mejl2", new ArrayList<>());
+        Klijent klijent3 = new Klijent("treci", "trecic", "3", "pass3", "mejl3", new ArrayList<>());
         klijentRepository.save(klijent1);
         klijentRepository.save(klijent2);
         klijentRepository.save(klijent3);
 
-        Kartica kartica1 = new Kartica(BNumber + "2233334444", "111", "01/25", BNumber + "001", 10000F, 0F, klijent1 );
-        Kartica kartica2 = new Kartica(BNumber + "3344445555", "222", "01/25", BNumber + "002", 10000F, 0F, klijent2 );
-        Kartica kartica3 = new Kartica(BNumber + "4455556666", "333", "01/25", BNumber + "003", 10000F, 0F, klijent3 );
+        Kartica kartica1 = new Kartica(BNumber + "2233334444", "111", "1/25", BNumber + "001", 10000F, 0F, klijent1 );
+        Kartica kartica2 = new Kartica(BNumber + "3344445555", "222", "1/25", BNumber + "002", 10000F, 0F, klijent2 );
+        Kartica kartica3 = new Kartica(BNumber + "4455556666", "333", "1/25", BNumber + "003", 10000F, 0F, klijent3 );
         karticaRepository.save(kartica1);
         karticaRepository.save(kartica2);
         karticaRepository.save(kartica3);
@@ -67,12 +67,14 @@ public class StartData {
         klijentRepository.save(klijent2);
         klijentRepository.save(klijent3);
 
+/*
         Transakcija transakcija1 = new Transakcija(null, klijent2, "1", new Date(System.currentTimeMillis()), Status.K,
                 kartica1.getPan(), null, 100F, "succ", "fail", "error", 5L, new Date(System.currentTimeMillis()));
         transakcijaRepository.save(transakcija1);
         PaymentInfo paymentInfo = new PaymentInfo(transakcija1, "1");
         paymentInfoRepository.save(paymentInfo);
 
+*/
 
     }
 
