@@ -129,6 +129,10 @@ public class PaymentController {
 		}
 		
 		if(retVal.isRedirekcija()) {
+			if(!retVal.getIzvrsnaTransakcija().isEmpty()){
+				transakcija.setIzvrsnaTransakcija(retVal.getIzvrsnaTransakcija());
+				transakcijaService.save(transakcija);
+			}
 			HttpHeaders headers = new HttpHeaders();
 			headers.add("Location", retVal.getNovaPutanja());
 			headers.add("Access-Control-Allow-Origin", "*");
@@ -138,9 +142,9 @@ public class PaymentController {
 		return new ResponseEntity<Boolean>(retVal.isUspesno(), HttpStatus.OK);
 	}
 	
-	@RequestMapping(value = "success", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<PaymentResponseDTO> completePayment(HttpServletRequest request, @RequestParam("paymentId") String paymentId, @RequestParam("payerId") String payerId, @RequestParam("token") String token){
-		Transakcija transakcija = transakcijaService.findByIzvrsnaTransakcija(Long.decode(request.getParameter("paymentId")));
+	@RequestMapping(value = "success", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<PaymentResponseDTO> completePayment(HttpServletRequest request, @RequestParam("paymentId") String paymentId, @RequestParam("PayerID") String payerId, @RequestParam("token") String token){
+		Transakcija transakcija = transakcijaService.findByIzvrsnaTransakcija(request.getParameter("paymentId"));
 		TipPlacanja tipPlacanja = tipPlacanjaService.getByKod("PPP");
 		ArrayList<PodrzanoPlacanje> podrzanaPlacanja = podrzanoPlacanjeService.getByEntitetPlacanjaAndTipPlacanja(transakcija.getEntitetPlacanja(), tipPlacanja);
 		if(podrzanaPlacanja.isEmpty()) {
@@ -155,11 +159,15 @@ public class PaymentController {
             response.setStatus(TransakcijaStatus.N);
             transakcija.setStatus(TransakcijaStatus.N);
         }
-        response.setMaticnaTransakcija(transakcija.getMaticnaTransakcija());
-        response.setPoruka("PayPal uplata je uspesno izvrsena");
-        response.setStatus(TransakcijaStatus.U);
-        System.out.println("NINA CAREEEEE");
+        else{
+	        response.setMaticnaTransakcija(transakcija.getMaticnaTransakcija());
+	        response.setPoruka("PayPal uplata je uspesno izvrsena");
+	        response.setStatus(TransakcijaStatus.U);
+	        transakcija.setStatus(TransakcijaStatus.U);
+	        System.out.println("NINA CAREEEEE");
+	    }
+        transakcijaService.save(transakcija);
 		return new ResponseEntity<>(response, HttpStatus.OK);
+	//TODO dodati redirekciju na odgovarajucu stranicu i za controller za "/cancel"
     }
-
 }

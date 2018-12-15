@@ -16,6 +16,8 @@ public interface TransakcijaService {
 	
 	public Transakcija update(TransakcijaIshodDTO transakcijaIshod, Transakcija transakcija) throws TransactionUpdateExeption;
 
-	public Transakcija findByIzvrsnaTransakcija(Long decode);
+	public Transakcija findByIzvrsnaTransakcija(String izvrsnaTransakcija);
+
+	public Transakcija save(Transakcija transakcija);
 	
 }
