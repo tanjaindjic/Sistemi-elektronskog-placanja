@@ -19,7 +19,7 @@ import com.ftn.paymentGateway.model.PodrzanoPlacanje;
 import com.ftn.paymentGateway.model.Transakcija;
 import com.ftn.paymentGateway.paymentStrategy.PaymentStrategy;
 import com.ftn.paymentGateway.repository.PodrzanoPlacanjeRepository;
-import com.ftn.paymentGateway.repository.TransakcijaRepository;
+import com.ftn.paymentGateway.service.TransakcijaService;
 import com.ftn.paymentGateway.utils.URLUtils;
 import com.paypal.api.payments.Amount;
 import com.paypal.api.payments.Links;
@@ -36,12 +36,10 @@ import com.paypal.base.rest.PayPalRESTException;
 public class PayPalPayment implements PaymentStrategy{
 
 	public static final String PAYPAL_SUCCESS_URL = "rest/success";
-	public static final String PAYPAL_CANCEL_URL = "cancel";
+	public static final String PAYPAL_CANCEL_URL = "rest/cancel";
 //	private GenericApplicationContext ctx;
 	@Autowired
 	private PodrzanoPlacanjeRepository podrzanoPlacanjeRepository;
-	@Autowired
-	private TransakcijaRepository transakcijaRepository;
 	
 	@Override
 	public TransakcijaIshodDTO doPayment(Transakcija transakcija, PodrzanoPlacanje podrzanoPlacanje) throws PaymentErrorException{
@@ -89,6 +87,7 @@ public class PayPalPayment implements PaymentStrategy{
 	                if(link.getRel().equals("approval_url")){
 	                    redirectUrl = link.getHref();
 	                    response.setNovaPutanja(link.getHref());
+	                    response.setIzvrsnaTransakcija(createdPayment.getId());
 	                    System.out.println("ID IZVRSNE TRANSAKCIJE: "+createdPayment.getId());
 	                    break;
 	                }

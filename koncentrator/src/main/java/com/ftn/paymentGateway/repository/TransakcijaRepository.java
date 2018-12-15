@@ -8,6 +8,6 @@ public interface TransakcijaRepository extends JpaRepository<Transakcija, Long>{
 
 	public Transakcija findByJedinstveniToken(String jedinstveniToken);
 
-	public Transakcija findByIzvrsnaTransakcija(Long decode);
+	public Transakcija findByIzvrsnaTransakcija(String izvrsnaTransakcija);
 	
 }

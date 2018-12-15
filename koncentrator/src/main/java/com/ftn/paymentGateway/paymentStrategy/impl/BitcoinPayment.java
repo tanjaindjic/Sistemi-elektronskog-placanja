@@ -59,7 +59,7 @@ public class BitcoinPayment implements PaymentStrategy{
 		String paymentUrl = (String) retValMap.get("payment_url");
 		Long bitcoinTransactionId = Long.parseLong(retValMap.get("id").toString());
 		
-		return new TransakcijaIshodDTO(true, true, TransakcijaStatus.C, bitcoinTransactionId, paymentUrl);
+		return new TransakcijaIshodDTO(true, true, TransakcijaStatus.C, Long.toString(bitcoinTransactionId), paymentUrl);
 	}
 
 }

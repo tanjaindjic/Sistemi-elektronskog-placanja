@@ -10,7 +10,7 @@ public class TransakcijaIshodDTO {
 	
 	private TransakcijaStatus noviStatus;
 	
-	private Long izvrsnaTransakcija;
+	private String izvrsnaTransakcija;
 	
 	private String novaPutanja;
 
@@ -19,7 +19,7 @@ public class TransakcijaIshodDTO {
 	}
 
 	public TransakcijaIshodDTO(boolean uspesno, boolean redirekcija, TransakcijaStatus noviStatus,
-			Long izvrsnaTransakcija, String novaPutanja) {
+			String izvrsnaTransakcija, String novaPutanja) {
 		super();
 		this.uspesno = uspesno;
 		this.redirekcija = redirekcija;
@@ -52,11 +52,11 @@ public class TransakcijaIshodDTO {
 		this.noviStatus = noviStatus;
 	}
 
-	public Long getIzvrsnaTransakcija() {
+	public String getIzvrsnaTransakcija() {
 		return izvrsnaTransakcija;
 	}
 
-	public void setIzvrsnaTransakcija(Long izvrsnaTransakcija) {
+	public void setIzvrsnaTransakcija(String izvrsnaTransakcija) {
 		this.izvrsnaTransakcija = izvrsnaTransakcija;
 	}
 
