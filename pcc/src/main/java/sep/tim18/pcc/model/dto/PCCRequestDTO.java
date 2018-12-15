@@ -3,10 +3,16 @@ package sep.tim18.pcc.model.dto;
 import org.hibernate.validator.constraints.Length;
 import org.joda.time.DateTime;
 
+import java.util.Date;
+
 public class PCCRequestDTO {
     private Long acquirerOrderID;
 
-    private DateTime acquirerTimestamp;
+    private Date acquirerTimestamp;
+
+    private Long merchantOrderID;
+
+    private Date merchantTimestamp;
 
     @Length(min = 8, max = 19)
     private String pan;
@@ -43,11 +49,11 @@ public class PCCRequestDTO {
         this.acquirerOrderID = acquirerOrderID;
     }
 
-    public DateTime getAcquirerTimestamp() {
+    public Date getAcquirerTimestamp() {
         return acquirerTimestamp;
     }
 
-    public void setAcquirerTimestamp(DateTime acquirerTimestamp) {
+    public void setAcquirerTimestamp(Date acquirerTimestamp) {
         this.acquirerTimestamp = acquirerTimestamp;
     }
 
@@ -129,5 +135,21 @@ public class PCCRequestDTO {
 
     public void setBrojBankeProdavca(String brojBankeProdavca) {
         this.brojBankeProdavca = brojBankeProdavca;
+    }
+
+    public Long getMerchantOrderID() {
+        return merchantOrderID;
+    }
+
+    public void setMerchantOrderID(Long merchantOrderID) {
+        this.merchantOrderID = merchantOrderID;
+    }
+
+    public Date getMerchantTimestamp() {
+        return merchantTimestamp;
+    }
+
+    public void setMerchantTimestamp(Date merchantTimestamp) {
+        this.merchantTimestamp = merchantTimestamp;
     }
 }

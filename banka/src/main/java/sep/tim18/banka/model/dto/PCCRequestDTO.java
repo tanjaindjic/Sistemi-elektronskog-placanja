@@ -10,6 +10,10 @@ public class PCCRequestDTO {
 
     private Date acquirerTimestamp;
 
+    private Long merchantOrderID;
+
+    private Date merchantTimestamp;
+
     @Length(min = 8, max = 19)
     private String pan;
 
@@ -131,5 +135,21 @@ public class PCCRequestDTO {
 
     public void setBrojBankeProdavca(String brojBankeProdavca) {
         this.brojBankeProdavca = brojBankeProdavca;
+    }
+
+    public Long getMerchantOrderID() {
+        return merchantOrderID;
+    }
+
+    public void setMerchantOrderID(Long merchantOrderID) {
+        this.merchantOrderID = merchantOrderID;
+    }
+
+    public Date getMerchantTimestamp() {
+        return merchantTimestamp;
+    }
+
+    public void setMerchantTimestamp(Date merchantTimestamp) {
+        this.merchantTimestamp = merchantTimestamp;
     }
 }

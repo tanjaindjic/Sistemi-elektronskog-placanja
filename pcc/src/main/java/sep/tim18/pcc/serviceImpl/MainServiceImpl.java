@@ -44,7 +44,12 @@ public class MainServiceImpl implements MainService {
     public void forward(Zahtev zahtev, PCCRequestDTO pccRequestDTO, String url) throws JsonProcessingException {
         HttpsURLConnection.setDefaultHostnameVerifier((hostname, session)->true);
         RestTemplate template = new RestTemplate();
-        template.postForEntity(url, pccRequestDTO, PCCRequestDTO.class);
+        try {
+            template.postForEntity(url, pccRequestDTO, PCCRequestDTO.class);
+        }catch(Exception e){
+            System.out.println("greska kod slanja na banku 2");
+
+        }
 
     }
 

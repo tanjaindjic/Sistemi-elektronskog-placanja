@@ -54,12 +54,17 @@ public class IssuerServiceImpl implements IssuerService {
         Transakcija t = new Transakcija();
         t.setUplacuje(k);
         t.setPrima(null);
-        t.setPaymentURL(null);
+        t.setPaymentURL("");
         t.setTimestamp(new Date());
         t.setStatus(Status.K);
         t.setRacunPrimaoca(request.getRacunPrimaoca());
         t.setRacunPosiljaoca(kartica.getBrRacuna());
         t.setIznos(request.getIznos());
+        t.setErrorURL("");
+        t.setFailedURL("");
+        t.setSuccessURL("");
+        t.setMerchantOrderId(request.getMerchantOrderID());
+        t.setMerchantTimestamp(request.getMerchantTimestamp());
         return t;
 
     }
@@ -76,6 +81,7 @@ public class IssuerServiceImpl implements IssuerService {
             transakcijaRepository.save(t);
             pccReplyDTO.setStatus(Status.N);
             sendReply(pccReplyDTO);
+            return;
         }
         Float raspolozivo = kartica.getRaspolozivaSredstva();
         kartica.setRaspolozivaSredstva(raspolozivo - t.getIznos());
@@ -96,6 +102,10 @@ public class IssuerServiceImpl implements IssuerService {
     public void sendReply(PCCReplyDTO reply) {
         HttpsURLConnection.setDefaultHostnameVerifier((hostname, session)->true);
         RestTemplate template = new RestTemplate();
-        template.postForEntity(replyToPCC, reply, PCCReplyDTO.class);
+        try {
+            template.postForEntity(replyToPCC, reply, PCCReplyDTO.class);
+        }catch (Exception e){
+            System.out.println("KP nedostupan");
+        }
     }
 }

@@ -304,11 +304,18 @@ public class AcquirerServiceImpl implements AcquirerService {
         pccRequestDTO.setReturnURL(BAddress + "pccReply");
         pccRequestDTO.setRacunPrimaoca(t.getRacunPrimaoca());
         pccRequestDTO.setBrojBankeProdavca(BNumber);
+        pccRequestDTO.setMerchantOrderID(t.getMerchantOrderId());
+        pccRequestDTO.setMerchantTimestamp(t.getMerchantTimestamp());
 
         //saljem na pcc pa kad dobijem odgovor prosledim koncentratoru
         HttpsURLConnection.setDefaultHostnameVerifier((hostname, session)->true);
         RestTemplate template = new RestTemplate();
-        template.postForEntity(requestToPCC, pccRequestDTO, PCCRequestDTO.class);
+        try{
+            template.postForEntity(requestToPCC, pccRequestDTO, PCCRequestDTO.class);
+        }catch(Exception e){
+            System.out.println("greska kod slanja zahteva na pcc");
+
+        }
 
     }
 
@@ -361,13 +368,29 @@ public class AcquirerServiceImpl implements AcquirerService {
     }
 
     @Override
+    @Transactional(readOnly = false, rollbackFor = Exception.class, propagation = Propagation.NEVER, isolation = Isolation.SERIALIZABLE)
     public void finalizePayment(PCCReplyDTO pccReplyDTO) {
         Transakcija t = transakcijaRepository.findById(pccReplyDTO.getAcquirerOrderID()).get();
         PaymentInfo paymentInfo = paymentInfoRepository.findByTransakcija(t);
         if(pccReplyDTO.getStatus()==Status.N)
             t.setStatus(Status.N);
-        else t.setStatus(Status.U);
+        else{
+            t.setStatus(Status.U);
+            Kartica primalac = karticaRepository.findByPan(t.getRacunPrimaoca());
+            Float raspolozivo = primalac.getRaspolozivaSredstva();
+            primalac.setRaspolozivaSredstva(raspolozivo + t.getIznos());
+            karticaRepository.save(primalac);
+            Klijent prodavac = klijentRepository.findByKartice_pan(primalac.getPan());
+            int idx = prodavac.getKartice().indexOf(primalac);
+            prodavac.getKartice().set(idx, primalac);
+            klijentRepository.save(prodavac);
+
+        }
         transakcijaRepository.save(t);
+        sendReplyToKP(t, paymentInfo);
+    }
+
+    private void sendReplyToKP(Transakcija t, PaymentInfo paymentInfo){
 
         FinishedPaymentDTO finishedPaymentDTO = new FinishedPaymentDTO();
         finishedPaymentDTO.setStatusTransakcije(t.getStatus());

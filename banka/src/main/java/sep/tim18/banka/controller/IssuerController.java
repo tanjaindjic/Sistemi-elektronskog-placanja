@@ -41,7 +41,7 @@ public class IssuerController {
         replyToPCC = s;
     }
 
-    @RequestMapping(value = "/paymentRequest", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/paymentRequest", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     public void request(@RequestBody PCCRequestDTO request) throws JsonProcessingException {
 
         Klijent k = klijentRepository.findByKartice_pan(request.getPan());
