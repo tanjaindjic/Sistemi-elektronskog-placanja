@@ -1,12 +1,18 @@
 package sep.tim18.banka.model.dto;
 
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 public class KPRequestDTO {
+    @NotNull
     private String merchantID;
+    @NotNull
     private String merchantPass;
+    @NotNull
     private Float iznos;
+    @NotNull
     private Long merchantOrderID;
+    @NotNull
     private Date merchantTimestamp;
     private String successURL;
     private String failedURL;

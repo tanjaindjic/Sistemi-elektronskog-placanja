@@ -1,15 +1,20 @@
 package sep.tim18.pcc.model.dto;
 
 import org.hibernate.validator.constraints.Length;
-import org.joda.time.DateTime;
+
+import java.util.Date;
 
 public class PCCRequestDTO {
     private Long acquirerOrderID;
 
-    private DateTime acquirerTimestamp;
+    private Date acquirerTimestamp;
+
+    private Long merchantOrderID;
+
+    private Date merchantTimestamp;
 
     @Length(min = 8, max = 19)
-    private String pan;
+    private String panPosaljioca;
 
     @Length(min = 3, max = 4)
     private String cvv;
@@ -28,7 +33,7 @@ public class PCCRequestDTO {
 
     private Float iznos;
 
-    private String racunPrimaoca;
+    private String panPrimaoca;
 
     private String brojBankeProdavca;
 
@@ -43,20 +48,20 @@ public class PCCRequestDTO {
         this.acquirerOrderID = acquirerOrderID;
     }
 
-    public DateTime getAcquirerTimestamp() {
+    public Date getAcquirerTimestamp() {
         return acquirerTimestamp;
     }
 
-    public void setAcquirerTimestamp(DateTime acquirerTimestamp) {
+    public void setAcquirerTimestamp(Date acquirerTimestamp) {
         this.acquirerTimestamp = acquirerTimestamp;
     }
 
-    public String getPan() {
-        return pan;
+    public String getPanPosaljioca() {
+        return panPosaljioca;
     }
 
-    public void setPan(String pan) {
-        this.pan = pan;
+    public void setPanPosaljioca(String panPosaljioca) {
+        this.panPosaljioca = panPosaljioca;
     }
 
     public String getCvv() {
@@ -115,12 +120,12 @@ public class PCCRequestDTO {
         return iznos;
     }
 
-    public String getRacunPrimaoca() {
-        return racunPrimaoca;
+    public String getPanPrimaoca() {
+        return panPrimaoca;
     }
 
-    public void setRacunPrimaoca(String racunPrimaoca) {
-        this.racunPrimaoca = racunPrimaoca;
+    public void setPanPrimaoca(String panPrimaoca) {
+        this.panPrimaoca = panPrimaoca;
     }
 
     public String getBrojBankeProdavca() {
@@ -129,5 +134,21 @@ public class PCCRequestDTO {
 
     public void setBrojBankeProdavca(String brojBankeProdavca) {
         this.brojBankeProdavca = brojBankeProdavca;
+    }
+
+    public Long getMerchantOrderID() {
+        return merchantOrderID;
+    }
+
+    public void setMerchantOrderID(Long merchantOrderID) {
+        this.merchantOrderID = merchantOrderID;
+    }
+
+    public Date getMerchantTimestamp() {
+        return merchantTimestamp;
+    }
+
+    public void setMerchantTimestamp(Date merchantTimestamp) {
+        this.merchantTimestamp = merchantTimestamp;
     }
 }

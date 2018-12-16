@@ -5,6 +5,7 @@ import org.joda.time.DateTime;
 import sep.tim18.pcc.model.enums.Status;
 
 import javax.persistence.*;
+import java.util.Date;
 
 @Entity
 public class Zahtev {
@@ -23,9 +24,14 @@ public class Zahtev {
     @ManyToOne
     private Banka bankaKupca;
 
-    private DateTime vremeKreiranja;
+    @Column(nullable = false)
+    @Temporal(TemporalType.DATE)
+    private Date vremeKreiranja;
 
+    @Enumerated(EnumType.STRING)
     private Status status;
+
+    private String returnURL;
 
     public Zahtev() {
     }
@@ -70,11 +76,11 @@ public class Zahtev {
         this.bankaKupca = bankaKupca;
     }
 
-    public DateTime getVremeKreiranja() {
+    public Date getVremeKreiranja() {
         return vremeKreiranja;
     }
 
-    public void setVremeKreiranja(DateTime vremeKreiranja) {
+    public void setVremeKreiranja(Date vremeKreiranja) {
         this.vremeKreiranja = vremeKreiranja;
     }
 
@@ -84,5 +90,13 @@ public class Zahtev {
 
     public void setStatus(Status status) {
         this.status = status;
+    }
+
+    public String getReturnURL() {
+        return returnURL;
+    }
+
+    public void setReturnURL(String returnURL) {
+        this.returnURL = returnURL;
     }
 }

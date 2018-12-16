@@ -6,8 +6,6 @@ import java.util.Date;
 
 import javax.persistence.*;
 
-import org.joda.time.DateTime;
-
 
 @Entity
 public class Transakcija {
@@ -17,10 +15,10 @@ public class Transakcija {
     private Long orderID;
 
 
-    @ManyToOne(optional=false)
+    @ManyToOne//(optional=false) ne moze jer kod banke prodavca ovo moze biti null ako nisu iz iste banke
     private Klijent uplacuje;
 
-    @ManyToOne(optional=false)
+    @ManyToOne//(optional=false) ne moze jer kod banke kupca ovo moze biti null jer nisu iz iste banke
     private Klijent prima;
 
     @Column(nullable = false, length=256)
@@ -35,10 +33,10 @@ public class Transakcija {
     private Status status;
 
     @Column(nullable = false, length=18)
-    private String racunPrimaoca;
+    private String panPrimaoca;
 
-    @Column(nullable = false, length=18)
-    private String racunPosiljaoca;
+    @Column(length=18)
+    private String panPosaljioca;
 
     @Column(nullable = false)
     private Float iznos;
@@ -63,14 +61,30 @@ public class Transakcija {
     public Transakcija() {
     }
 
+    public Transakcija(Klijent uplacuje, Klijent prima, String paymentURL, Date timestamp, Status status, String panPrimaoca, String panPosaljioca, Float iznos, String successURL, String failedURL, String errorURL, Long merchantOrderId, Date merchantTimestamp) {
+        this.uplacuje = uplacuje;
+        this.prima = prima;
+        this.paymentURL = paymentURL;
+        this.timestamp = timestamp;
+        this.status = status;
+        this.panPrimaoca = panPrimaoca;
+        this.panPosaljioca = panPosaljioca;
+        this.iznos = iznos;
+        this.successURL = successURL;
+        this.failedURL = failedURL;
+        this.errorURL = errorURL;
+        this.merchantOrderId = merchantOrderId;
+        this.merchantTimestamp = merchantTimestamp;
+    }
+
     public Transakcija(Transakcija original) {
         this.uplacuje = original.uplacuje;
         this.prima = original.prima;
         this.paymentURL = original.paymentURL;
         this.timestamp = new Date();
         this.status = original.status;
-        this.racunPrimaoca = original.racunPrimaoca;
-        this.racunPosiljaoca = original.racunPosiljaoca;
+        this.panPrimaoca = original.panPrimaoca;
+        this.panPosaljioca = original.panPosaljioca;
         this.iznos = original.iznos;
         this.successURL = original.successURL;
         this.failedURL = original.failedURL;
@@ -128,20 +142,20 @@ public class Transakcija {
         this.status = status;
     }
 
-    public String getRacunPrimaoca() {
-        return racunPrimaoca;
+    public String getPanPrimaoca() {
+        return panPrimaoca;
     }
 
-    public void setRacunPrimaoca(String racunPrimaoca) {
-        this.racunPrimaoca = racunPrimaoca;
+    public void setPanPrimaoca(String panPrimaoca) {
+        this.panPrimaoca = panPrimaoca;
     }
 
-    public String getRacunPosiljaoca() {
-        return racunPosiljaoca;
+    public String getPanPosaljioca() {
+        return panPosaljioca;
     }
 
-    public void setRacunPosiljaoca(String racunPosiljaoca) {
-        this.racunPosiljaoca = racunPosiljaoca;
+    public void setPanPosaljioca(String panPosaljioca) {
+        this.panPosaljioca = panPosaljioca;
     }
 
     public Float getIznos() {

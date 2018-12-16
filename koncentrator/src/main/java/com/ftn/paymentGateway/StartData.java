@@ -107,8 +107,8 @@ public class StartData {
 		transakcijaRepository.save(tr4);
 		transakcijaRepository.save(tr5);
 		
-		for(Transakcija t0 : transakcijaRepository.findAll())
-			System.out.println(t0.getJedinstveniToken());
+	//	for(Transakcija t0 : transakcijaRepository.findAll())
+	//		System.out.println(t0.getJedinstveniToken());
 	}
 
 }

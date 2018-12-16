@@ -4,33 +4,39 @@ import java.util.Date;
 
 import org.hibernate.validator.constraints.Length;
 
-public class PCCRequestDTO {
-    //TODO proveriti da li treba nova transakcija ili za postojecu saljem i samo menjam status na CEKANJE
-    private Long acquirerOrderID;
+import javax.validation.constraints.NotNull;
 
+public class PCCRequestDTO {
+    @NotNull
+    private Long acquirerOrderID;
+    @NotNull
     private Date acquirerTimestamp;
+    @NotNull
+    private Long merchantOrderID;
+    @NotNull
+    private Date merchantTimestamp;
 
     @Length(min = 8, max = 19)
-    private String pan;
-
+    private String panPosaljioca;
+    @NotNull
     @Length(min = 3, max = 4)
     private String cvv;
-
+    @NotNull
     @Length(min = 1)
     private String ime;
-
+    @NotNull
     @Length(min = 1)
     private String prezime;
-
+    @NotNull
     private int mesec;
-
+    @NotNull
     private int godina;
 
     private String returnURL;
-
+    @NotNull
     private Float iznos;
 
-    private String racunPrimaoca;
+    private String panPrimaoca;
 
     private String brojBankeProdavca;
 
@@ -53,12 +59,12 @@ public class PCCRequestDTO {
         this.acquirerTimestamp = acquirerTimestamp;
     }
 
-    public String getPan() {
-        return pan;
+    public String getPanPosaljioca() {
+        return panPosaljioca;
     }
 
-    public void setPan(String pan) {
-        this.pan = pan;
+    public void setPanPosaljioca(String panPosaljioca) {
+        this.panPosaljioca = panPosaljioca;
     }
 
     public String getCvv() {
@@ -117,12 +123,12 @@ public class PCCRequestDTO {
         return iznos;
     }
 
-    public String getRacunPrimaoca() {
-        return racunPrimaoca;
+    public String getPanPrimaoca() {
+        return panPrimaoca;
     }
 
-    public void setRacunPrimaoca(String racunPrimaoca) {
-        this.racunPrimaoca = racunPrimaoca;
+    public void setPanPrimaoca(String panPrimaoca) {
+        this.panPrimaoca = panPrimaoca;
     }
 
     public String getBrojBankeProdavca() {
@@ -131,5 +137,41 @@ public class PCCRequestDTO {
 
     public void setBrojBankeProdavca(String brojBankeProdavca) {
         this.brojBankeProdavca = brojBankeProdavca;
+    }
+
+    public Long getMerchantOrderID() {
+        return merchantOrderID;
+    }
+
+    public void setMerchantOrderID(Long merchantOrderID) {
+        this.merchantOrderID = merchantOrderID;
+    }
+
+    public Date getMerchantTimestamp() {
+        return merchantTimestamp;
+    }
+
+    public void setMerchantTimestamp(Date merchantTimestamp) {
+        this.merchantTimestamp = merchantTimestamp;
+    }
+
+    @Override
+    public String toString() {
+        return "PCCRequestDTO{" +
+                "acquirerOrderID=" + acquirerOrderID +
+                ", acquirerTimestamp=" + acquirerTimestamp +
+                ", merchantOrderID=" + merchantOrderID +
+                ", merchantTimestamp=" + merchantTimestamp +
+                ", panPosaljioca='" + panPosaljioca + '\'' +
+                ", cvv='" + cvv + '\'' +
+                ", ime='" + ime + '\'' +
+                ", prezime='" + prezime + '\'' +
+                ", mesec=" + mesec +
+                ", godina=" + godina +
+                ", returnURL='" + returnURL + '\'' +
+                ", iznos=" + iznos +
+                ", panPrimaoca='" + panPrimaoca + '\'' +
+                ", brojBankeProdavca='" + brojBankeProdavca + '\'' +
+                '}';
     }
 }
