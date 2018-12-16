@@ -1,5 +1,6 @@
 package com.ftn.paymentGateway.service.impl;
 
+import java.util.Calendar;
 import java.util.Date;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +31,9 @@ public class TransakcijaServiceImpl implements TransakcijaService{
 	
 	@Value("${frontend.tokenLength}")
 	private int len;
+	
+	@Value("${tokenExpiration.inMinutes}")
+	private int tokenExpiration;
 
 	@Override
 	public Transakcija getById(Long id) {
@@ -82,8 +86,30 @@ public class TransakcijaServiceImpl implements TransakcijaService{
 		}
 		
 		transakcija.setStatus(transakcijaIshod.getNoviStatus());
-		transakcija.setIzvrsnaTransakcija(transakcijaIshod.getIzvrsnaTransakcija());
+		transakcija.setIzvrsnaTransakcija(transakcijaIshod.getIzvrsnaTransakcija()+"");
 		
+		return transakcijaRepository.save(transakcija);
+	}
+
+	@Override
+	public Transakcija checkTokenValidity(Transakcija transakcija) {
+		
+		Date startDate = transakcija.getVreme();
+		Calendar calendar = Calendar.getInstance();
+	    calendar.setTime(startDate);
+	    calendar.add(Calendar.MINUTE, tokenExpiration);
+		Date endDate = calendar.getTime();
+				
+		return transakcijaRepository.checkTokenValidity(transakcija.getJedinstveniToken(), startDate, endDate);
+	}
+
+	@Override
+	public Transakcija findByIzvrsnaTransakcija(String decode) {
+		return transakcijaRepository.findByIzvrsnaTransakcija(decode);
+	}
+
+	@Override
+	public Transakcija save(Transakcija transakcija) {
 		return transakcijaRepository.save(transakcija);
 	}
 

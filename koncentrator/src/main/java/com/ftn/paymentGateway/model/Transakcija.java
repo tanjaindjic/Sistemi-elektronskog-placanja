@@ -26,13 +26,13 @@ public class Transakcija {
 	private Long maticnaTransakcija;
 	
 	@Column(nullable = true)
-	private Long izvrsnaTransakcija;
+	private String izvrsnaTransakcija;
 	
 	@Column(nullable = false)
 	private double iznos;
 	
 	@Column(nullable = false)
-	@Temporal(TemporalType.DATE)
+	@Temporal(TemporalType.TIMESTAMP)
 	private Date vreme;
 	
 	@Column(nullable = false)
@@ -52,7 +52,7 @@ public class Transakcija {
 		super();
 	}
 
-	public Transakcija(Long id, Long maticnaTransakcija, Long izvrsnaTransakcija, double iznos, Date vreme,
+	public Transakcija(Long id, Long maticnaTransakcija, String izvrsnaTransakcija, double iznos, Date vreme,
 			TransakcijaStatus status, String jedinstveniToken, EntitetPlacanja entitetPlacanja,
 			TipPlacanja tipPlacanja) {
 		super();
@@ -83,11 +83,11 @@ public class Transakcija {
 		this.maticnaTransakcija = maticnaTransakcija;
 	}
 
-	public Long getIzvrsnaTransakcija() {
+	public String getIzvrsnaTransakcija() {
 		return izvrsnaTransakcija;
 	}
 
-	public void setIzvrsnaTransakcija(Long izvrsnaTransakcija) {
+	public void setIzvrsnaTransakcija(String izvrsnaTransakcija) {
 		this.izvrsnaTransakcija = izvrsnaTransakcija;
 	}
 

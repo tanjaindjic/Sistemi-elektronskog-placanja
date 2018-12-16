@@ -1,17 +1,12 @@
 package com.ftn.paymentGateway.paymentStrategy;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.ftn.paymentGateway.exceptions.InvalidPaymentTypeException;
 import com.ftn.paymentGateway.model.TipPlacanja;
-import com.ftn.paymentGateway.repository.TipPlacanjaRepository;
 
 @Component
 public class PaymentFactory {
-	
-	@Autowired 
-	private TipPlacanjaRepository tipPlacanjaRepository;
 	
 	public PaymentFactory() {
 		super();
@@ -30,4 +25,5 @@ public class PaymentFactory {
 		}
 		
 	}
+	
 }

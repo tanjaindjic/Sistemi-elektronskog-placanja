@@ -15,5 +15,11 @@ public interface TransakcijaService {
 	public Transakcija getByJedinstveniToken(String jedinstveniToken);
 	
 	public Transakcija update(TransakcijaIshodDTO transakcijaIshod, Transakcija transakcija) throws TransactionUpdateExeption;
+
+	public Transakcija findByIzvrsnaTransakcija(String izvrsnaTransakcija);
+
+	public Transakcija save(Transakcija transakcija);
+	
+	public Transakcija checkTokenValidity(Transakcija transakcija);
 	
 }

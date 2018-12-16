@@ -1,14 +1,36 @@
 package sep.tim18.pcc.model.dto;
 
+import sep.tim18.pcc.model.enums.Status;
+
 import java.util.Date;
 
 public class PCCReplyDTO {
 
     private Long issuerOrderID;
     private Date issuerTimestamp;
+    private Status status;
+    private Long acquirerOrderID;
 
     public PCCReplyDTO() {
     }
+
+
+    public Long getAcquirerOrderID() {
+        return acquirerOrderID;
+    }
+
+    public void setAcquirerOrderID(Long acquirerOrderID) {
+        this.acquirerOrderID = acquirerOrderID;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
+    }
+
 
     public Long getIssuerOrderID() {
         return issuerOrderID;
@@ -24,6 +46,16 @@ public class PCCReplyDTO {
 
     public void setIssuerTimestamp(Date issuerTimestamp) {
         this.issuerTimestamp = issuerTimestamp;
+    }
+
+    @Override
+    public String toString() {
+        return "PCCReplyDTO{" +
+                "issuerOrderID=" + issuerOrderID +
+                ", issuerTimestamp=" + issuerTimestamp +
+                ", status=" + status +
+                ", acquirerOrderID=" + acquirerOrderID +
+                '}';
     }
 }
 
