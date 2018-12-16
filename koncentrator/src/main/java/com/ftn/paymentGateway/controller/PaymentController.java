@@ -99,6 +99,10 @@ public class PaymentController {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
 		
+		if(transakcijaService.checkTokenValidity(transakcija) == null) {
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		}
+		
 		TipPlacanja tipPlacanja = tipPlacanjaService.getById(paymentTypeId);
 		
 		if(tipPlacanja == null) {

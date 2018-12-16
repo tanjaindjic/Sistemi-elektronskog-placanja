@@ -32,7 +32,7 @@ public class Transakcija {
 	private double iznos;
 	
 	@Column(nullable = false)
-	@Temporal(TemporalType.DATE)
+	@Temporal(TemporalType.TIMESTAMP)
 	private Date vreme;
 	
 	@Column(nullable = false)

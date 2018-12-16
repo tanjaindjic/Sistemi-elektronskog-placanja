@@ -12,7 +12,7 @@ public class PodrzanoPlacanje {
 	@Column(nullable = false, length = 120)
 	private String idNaloga;
 	
-	@Column(nullable = false, length = 120)
+	@Column(nullable = true, length = 120)
 	private String sifraNaloga;
 	
 	@ManyToOne(optional = true)

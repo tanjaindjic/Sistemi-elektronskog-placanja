@@ -77,8 +77,8 @@ public class StartData {
 		PodrzanoPlacanje pp6 = new PodrzanoPlacanje(null, "AS5IMk8HPdQhY6_LF4MismGdr9j73ERw2K9fYVhtH1O5cTQPqX5ec5vaEm5MlSl8GosBEczyC8UcJo1-", "EHijiYCc4J0QRBlB475fXO23eUBSatQONjw-OaGrTjPgEv2J-uKEBkLFsQuSeFFjX9KwMIxkjXbS_yjw", ep5, tp2);
 		
 		/* Bitcoin */
-		PodrzanoPlacanje pp7 = new PodrzanoPlacanje(null, "Merchant1", "pass1", ep3, tp3);
-		PodrzanoPlacanje pp8 = new PodrzanoPlacanje(null, "Merchant1", "pass1", ep4, tp3);
+		PodrzanoPlacanje pp7 = new PodrzanoPlacanje(null, "vXSzu6yK-XC9Gf1B2_TaS3Pfdp4bkefDsyxD7yXi", null, ep3, tp3);
+		PodrzanoPlacanje pp8 = new PodrzanoPlacanje(null, "vXSzu6yK-XC9Gf1B2_TaS3Pfdp4bkefDsyxD7yXi", null, ep4, tp3);
 		
 		podrzanoPlacanjeRepository.save(pp1);
 		podrzanoPlacanjeRepository.save(pp2);

@@ -20,4 +20,6 @@ public interface TransakcijaService {
 
 	public Transakcija save(Transakcija transakcija);
 	
+	public Transakcija checkTokenValidity(Transakcija transakcija);
+	
 }
