@@ -200,6 +200,26 @@ public class AcquirerServiceImpl implements AcquirerService {
     }
 
     @Override
+    public PaymentInfo findByPaymentURL(String token) {
+        return paymentInfoRepository.findByPaymentURL(token);
+    }
+
+    @Override
+    public boolean isTransakcijaPending(String token) {
+        PaymentInfo paymentInfo = paymentInfoRepository.findByPaymentURL(token);
+        if(paymentInfo==null)
+            return true;
+
+        Transakcija t = paymentInfo.getTransakcija();
+        if(t==null)
+            return true;
+
+        if(t.getStatus()==Status.C)
+            return true;
+        return false;
+    }
+
+    @Override
     public boolean isTokenExpired(String token) {
 
         PaymentInfo paymentInfo = paymentInfoRepository.findByPaymentURL(token);
@@ -225,8 +245,9 @@ public class AcquirerServiceImpl implements AcquirerService {
 
         	System.out.println("Postavljeno vreme: " + postavljeno.getTime().toString());
             System.out.println("Max vreme: " + max.getTime().toString());
+            System.out.println("Trenutno vreme: " + new Date(System.currentTimeMillis()));
 
-            if(!max.after(postavljeno)){
+            if(max.compareTo(Calendar.getInstance())<0){
                 System.out.println("Postavljeno vreme za placanje je isteklo.");
             	t.setStatus(Status.E);
                 transakcijaRepository.save(t);
@@ -240,38 +261,55 @@ public class AcquirerServiceImpl implements AcquirerService {
 
     @Override
     @Transactional(readOnly = false, rollbackFor = Exception.class, propagation = Propagation.NEVER, isolation = Isolation.SERIALIZABLE)
-    public ResponseEntity<Map> tryPayment(String token, BuyerInfoDTO buyerInfoDTO, HttpServletResponse response) throws IOException, PaymentException {
+    public ResponseEntity<Map> tryPayment(String token, BuyerInfoDTO buyerInfoDTO, HttpServletResponse response) throws IOException, PaymentException, NotFoundException {
+
 
         Map<String, String> map = new HashMap<>();
 
-        PaymentInfo paymentInfo = paymentInfoRepository.findByPaymentURL(token);
-        if(paymentInfo == null) {
-            System.out.println("Nema informacija o ovom tokenu.");
-            throw new PaymentException("/failed");
-            /*map.put("Location", "/failed");
-            return new ResponseEntity<>(map, HttpStatus.BAD_REQUEST);*/
+        PaymentInfo paymentInfo = findByPaymentURL(token);
+
+        try {
+            if (paymentInfo == null)
+                throw new PaymentException("Nema informacija o ovom tokenu.");
+        }catch (PaymentException e){
+            System.out.println(e.getMessage());
+            map.put("Location", "/failed");
+            return new ResponseEntity<>(map, HttpStatus.BAD_REQUEST);
+
         }
 
         Transakcija t = paymentInfo.getTransakcija();
         Klijent kupac = klijentRepository.findByKartice_pan(buyerInfoDTO.getPan());
         t.setPanPosaljioca(buyerInfoDTO.getPan());//pokusano da se plati sa ove kartice
 
-        if(isPaymentFinished(token)){
-            System.out.println("Transakcija je zavrsena.");
-            throw new PaymentException("/failed");
-            /*map.put("Location", "/failed");
-            return new ResponseEntity<>(map, HttpStatus.BAD_REQUEST);*/
+        try {
+            if (isPaymentFinished(token))
+                throw new PaymentException("Transakcija je zavrsena.");
+        }catch (PaymentException e){
+            System.out.println(e.getMessage());
+            map.put("Location", "/failed");
+            return new ResponseEntity<>(map, HttpStatus.BAD_REQUEST);
         }
+
         if (isTokenExpired(token)) {
             System.out.println("Token " + token + " je istekao.");
-            t.setStatus(Status.N);
+            t.setStatus(Status.E);
             transakcijaRepository.save(t);
             paymentFailed(paymentInfo, t, token, buyerInfoDTO);
             map.put("Location", "/expired");
             return new ResponseEntity<>(map, HttpStatus.BAD_REQUEST);
         }
-
+        //FIXME ovde se transakcija vraca na kreirano stanje, da li treba da je odmah zavrsim kao neuspesnu?
         if (kupac == null) {
+            try {
+                if (isFromBank(buyerInfoDTO.getPan()))
+                    throw new PaymentException("Ne postoji klijent sa ovim brojem racuna.");
+            }catch (PaymentException e){
+                System.out.println(e.getMessage());
+                map.put("Location", "/failed");
+                return new ResponseEntity<>(map, HttpStatus.BAD_REQUEST);
+            }
+
             System.out.println("Kupac nije u istoj banci, kontaktiramo PCC.");
             t.setStatus(Status.C);
             transakcijaRepository.save(t);
@@ -339,6 +377,12 @@ public class AcquirerServiceImpl implements AcquirerService {
         }
 
 
+    }
+
+    private boolean isFromBank(String pan) {
+        if(pan.substring(0,6).equals(BNumber))
+            return true;
+        else return false;
     }
 
 
@@ -425,12 +469,20 @@ public class AcquirerServiceImpl implements AcquirerService {
     public void finalizePayment(PCCReplyDTO pccReplyDTO) throws NotFoundException {
 
         Transakcija t = transakcijaRepository.findById(pccReplyDTO.getAcquirerOrderID()).get();
-        if(t==null)
-            throw new NotFoundException();
-
+        try {
+            if (t == null)
+                throw new NotFoundException();
+        }catch (NotFoundException e){
+            System.out.println(e.getMessage());;
+        }
         PaymentInfo paymentInfo = paymentInfoRepository.findByTransakcija(t);
-        if(paymentInfo==null)
-            throw new NotFoundException();
+
+        try {
+            if (paymentInfo == null)
+                throw new NotFoundException();
+        }catch (NotFoundException e){
+            System.out.println(e.getMessage());;
+        }
 
         //FIXME ovde trenutno zavrsavam transakciju ako nisu dobri podaci kupca ili nema dovoljno sredstava
         if(pccReplyDTO.getStatus()==Status.N)

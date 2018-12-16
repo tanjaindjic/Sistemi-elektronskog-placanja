@@ -20,7 +20,7 @@ public interface AcquirerService {
     String getToken();
     Transakcija createTransaction(KPRequestDTO request);
     boolean isTokenExpired(String token);
-    ResponseEntity<Map> tryPayment(String token, BuyerInfoDTO buyerInfoDTO, HttpServletResponse resp) throws JsonProcessingException, IOException, PaymentException;
+    ResponseEntity<Map> tryPayment(String token, BuyerInfoDTO buyerInfoDTO, HttpServletResponse resp) throws JsonProcessingException, IOException, PaymentException, NotFoundException;
     void sendToPCC(Transakcija t, String token, BuyerInfoDTO buyerInfoDTO, PaymentInfo paymentInfo, HttpServletResponse resp) throws JsonProcessingException;
     void paymentFailed(PaymentInfo paymentInfo, Transakcija t, String token, BuyerInfoDTO buyerInfoDTO) throws JsonProcessingException;
     void paymentSuccessful(PaymentInfo paymentInfo, Transakcija t, String token, BuyerInfoDTO buyerInfoDTO) throws JsonProcessingException;
@@ -28,4 +28,6 @@ public interface AcquirerService {
     void finalizePayment(PCCReplyDTO pccReplyDTO) throws NotFoundException;
     boolean isPaymentFinished(String token);
     boolean checkCredentials(String token, BuyerInfoDTO buyerInfoDTO);
+    PaymentInfo findByPaymentURL(String token);
+    boolean isTransakcijaPending(String token);
 }

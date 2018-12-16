@@ -25,7 +25,7 @@ public class Zahtev {
     private Banka bankaKupca;
 
     @Column(nullable = false)
-    @Temporal(TemporalType.DATE)
+    @Temporal(TemporalType.TIMESTAMP)
     private Date vremeKreiranja;
 
     @Enumerated(EnumType.STRING)

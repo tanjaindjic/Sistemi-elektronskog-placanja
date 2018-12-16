@@ -1,6 +1,9 @@
 mainModule.controller('centerController', ['$scope', '$window', 'mainService', '$http', '$location',
     function($scope, $window, mainService, $http, $location){
 
+     /*   $scope.$on('$locationChangeStart', function(event, next, current){
+                event.preventDefault();
+            });*/
         var init = function(){
             console.log(ROOT_PATH + "pay/" + /[^/]*$/.exec(window.location.href)[0])
             $http({

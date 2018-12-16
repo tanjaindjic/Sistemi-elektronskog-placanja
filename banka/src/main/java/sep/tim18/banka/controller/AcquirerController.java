@@ -63,10 +63,20 @@ public class AcquirerController {
 
         Map retVal = new HashMap<String, String>();
 
+        if(acquirerService.findByPaymentURL(token) == null) {
+            System.out.println("Nema informacija o ovom tokenu.");
+            retVal.put("Location", "/404");
+            return new ResponseEntity<>(retVal, HttpStatus.BAD_REQUEST);
+        }
+
         if(acquirerService.isPaymentFinished(token)) {
             System.out.println("Transakcija je zavrsena.");
             retVal.put("Location", "/404");
             return new ResponseEntity<Map>(retVal, HttpStatus.BAD_REQUEST);
+        }
+        if(acquirerService.isTransakcijaPending(token)){
+            retVal.put("Location", "/paymentSent");
+            return new ResponseEntity<>(retVal, HttpStatus.BAD_REQUEST);
         }
 
         if(acquirerService.isTokenExpired(token)) {
@@ -83,9 +93,15 @@ public class AcquirerController {
     }
 
     @RequestMapping(value = "/pay/{token}", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Map> postPaymentInfo(HttpServletResponse httpServletResponse, @PathVariable String token, @Valid @RequestBody BuyerInfoDTO buyerInfoDTO) throws IOException, PaymentException {
+    public ResponseEntity<Map> postPaymentInfo(HttpServletResponse httpServletResponse, @PathVariable String token, @Valid @RequestBody BuyerInfoDTO buyerInfoDTO) throws IOException, PaymentException, NotFoundException {
 
         Map<String, String> map = new HashMap<>();
+
+        if(acquirerService.isTransakcijaPending(token) || acquirerService.isPaymentFinished(token) || acquirerService.isTokenExpired(token)){
+            System.out.println("Transakcija je vec zapoceta.");
+            map.put("Location", "/failed");
+            return new ResponseEntity<>(map, HttpStatus.BAD_REQUEST);
+        }
 
         if(acquirerService.checkCredentials(token, buyerInfoDTO)){
             System.out.println("Podaci su validni.");

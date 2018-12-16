@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
+import sep.tim18.banka.exceptions.PaymentException;
 import sep.tim18.banka.model.Kartica;
 import sep.tim18.banka.model.Klijent;
 import sep.tim18.banka.model.Transakcija;
@@ -71,13 +72,20 @@ public class IssuerServiceImpl implements IssuerService {
 
     @Override
     @Transactional(readOnly = false, rollbackFor = Exception.class, propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
-    public void tryPayment(PCCRequestDTO request, Transakcija t, Klijent k) throws JsonProcessingException {
+    public void tryPayment(PCCRequestDTO request, Transakcija t, Klijent k) throws JsonProcessingException, PaymentException {
 
         PCCReplyDTO pccReplyDTO = new PCCReplyDTO();
         pccReplyDTO.setAcquirerOrderID(request.getAcquirerOrderID());
 
         Kartica kartica = karticaRepository.findByPan(t.getPanPosaljioca());
+
         int idx = k.getKartice().indexOf(kartica);
+        try {
+            if (idx == -1)
+                throw new PaymentException("Kartica nije pronadjena.");
+        }catch (PaymentException e){
+            System.out.println(e.getMessage());;
+        }
 
         if(kartica.getRaspolozivaSredstva() - t.getIznos() < 0){
             System.out.println("Transakcija neuspesna, nedovoljno sredstava.");
@@ -142,7 +150,7 @@ public class IssuerServiceImpl implements IssuerService {
     }
 
     @Override
-    public void startPayment(@Valid PCCRequestDTO request) throws JsonProcessingException {
+    public void startPayment(@Valid PCCRequestDTO request) throws JsonProcessingException, PaymentException {
 
         Klijent k = klijentRepository.findByKartice_pan(request.getPanPosaljioca());
 

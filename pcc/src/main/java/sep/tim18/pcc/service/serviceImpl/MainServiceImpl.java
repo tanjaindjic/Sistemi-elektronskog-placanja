@@ -1,4 +1,4 @@
-package sep.tim18.pcc.serviceImpl;
+package sep.tim18.pcc.service.serviceImpl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;

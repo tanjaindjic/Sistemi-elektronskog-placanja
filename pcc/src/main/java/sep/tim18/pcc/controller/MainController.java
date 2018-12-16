@@ -15,6 +15,8 @@ import sep.tim18.pcc.model.enums.Status;
 import sep.tim18.pcc.repository.ZahtevRepository;
 import sep.tim18.pcc.service.MainService;
 
+import javax.validation.Valid;
+
 @RestController
 public class MainController {
 
@@ -25,7 +27,7 @@ public class MainController {
     private ZahtevRepository zahtevRepository;
 
     @RequestMapping(value = "/request", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public void request(@RequestBody PCCRequestDTO request) throws JsonProcessingException {
+    public void request(@Valid @RequestBody PCCRequestDTO request) throws JsonProcessingException {
 
         Zahtev zahtev = mainService.createZahtev(request);
         Banka odKupca = mainService.getBankaByPan(request.getPanPosaljioca());
@@ -51,7 +53,7 @@ public class MainController {
     }
 
     @RequestMapping(value = "/reply", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public void reply(@RequestBody PCCReplyDTO replyDTO){
+    public void reply(@Valid @RequestBody PCCReplyDTO replyDTO){
         System.out.println("PCC primio odgovor: " + replyDTO.toString());
         mainService.finish(replyDTO);
     }

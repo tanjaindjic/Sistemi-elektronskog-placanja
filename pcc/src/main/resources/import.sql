@@ -1,0 +1,2 @@
+insert into banka (broj_banke, url_banke) values ('111111', 'https://localhost:8081/paymentRequest')
+insert into banka (broj_banke, url_banke) values ('222222', 'https://localhost:8082/paymentRequest')
