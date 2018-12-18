@@ -16,6 +16,8 @@ import sep.tim18.pcc.repository.ZahtevRepository;
 import sep.tim18.pcc.service.MainService;
 
 import javax.validation.Valid;
+import java.util.Comparator;
+import java.util.List;
 
 @RestController
 public class MainController {
@@ -29,7 +31,10 @@ public class MainController {
     @RequestMapping(value = "/request", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     public void request(@Valid @RequestBody PCCRequestDTO request) throws JsonProcessingException {
 
-        Zahtev zahtev = mainService.createZahtev(request);
+        Zahtev zahtev = mainService.checkRequest(request);
+        if(zahtev == null)
+            return;
+
         Banka odKupca = mainService.getBankaByPan(request.getPanPosaljioca());
 
         if(odKupca==null){ //nema kojoj banci da posalje

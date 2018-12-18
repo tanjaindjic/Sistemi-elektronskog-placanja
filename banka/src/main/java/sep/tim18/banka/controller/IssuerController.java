@@ -11,11 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import sep.tim18.banka.exceptions.PaymentException;
-import sep.tim18.banka.model.Klijent;
-import sep.tim18.banka.model.Transakcija;
-import sep.tim18.banka.model.dto.PCCReplyDTO;
 import sep.tim18.banka.model.dto.PCCRequestDTO;
-import sep.tim18.banka.model.enums.Status;
 import sep.tim18.banka.repository.KlijentRepository;
 import sep.tim18.banka.repository.TransakcijaRepository;
 import sep.tim18.banka.service.IssuerService;
@@ -45,7 +41,7 @@ public class IssuerController {
     public void request(@Valid @RequestBody PCCRequestDTO request) throws JsonProcessingException, PaymentException {
 
         System.out.println("Zahtev od PCC-a: " + request.toString());
-        issuerService.startPayment(request);
+        issuerService.checkPayment(request);
 
     }
 }

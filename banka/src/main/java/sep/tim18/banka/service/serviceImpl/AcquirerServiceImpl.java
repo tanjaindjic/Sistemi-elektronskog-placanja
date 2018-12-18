@@ -88,7 +88,7 @@ public class AcquirerServiceImpl implements AcquirerService {
     @Autowired
     private PaymentInfoRepository paymentInfoRepository;
 
-
+    /** pomocne metode **/
     @Override
     public boolean validate(KPRequestDTO request) {
 
@@ -144,7 +144,6 @@ public class AcquirerServiceImpl implements AcquirerService {
         return t;
     }
 
-
     @Override
     public PaymentInfo createPaymentDetails(KPRequestDTO request) {
 
@@ -163,11 +162,10 @@ public class AcquirerServiceImpl implements AcquirerService {
         PaymentInfo paymentInfo = paymentInfoRepository.findByPaymentURL(token);
         Transakcija t = paymentInfo.getTransakcija();
 
-        if(t.getStatus()==Status.U || t.getStatus()==Status.N)
+        if(t.getStatus()==Status.U || t.getStatus()==Status.N || t.getStatus()==Status.U_KP || t.getStatus()==Status.N_KP)
             return true;
         else return false;
     }
-
 
     @Override
     public boolean checkCredentials(String token, BuyerInfoDTO buyerInfoDTO) {
@@ -218,7 +216,7 @@ public class AcquirerServiceImpl implements AcquirerService {
         if(t==null)
             return true;
 
-        if(t.getStatus()==Status.C || t.getStatus()==Status.C_PCC || t.getStatus()==Status.U_KP || t.getStatus()==Status.N_KP || t.getStatus()==Status.K_KP)
+        if(t.getStatus()==Status.C || t.getStatus()==Status.C_PCC || t.getStatus()==Status.U_KP || t.getStatus()==Status.N_KP)
             return true;
         return false;
     }
@@ -235,7 +233,7 @@ public class AcquirerServiceImpl implements AcquirerService {
         if(t==null)
             return true;
 
-        if(t.getStatus()==Status.E || t.getStatus()==Status.U || t.getStatus()==Status.N)
+        if(t.getStatus()==Status.E || t.getStatus()==Status.U || t.getStatus()==Status.N || t.getStatus()==Status.U_KP || t.getStatus()==Status.N_KP)
             return true;
 
         if(t!=null){
@@ -263,10 +261,16 @@ public class AcquirerServiceImpl implements AcquirerService {
         }else return true;
     }
 
+    private boolean isFromBank(String pan) {
+        if(pan.substring(0,6).equals(BNumber))
+            return true;
+        else return false;
+    }
+
+    /** transakcije **/
     @Override
     @Transactional(readOnly = false, rollbackFor = Exception.class, propagation = Propagation.NEVER, isolation = Isolation.SERIALIZABLE)
     public ResponseEntity<Map> tryPayment(String token, BuyerInfoDTO buyerInfoDTO, HttpServletResponse response) throws IOException, PaymentException, NotFoundException, FundsException {
-
 
         Map<String, String> map = new HashMap<>();
 
@@ -278,9 +282,6 @@ public class AcquirerServiceImpl implements AcquirerService {
         if (t == null)
             throw new PaymentException("Nema informacija o ovoj transakciji.");
         t.setPanPosaljioca(buyerInfoDTO.getPan());//pokusano da se plati sa ove kartice
-
-        if (isPaymentFinished(token))
-            throw new PaymentException("Transakcija je zavrsena.");
 
         if (isTokenExpired(token)) {
             //TODO srediti posle da automatski radi
@@ -316,7 +317,6 @@ public class AcquirerServiceImpl implements AcquirerService {
             return new ResponseEntity<>(map, HttpStatus.BAD_REQUEST);
         }
 
-        //FIXME proveriti da li baciti exception i ostaviti transakciju nedovrsenu ili je zavrsiti neuspesno pa ponovo da proba da kupi
         if (match.get(0).getRaspolozivaSredstva() - t.getIznos() < 0)
             throw new FundsException();
 
@@ -357,13 +357,6 @@ public class AcquirerServiceImpl implements AcquirerService {
 
     }
 
-    private boolean isFromBank(String pan) {
-        if(pan.substring(0,6).equals(BNumber))
-            return true;
-        else return false;
-    }
-
-
     @Override
     public void sendToPCC(Transakcija t, String token, BuyerInfoDTO buyerInfoDTO, PaymentInfo paymentInfo, HttpServletResponse resp) throws JsonProcessingException {
 
@@ -386,7 +379,6 @@ public class AcquirerServiceImpl implements AcquirerService {
         pccRequestDTO.setMerchantOrderID(t.getMerchantOrderId());
         pccRequestDTO.setMerchantTimestamp(t.getMerchantTimestamp());
 
-        //saljem na pcc pa kad dobijem odgovor prosledim koncentratoru
         HttpsURLConnection.setDefaultHostnameVerifier((hostname, session)->true);
         RestTemplate template = new RestTemplate();
         try{
@@ -398,7 +390,6 @@ public class AcquirerServiceImpl implements AcquirerService {
         }
 
     }
-
 
     @Override
     public void paymentFailed(PaymentInfo paymentInfo, Transakcija t, String token, BuyerInfoDTO buyerInfoDTO, boolean rollback) throws JsonProcessingException {
@@ -460,7 +451,6 @@ public class AcquirerServiceImpl implements AcquirerService {
             throw new NotFoundException();
 
         PaymentInfo paymentInfo = paymentInfoRepository.findByTransakcija(t);
-
 
         if (paymentInfo == null)
             throw new NotFoundException();

@@ -12,8 +12,8 @@ import javax.validation.Valid;
 public interface IssuerService {
 
     Transakcija createTransakcija(PCCRequestDTO request, Klijent klijent);
-    void tryPayment(PCCRequestDTO request, Transakcija t, Klijent k) throws JsonProcessingException, PaymentException;
+    void processPayment(PCCRequestDTO request, Transakcija t, Klijent k) throws JsonProcessingException, PaymentException;
     void sendReply(PCCReplyDTO reply, Transakcija t);
     boolean checkCredentials(PCCRequestDTO request, Klijent k);
-    void startPayment(@Valid PCCRequestDTO request) throws JsonProcessingException, PaymentException;
+    void checkPayment(@Valid PCCRequestDTO request) throws JsonProcessingException, PaymentException;
 }

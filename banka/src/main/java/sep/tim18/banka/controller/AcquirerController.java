@@ -76,6 +76,7 @@ public class AcquirerController {
             retVal.put("Location", "/404");
             return new ResponseEntity<Map>(retVal, HttpStatus.BAD_REQUEST);
         }
+
         if(acquirerService.isTransakcijaPending(token)){
             retVal.put("Location", "/paymentSent");
             return new ResponseEntity<>(retVal, HttpStatus.BAD_REQUEST);
@@ -98,8 +99,8 @@ public class AcquirerController {
     public ResponseEntity<Map> postPaymentInfo(HttpServletResponse httpServletResponse, @PathVariable String token, @Valid @RequestBody BuyerInfoDTO buyerInfoDTO) throws IOException, PaymentException, NotFoundException, FundsException {
 
         Map<String, String> map = new HashMap<>();
-        PaymentInfo paymentInfo = acquirerService.findByPaymentURL(token);
 
+        PaymentInfo paymentInfo = acquirerService.findByPaymentURL(token);
         if(paymentInfo == null){
             System.out.println("Token ne postoji.");
             map.put("Location", "/failed");

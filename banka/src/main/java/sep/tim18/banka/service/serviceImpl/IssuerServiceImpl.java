@@ -72,8 +72,60 @@ public class IssuerServiceImpl implements IssuerService {
     }
 
     @Override
+    public boolean checkCredentials(PCCRequestDTO request, Klijent k) {
+
+        if(k==null)
+            return false;
+
+        if(!k.getIme().toLowerCase().equals(request.getIme().toLowerCase().trim()))
+            return false;
+
+        if(!k.getPrezime().toLowerCase().equals(request.getPrezime().toLowerCase().trim()))
+            return false;
+
+        if(!k.getKartice().get(0).getCcv().equals(request.getCvv().trim()))
+            return false;
+
+        String expDate = request.getMesec() + "/" + request.getGodina();
+        if(!k.getKartice().get(0).getExpDate().equals(expDate))
+            return false;
+
+        return true;
+
+    }
+
+    @Override
+    public void checkPayment(@Valid PCCRequestDTO request) throws JsonProcessingException, PaymentException {
+
+        Klijent k = klijentRepository.findByKartice_pan(request.getPanPosaljioca());
+        Transakcija t = createTransakcija(request, k);
+
+        if (k != null) {
+            if (checkCredentials(request, k)) {
+                processPayment(request, t, k);
+            }else {
+                System.out.println("Podaci kupca nisu validni.");
+                t.setStatus(Status.N);
+                transakcijaRepository.save(t);
+                PCCReplyDTO pccReplyDTO = new PCCReplyDTO();
+                pccReplyDTO.setAcquirerOrderID(request.getAcquirerOrderID());
+                pccReplyDTO.setStatus(Status.N);
+                sendReply(pccReplyDTO, t);
+            }
+        }else {
+            System.out.println("Nalog kupca ne postoji u trazenoj banci.");
+            t.setStatus(Status.N);
+            transakcijaRepository.save(t);
+            PCCReplyDTO pccReplyDTO = new PCCReplyDTO();
+            pccReplyDTO.setAcquirerOrderID(request.getAcquirerOrderID());
+            pccReplyDTO.setStatus(Status.N);
+            sendReply(pccReplyDTO, t);
+        }
+    }
+
+    @Override
     @Transactional(readOnly = false, rollbackFor = Exception.class, propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
-    public void tryPayment(PCCRequestDTO request, Transakcija t, Klijent k) throws JsonProcessingException, PaymentException {
+    public void processPayment(PCCRequestDTO request, Transakcija t, Klijent k) throws JsonProcessingException, PaymentException {
 
         PCCReplyDTO pccReplyDTO = new PCCReplyDTO();
         pccReplyDTO.setAcquirerOrderID(request.getAcquirerOrderID());
@@ -133,52 +185,6 @@ public class IssuerServiceImpl implements IssuerService {
         }
     }
 
-    @Override
-    public boolean checkCredentials(PCCRequestDTO request, Klijent k) {
 
-        if(k==null)
-            return false;
 
-        if(!k.getIme().toLowerCase().equals(request.getIme().toLowerCase().trim()))
-            return false;
-
-        if(!k.getPrezime().toLowerCase().equals(request.getPrezime().toLowerCase().trim()))
-            return false;
-
-        if(!k.getKartice().get(0).getCcv().equals(request.getCvv().trim()))
-            return false;
-
-        String expDate = request.getMesec() + "/" + request.getGodina();
-        if(!k.getKartice().get(0).getExpDate().equals(expDate))
-            return false;
-
-        return true;
-
-    }
-
-    @Override
-    public void startPayment(@Valid PCCRequestDTO request) throws JsonProcessingException, PaymentException {
-
-        Klijent k = klijentRepository.findByKartice_pan(request.getPanPosaljioca());
-        Transakcija t = createTransakcija(request, k);
-
-        if (k != null) {
-            if (checkCredentials(request, k)) {
-                tryPayment(request, t, k);
-            }else {
-                System.out.println("Podaci kupca nisu validni.");
-                PCCReplyDTO pccReplyDTO = new PCCReplyDTO();
-                pccReplyDTO.setAcquirerOrderID(request.getAcquirerOrderID());
-                pccReplyDTO.setStatus(Status.N);
-                sendReply(pccReplyDTO, t);
-            }
-        }else {
-            System.out.println("Nalog kupca ne postoji u trazenoj banci.");
-            t.setStatus(Status.N);
-            PCCReplyDTO pccReplyDTO = new PCCReplyDTO();
-            pccReplyDTO.setAcquirerOrderID(request.getAcquirerOrderID());
-            pccReplyDTO.setStatus(Status.N);
-            sendReply(pccReplyDTO, t);
-        }
-    }
 }
