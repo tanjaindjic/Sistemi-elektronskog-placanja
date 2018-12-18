@@ -13,7 +13,7 @@ public interface IssuerService {
 
     Transakcija createTransakcija(PCCRequestDTO request, Klijent klijent);
     void tryPayment(PCCRequestDTO request, Transakcija t, Klijent k) throws JsonProcessingException, PaymentException;
-    void sendReply(PCCReplyDTO reply);
+    void sendReply(PCCReplyDTO reply, Transakcija t);
     boolean checkCredentials(PCCRequestDTO request, Klijent k);
     void startPayment(@Valid PCCRequestDTO request) throws JsonProcessingException, PaymentException;
 }

@@ -58,7 +58,8 @@ public class IssuerServiceImpl implements IssuerService {
         t.setTimestamp(new Date());
         t.setStatus(Status.K);
         t.setPanPrimaoca(request.getPanPrimaoca());
-        t.setPanPosaljioca(kartica.getPan());
+        if(kartica!=null)
+            t.setPanPosaljioca(kartica.getPan());
         t.setIznos(request.getIznos());
         t.setErrorURL("");
         t.setFailedURL("");
@@ -78,13 +79,15 @@ public class IssuerServiceImpl implements IssuerService {
         pccReplyDTO.setAcquirerOrderID(request.getAcquirerOrderID());
 
         Kartica kartica = karticaRepository.findByPan(t.getPanPosaljioca());
-
         int idx = k.getKartice().indexOf(kartica);
-        try {
-            if (idx == -1)
-                throw new PaymentException("Kartica nije pronadjena.");
-        }catch (PaymentException e){
-            System.out.println(e.getMessage());;
+
+        if (idx == -1){
+            System.out.println("Transakcija neuspesna, nije pronadjena kartica.");
+            t.setStatus(Status.N);
+            transakcijaRepository.save(t);
+            pccReplyDTO.setStatus(Status.N);
+            sendReply(pccReplyDTO, t);
+            return;
         }
 
         if(kartica.getRaspolozivaSredstva() - t.getIznos() < 0){
@@ -92,7 +95,7 @@ public class IssuerServiceImpl implements IssuerService {
             t.setStatus(Status.N);
             transakcijaRepository.save(t);
             pccReplyDTO.setStatus(Status.N);
-            sendReply(pccReplyDTO);
+            sendReply(pccReplyDTO, t);
             return;
         }
 
@@ -110,12 +113,12 @@ public class IssuerServiceImpl implements IssuerService {
         pccReplyDTO.setIssuerTimestamp(t.getTimestamp());
         pccReplyDTO.setStatus(Status.U);
         System.out.println("Transakcija je uspesna.");
-        sendReply(pccReplyDTO);
+        sendReply(pccReplyDTO, t);
 
     }
 
     @Override
-    public void sendReply(PCCReplyDTO reply) {
+    public void sendReply(PCCReplyDTO reply, Transakcija t) {
 
         HttpsURLConnection.setDefaultHostnameVerifier((hostname, session)->true);
         RestTemplate template = new RestTemplate();
@@ -123,6 +126,10 @@ public class IssuerServiceImpl implements IssuerService {
             template.postForEntity(replyToPCC, reply, PCCReplyDTO.class);
         }catch (Exception e){
             System.out.println("PCC nedostupan.");
+            if(t.getStatus()==Status.N)
+                t.setStatus(Status.N_PCC);
+            else t.setStatus(Status.U_PCC);
+            transakcijaRepository.save(t);
         }
     }
 
@@ -153,26 +160,25 @@ public class IssuerServiceImpl implements IssuerService {
     public void startPayment(@Valid PCCRequestDTO request) throws JsonProcessingException, PaymentException {
 
         Klijent k = klijentRepository.findByKartice_pan(request.getPanPosaljioca());
+        Transakcija t = createTransakcija(request, k);
 
         if (k != null) {
-
             if (checkCredentials(request, k)) {
-                Transakcija t = createTransakcija(request, k);
-                transakcijaRepository.save(t);
                 tryPayment(request, t, k);
             }else {
                 System.out.println("Podaci kupca nisu validni.");
                 PCCReplyDTO pccReplyDTO = new PCCReplyDTO();
                 pccReplyDTO.setAcquirerOrderID(request.getAcquirerOrderID());
                 pccReplyDTO.setStatus(Status.N);
-                sendReply(pccReplyDTO);
+                sendReply(pccReplyDTO, t);
             }
         }else {
             System.out.println("Nalog kupca ne postoji u trazenoj banci.");
+            t.setStatus(Status.N);
             PCCReplyDTO pccReplyDTO = new PCCReplyDTO();
             pccReplyDTO.setAcquirerOrderID(request.getAcquirerOrderID());
             pccReplyDTO.setStatus(Status.N);
-            sendReply(pccReplyDTO);
+            sendReply(pccReplyDTO, t);
         }
     }
 }

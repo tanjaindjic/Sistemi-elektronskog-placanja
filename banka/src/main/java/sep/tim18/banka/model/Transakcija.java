@@ -58,6 +58,14 @@ public class Transakcija {
     @Temporal(TemporalType.TIMESTAMP)
     private Date merchantTimestamp; //timestamp NC transakcije
 
+    @Column
+    private Long issuerOrderId;
+
+    @Column
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date issuerTimestamp;
+
+
     public Transakcija() {
     }
 
@@ -204,6 +212,22 @@ public class Transakcija {
 
     public void setMerchantTimestamp(Date dateTime) {
         this.merchantTimestamp = dateTime;
+    }
+
+    public Long getIssuerOrderId() {
+        return issuerOrderId;
+    }
+
+    public void setIssuerOrderId(Long issuerOrderId) {
+        this.issuerOrderId = issuerOrderId;
+    }
+
+    public Date getIssuerTimestamp() {
+        return issuerTimestamp;
+    }
+
+    public void setIssuerTimestamp(Date issuerTimestamp) {
+        this.issuerTimestamp = issuerTimestamp;
     }
 }
 

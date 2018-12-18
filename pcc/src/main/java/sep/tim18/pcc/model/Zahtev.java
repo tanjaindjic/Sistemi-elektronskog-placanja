@@ -16,7 +16,14 @@ public class Zahtev {
 
     private Long acquirerOrderID; //id transkacije kreirane u banci prodavca koja se referencira na ovaj zahtev na pcc
 
+    @Column(nullable = false)
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date acquirerTimestamp;
+
     private Long issuerOrderID; //id transkacije kreirane u banci prodavca koja se referencira na ovaj zahtev na pcc
+
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date issuerTimestamp;
 
     @ManyToOne
     private Banka bankaProdavca;
@@ -98,5 +105,21 @@ public class Zahtev {
 
     public void setReturnURL(String returnURL) {
         this.returnURL = returnURL;
+    }
+
+    public Date getAcquirerTimestamp() {
+        return acquirerTimestamp;
+    }
+
+    public void setAcquirerTimestamp(Date acquirerTimestamp) {
+        this.acquirerTimestamp = acquirerTimestamp;
+    }
+
+    public Date getIssuerTimestamp() {
+        return issuerTimestamp;
+    }
+
+    public void setIssuerTimestamp(Date issuerTimestamp) {
+        this.issuerTimestamp = issuerTimestamp;
     }
 }

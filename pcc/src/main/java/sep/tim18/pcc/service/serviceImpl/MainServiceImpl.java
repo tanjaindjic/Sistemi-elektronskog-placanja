@@ -3,6 +3,9 @@ package sep.tim18.pcc.service.serviceImpl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import sep.tim18.pcc.model.Banka;
 import sep.tim18.pcc.model.Zahtev;
@@ -41,6 +44,8 @@ public class MainServiceImpl implements MainService {
 
     @Override
     public void forward(Zahtev zahtev, PCCRequestDTO pccRequestDTO, String url) throws JsonProcessingException {
+        zahtev.setStatus(Status.C);
+        zahtevRepository.save(zahtev);
 
         HttpsURLConnection.setDefaultHostnameVerifier((hostname, session)->true);
         RestTemplate template = new RestTemplate();
@@ -48,6 +53,8 @@ public class MainServiceImpl implements MainService {
             template.postForEntity(url, pccRequestDTO, PCCRequestDTO.class);
         }catch(Exception e){
             System.out.println("Greska kod slanja zahteva na banku kupca.");
+            zahtev.setStatus(Status.C_B);
+            zahtevRepository.save(zahtev);
         }
 
     }
@@ -60,6 +67,7 @@ public class MainServiceImpl implements MainService {
         Zahtev zahtev = new Zahtev();
         zahtev.setStatus(Status.K);
         zahtev.setAcquirerOrderID(request.getAcquirerOrderID());
+        zahtev.setAcquirerTimestamp(request.getAcquirerTimestamp());
         zahtev.setBankaKupca(kupca);
         zahtev.setBankaProdavca(prodavca);
         zahtev.setVremeKreiranja(new Date(System.currentTimeMillis()));
@@ -69,6 +77,7 @@ public class MainServiceImpl implements MainService {
 
 
     @Override
+    @Transactional(readOnly = false, rollbackFor = Exception.class, propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
     public void finish(PCCReplyDTO replyDTO) {
 
         Zahtev z = zahtevRepository.findByAcquirerOrderID(replyDTO.getAcquirerOrderID());
@@ -78,19 +87,25 @@ public class MainServiceImpl implements MainService {
             z.setStatus(Status.U);
 
         zahtevRepository.save(z);
-        sendReply(replyDTO, z.getReturnURL());
+        sendReply(replyDTO, z);
     }
 
 
     @Override
-    public void sendReply(PCCReplyDTO pccReplyDTO, String returnURL) {
+    public void sendReply(PCCReplyDTO pccReplyDTO, Zahtev zahtev) {
 
         HttpsURLConnection.setDefaultHostnameVerifier((hostname, session)->true);
         RestTemplate template = new RestTemplate();
         try {
-            template.postForEntity(returnURL, pccReplyDTO, PCCReplyDTO.class);
+            template.postForEntity(zahtev.getReturnURL(), pccReplyDTO, PCCReplyDTO.class);
         }catch(Exception e){
             System.out.println("Greska kod slanja odgovora na banku prodavca.");
+            zahtev.setIssuerOrderID(pccReplyDTO.getIssuerOrderID());
+            zahtev.setIssuerTimestamp(pccReplyDTO.getIssuerTimestamp());
+            if(pccReplyDTO.getStatus()==Status.N)
+                zahtev.setStatus(Status.N_B);
+            else zahtev.setStatus(Status.U_B);
+            zahtevRepository.save(zahtev);
         }
     }
 }

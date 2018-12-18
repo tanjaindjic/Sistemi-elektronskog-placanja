@@ -11,6 +11,6 @@ public interface MainService {
     Banka getBanka(String brBanke);
     void forward(Zahtev zahtev, PCCRequestDTO pcCrequestDTO, String url) throws JsonProcessingException;
     Zahtev createZahtev(PCCRequestDTO request);
-    void sendReply(PCCReplyDTO pccReplyDTO, String returnURL);
+    void sendReply(PCCReplyDTO pccReplyDTO, Zahtev returnURL);
     void finish(PCCReplyDTO replyDTO);
 }

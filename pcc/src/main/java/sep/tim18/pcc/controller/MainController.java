@@ -31,8 +31,6 @@ public class MainController {
 
         Zahtev zahtev = mainService.createZahtev(request);
         Banka odKupca = mainService.getBankaByPan(request.getPanPosaljioca());
-        Banka odProdavca = mainService.getBanka(request.getBrojBankeProdavca());
-        zahtev.setBankaProdavca(odProdavca);
 
         if(odKupca==null){ //nema kojoj banci da posalje
             zahtev.setStatus(Status.N);
@@ -41,14 +39,9 @@ public class MainController {
             PCCReplyDTO pccReplyDTO = new PCCReplyDTO();
             pccReplyDTO.setAcquirerOrderID(request.getAcquirerOrderID());
             pccReplyDTO.setStatus(Status.N);
-            mainService.sendReply(pccReplyDTO, zahtev.getReturnURL());
-        }else{
-            zahtev.setBankaKupca(odKupca);
-            zahtev.setStatus(Status.C);
-            zahtevRepository.save(zahtev);
-            mainService.forward(zahtev, request, odKupca.getUrlBanke()); //npr /requestPayment
-        }
+            mainService.sendReply(pccReplyDTO, zahtev);
 
+        }else mainService.forward(zahtev, request, odKupca.getUrlBanke()); //npr /requestPayment
 
     }
 

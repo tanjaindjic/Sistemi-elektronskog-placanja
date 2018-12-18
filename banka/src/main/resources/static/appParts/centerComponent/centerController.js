@@ -42,7 +42,10 @@ mainModule.controller('centerController', ['$scope', '$window', 'mainService', '
                     console.log(response)
                     $location.path(response.data.Location);
                 }, function errorCallback(response) {
-                    $location.path(response.data.Location);
+                     console.log("grerska" + JSON.stringify(response.data))
+                     if(response.data.Location!=null){
+                        $location.path(response.data.Location);
+                     } else alert(response.data.Poruka);
             });
 
         }
