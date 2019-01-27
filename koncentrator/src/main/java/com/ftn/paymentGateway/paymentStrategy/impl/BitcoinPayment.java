@@ -4,6 +4,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.boot.json.BasicJsonParser;
 import org.springframework.boot.json.JsonParser;
 import org.springframework.http.HttpEntity;
@@ -19,6 +21,7 @@ import org.springframework.web.client.RestTemplate;
 import com.ftn.paymentGateway.dto.TransakcijaIshodDTO;
 import com.ftn.paymentGateway.enumerations.TransakcijaStatus;
 import com.ftn.paymentGateway.exceptions.PaymentErrorException;
+import com.ftn.paymentGateway.exceptions.UnsupportedMethodException;
 import com.ftn.paymentGateway.model.PodrzanoPlacanje;
 import com.ftn.paymentGateway.model.Transakcija;
 import com.ftn.paymentGateway.paymentStrategy.PaymentStrategy;
@@ -71,6 +74,13 @@ public class BitcoinPayment implements PaymentStrategy{
 		
 		System.out.println("Pokrenuo");
 		
+	}
+
+	@Override
+	public Boolean completePayment(HttpServletRequest request, PodrzanoPlacanje podrzanoPlacanje)
+			throws UnsupportedMethodException {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

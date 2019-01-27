@@ -19,7 +19,6 @@ import com.ftn.paymentGateway.model.PodrzanoPlacanje;
 import com.ftn.paymentGateway.model.Transakcija;
 import com.ftn.paymentGateway.paymentStrategy.PaymentStrategy;
 import com.ftn.paymentGateway.repository.PodrzanoPlacanjeRepository;
-import com.ftn.paymentGateway.service.TransakcijaService;
 import com.ftn.paymentGateway.utils.URLUtils;
 import com.paypal.api.payments.Amount;
 import com.paypal.api.payments.Links;
@@ -129,93 +128,5 @@ public class PayPalPayment implements PaymentStrategy{
 	    return false;
 	}
 		
-		
-		
-		/*	HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
-		String cancelUrl = URLUtils.getBaseURl(request) + "/" + PAYPAL_CANCEL_URL;
-		String successUrl = URLUtils.getBaseURl(request) + "/" + PAYPAL_SUCCESS_URL;
-		TransakcijaIshodDTO retVal = new TransakcijaIshodDTO();
-		try {
-			Payment payment = createPayment(
-					transakcija.getIznos(), 
-					"USD", 
-					PaypalPaymentMethod.paypal, 
-					PaypalPaymentIntent.sale,
-					"payment description", 
-					cancelUrl, 
-					successUrl,
-					podrzanoPlacanje);
-			for(Links links : payment.getLinks()){
-				if(links.getRel().equals("approval_url")){
-					System.out.println("PUTANJA JE:" + links.getHref());
-					retVal.setNovaPutanja(links.getHref());
-					retVal.setRedirekcija(true);
-					retVal.setNoviStatus(TransakcijaStatus.C);
-					retVal.setUspesno(true);
-				}
-			}
-		} catch (PayPalRESTException e) {
-			System.out.println(e.getMessage());
-			retVal.setUspesno(false);
-			retVal.setNoviStatus(TransakcijaStatus.N);
-		}	
-		
-		return retVal;
-	}
-
 	
-	public Payment executePayment(String paymentId, String payerId, PodrzanoPlacanje podrzanoPlacanje)  throws PayPalRESTException{
-		Payment payment = new Payment();
-		payment.setId(paymentId);
-		PaymentExecution paymentExecute = new PaymentExecution();
-		paymentExecute.setPayerId(payerId);
-		APIContext apiContext = new APIContext(authTokenCredential(podrzanoPlacanje).getAccessToken());
-		return payment.execute(apiContext, paymentExecute);
-	}
-
-	public Payment createPayment(
-			Double total, 
-			String currency, 
-			PaypalPaymentMethod method, 
-			PaypalPaymentIntent intent,
-			String description, 
-			String cancelUrl, 
-			String successUrl,
-			PodrzanoPlacanje podrzanoPlacanje) throws PayPalRESTException{
-		Amount amount = new Amount();
-		amount.setCurrency(currency);
-		total = new BigDecimal(total).setScale(2, RoundingMode.HALF_UP).doubleValue();
-		amount.setTotal(String.format("%.2f", total));
-
-		Transaction transaction = new Transaction();
-		transaction.setDescription(description);
-		transaction.setAmount(amount);
-
-		List<Transaction> transactions = new ArrayList<>();
-		transactions.add(transaction);
-
-		Payer payer = new Payer();
-		payer.setPaymentMethod(method.toString());
-
-		Payment payment = new Payment();
-		payment.setIntent(intent.toString());
-		payment.setPayer(payer);
-		payment.setTransactions(transactions);
-		RedirectUrls redirectUrls = new RedirectUrls();
-		redirectUrls.setCancelUrl(cancelUrl);
-		redirectUrls.setReturnUrl(successUrl);
-		payment.setRedirectUrls(redirectUrls);
-		APIContext apiContext = new APIContext(authTokenCredential(podrzanoPlacanje).getAccessToken());
-		
-		return payment.create(apiContext);
-	}
-	public Map<String, String> paypalSdkConfig(){
-		Map<String, String> sdkConfig = new HashMap<>();
-		sdkConfig.put("mode", "sandbox");
-		return sdkConfig;
-	}
-	
-	public OAuthTokenCredential authTokenCredential(PodrzanoPlacanje podrzanoPlacanje){
-		return new OAuthTokenCredential(podrzanoPlacanje.getIdNaloga(), podrzanoPlacanje.getSifraNaloga(), paypalSdkConfig());
-	}*/
 }

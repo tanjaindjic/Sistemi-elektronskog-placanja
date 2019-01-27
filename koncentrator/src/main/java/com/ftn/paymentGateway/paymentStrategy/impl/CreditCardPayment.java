@@ -1,15 +1,16 @@
 package com.ftn.paymentGateway.paymentStrategy.impl;
 
 import javax.net.ssl.HttpsURLConnection;
+import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import com.ftn.paymentGateway.dto.BankRequestDTO;
 import com.ftn.paymentGateway.dto.TransakcijaIshodDTO;
 import com.ftn.paymentGateway.enumerations.TransakcijaStatus;
 import com.ftn.paymentGateway.exceptions.PaymentErrorException;
+import com.ftn.paymentGateway.exceptions.UnsupportedMethodException;
 import com.ftn.paymentGateway.model.PodrzanoPlacanje;
 import com.ftn.paymentGateway.model.Transakcija;
 import com.ftn.paymentGateway.paymentStrategy.PaymentStrategy;
@@ -59,6 +60,13 @@ public class CreditCardPayment implements PaymentStrategy{
 	    /* Dalja obrada odgovora... */
 	
 		return new TransakcijaIshodDTO();
+	}
+
+	@Override
+	public Boolean completePayment(HttpServletRequest request, PodrzanoPlacanje podrzanoPlacanje)
+			throws UnsupportedMethodException {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

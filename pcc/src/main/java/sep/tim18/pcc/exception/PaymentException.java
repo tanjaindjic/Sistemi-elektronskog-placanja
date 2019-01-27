@@ -1,4 +1,4 @@
-package sep.tim18.banka.exceptions;
+package sep.tim18.pcc.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
