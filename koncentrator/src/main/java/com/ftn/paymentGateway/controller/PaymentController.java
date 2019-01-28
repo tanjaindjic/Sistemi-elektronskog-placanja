@@ -137,10 +137,6 @@ public class PaymentController {
 		}
 		
 		if(retVal.isRedirekcija()) {
-			if(!retVal.getIzvrsnaTransakcija().isEmpty()){
-				transakcija.setIzvrsnaTransakcija(retVal.getIzvrsnaTransakcija());
-				transakcijaService.save(transakcija);
-			}
 			HttpHeaders headers = new HttpHeaders();
 			headers.add("Location", retVal.getNovaPutanja());
 			headers.add("Access-Control-Allow-Origin", "*");
