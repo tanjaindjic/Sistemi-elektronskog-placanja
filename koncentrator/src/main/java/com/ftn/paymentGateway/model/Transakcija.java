@@ -42,6 +42,9 @@ public class Transakcija {
 	@Column(nullable = false, length = 90, unique = true)
 	private String jedinstveniToken;
 	
+	@Column(nullable = false)
+	private boolean pretplata;
+	
 	@ManyToOne(optional = false)
 	private EntitetPlacanja entitetPlacanja;
 	

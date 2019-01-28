@@ -13,6 +13,9 @@ public class PaymentRequestDTO {
 	private double iznos;
 	
 	@NotNull
+	private boolean pretplata;
+	
+	@NotNull
 	private Long maticnaTransakcija;
 
 	public PaymentRequestDTO() {
@@ -20,11 +23,12 @@ public class PaymentRequestDTO {
 	}
 
 	public PaymentRequestDTO(@NotNull EntitetPlacanjaDTO entitetPlacanja, @NotNull double iznos,
-			@NotNull Long maticnaTransakcija) {
+			@NotNull Long maticnaTransakcija, @NotNull boolean pretplata) {
 		super();
 		this.entitetPlacanja = entitetPlacanja;
 		this.iznos = iznos;
 		this.maticnaTransakcija = maticnaTransakcija;
+		this.pretplata = pretplata;
 	}
 
 	public EntitetPlacanjaDTO getEntitetPlacanja() {
@@ -49,6 +53,14 @@ public class PaymentRequestDTO {
 
 	public void setMaticnaTransakcija(Long maticnaTransakcija) {
 		this.maticnaTransakcija = maticnaTransakcija;
+	}
+
+	public boolean isPretplata() {
+		return pretplata;
+	}
+
+	public void setPretplata(boolean pretplata) {
+		this.pretplata = pretplata;
 	}
 	
 }
