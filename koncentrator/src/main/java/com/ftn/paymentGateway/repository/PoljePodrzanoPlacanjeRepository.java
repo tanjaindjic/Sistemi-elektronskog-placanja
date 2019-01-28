@@ -9,7 +9,5 @@ import com.ftn.paymentGateway.model.PodrzanoPlacanje;
 import com.ftn.paymentGateway.model.PoljePodrzanoPlacanje;
 
 public interface PoljePodrzanoPlacanjeRepository extends JpaRepository<PoljePodrzanoPlacanje, Long>{
-	
-
 
 }
