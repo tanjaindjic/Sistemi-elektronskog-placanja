@@ -40,6 +40,7 @@ public class AcquirerController {
 
     @RequestMapping(value = "/initiatePayment", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Map> initiatePayment(@Valid @RequestBody KPRequestDTO request){
+        System.out.println(request.toString());
     //FIXME uskladiti sa kp
         Map retVal = new HashMap<String, String>();
 
@@ -51,7 +52,7 @@ public class AcquirerController {
         }
 
         PaymentInfo paymentInfo = acquirerService.createPaymentDetails(request);
-        retVal.put("paymentURL", BAddress + "pay/" + paymentInfo.getPaymentURL());
+        retVal.put("paymentURL", BAddress + "#!/pay/" + paymentInfo.getPaymentURL());
         retVal.put("paymentID", paymentInfo.getPaymentID());
         retVal.put("izvrsnaTransakcijaId", paymentInfo.getTransakcija().getOrderID());
 

@@ -29,6 +29,20 @@ public class KPRequestDTO {
         this.merchantID = merchantID;
     }
 
+    @Override
+    public String toString() {
+        return "KPRequestDTO{" +
+                "merchantID='" + merchantID + '\'' +
+                ", merchantPass='" + merchantPass + '\'' +
+                ", iznos=" + iznos +
+                ", merchantOrderID=" + merchantOrderID +
+                ", merchantTimestamp=" + merchantTimestamp +
+                ", successURL='" + successURL + '\'' +
+                ", failedURL='" + failedURL + '\'' +
+                ", errorURL='" + errorURL + '\'' +
+                '}';
+    }
+
     public String getMerchantPass() {
         return merchantPass;
     }

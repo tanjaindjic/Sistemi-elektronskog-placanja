@@ -46,7 +46,7 @@ public class StartData {
 
     static final long ONE_MINUTE_IN_MILLIS=60000;//millisecs
 
-    //@PostConstruct
+    @PostConstruct
     private void init(){
         Klijent klijent1 = new Klijent("prvi", "prvic", "1", "pass1", "mejl1", new ArrayList<>());
         Klijent klijent2 = new Klijent("drugi", "drugic", "2", "pass2", "mejl2", new ArrayList<>());

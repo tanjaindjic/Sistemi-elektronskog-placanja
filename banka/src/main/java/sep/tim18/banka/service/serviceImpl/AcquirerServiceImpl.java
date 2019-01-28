@@ -129,7 +129,7 @@ public class AcquirerServiceImpl implements AcquirerService {
         Transakcija t = new Transakcija();
         t.setUplacuje(null);
         t.setPrima(prodavac);
-        t.setPaymentURL(null);
+        t.setPaymentURL("");
         t.setTimestamp(new Date());
         t.setStatus(Status.K);
         t.setPanPrimaoca(prodavac.getKartice().get(0).getPan());
