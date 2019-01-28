@@ -2,6 +2,8 @@ package sep.tim18.banka.service.serviceImpl;
 
 import java.io.IOException;
 import java.security.SecureRandom;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -168,7 +170,7 @@ public class AcquirerServiceImpl implements AcquirerService {
     }
 
     @Override
-    public boolean checkCredentials(String token, BuyerInfoDTO buyerInfoDTO) {
+    public boolean checkCredentials(String token, BuyerInfoDTO buyerInfoDTO) throws ParseException {
 
         PaymentInfo paymentInfo = paymentInfoRepository.findByPaymentURL(token);
         if(paymentInfo==null)
@@ -197,6 +199,18 @@ public class AcquirerServiceImpl implements AcquirerService {
         String expDate = buyerInfoDTO.getMesec() + "/" + buyerInfoDTO.getGodina();
         if(!kupac.getKartice().get(0).getExpDate().equals(expDate))
             return false;
+        int pos = expDate.lastIndexOf("/");
+        int godina = Integer.valueOf(expDate.substring(pos + 1));
+        int mesec =  Integer.valueOf(expDate.substring(0, pos));
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        String dateString = format.format(new Date(System.currentTimeMillis()));
+        Date now = format.parse (dateString);
+        Date exp = format.parse("20" + godina + "-"+mesec+"-31");
+        if (exp.compareTo(now) < 0) {
+            System.out.println("exp je pre now, istekla kartica");
+            return false;
+        }
+
 
         return true;
     }
@@ -219,6 +233,31 @@ public class AcquirerServiceImpl implements AcquirerService {
         if(t.getStatus()==Status.C || t.getStatus()==Status.C_PCC || t.getStatus()==Status.U_KP || t.getStatus()==Status.N_KP)
             return true;
         return false;
+    }
+
+    @Override
+    public List<Transakcija> getAllTransakcije() {
+        return transakcijaRepository.findAll();
+    }
+
+    @Override
+    public FinishedPaymentDTO createFinishedPaymentDTO(Transakcija t) {
+
+        PaymentInfo paymentInfo = paymentInfoRepository.findByTransakcija(t);
+        FinishedPaymentDTO finishedPaymentDTO = new FinishedPaymentDTO();
+
+        finishedPaymentDTO.setMerchantOrderID(t.getMerchantOrderId());
+        finishedPaymentDTO.setAcquirerOrderID(t.getOrderID()); //ista banka
+        finishedPaymentDTO.setAcquirerTimestamp(t.getTimestamp());
+        finishedPaymentDTO.setPaymentID(paymentInfo.getPaymentID());
+        if(t.getStatus()==Status.U_KP) {
+            finishedPaymentDTO.setStatusTransakcije(Status.U);
+            finishedPaymentDTO.setRedirectURL(t.getSuccessURL());
+        }else if(t.getStatus().equals(Status.N_KP) || t.getStatus().equals(Status.K_KP)) {
+            finishedPaymentDTO.setStatusTransakcije(Status.N);
+            finishedPaymentDTO.setRedirectURL(t.getFailedURL());
+        }
+        return finishedPaymentDTO;
     }
 
     @Override

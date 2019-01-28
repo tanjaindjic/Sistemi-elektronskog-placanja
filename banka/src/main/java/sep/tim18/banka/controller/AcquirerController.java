@@ -13,10 +13,8 @@ import sep.tim18.banka.exceptions.NotFoundException;
 import sep.tim18.banka.exceptions.PaymentException;
 import sep.tim18.banka.model.PaymentInfo;
 import sep.tim18.banka.model.Transakcija;
-import sep.tim18.banka.model.dto.BuyerInfoDTO;
-import sep.tim18.banka.model.dto.KPRequestDTO;
-import sep.tim18.banka.model.dto.PCCReplyDTO;
-import sep.tim18.banka.model.dto.PCCRequestDTO;
+import sep.tim18.banka.model.dto.*;
+import sep.tim18.banka.model.enums.Status;
 import sep.tim18.banka.service.AcquirerService;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -24,9 +22,8 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.net.URI;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.text.ParseException;
+import java.util.*;
 
 @RestController
 public class AcquirerController {
@@ -58,6 +55,16 @@ public class AcquirerController {
         retVal.put("paymentID", paymentInfo.getPaymentID());
 
         return new ResponseEntity<Map>(retVal, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/getTransactions", method = RequestMethod.GET)
+    public ResponseEntity<List> getTransactions(HttpServletResponse httpServletResponse, @PathVariable String token) throws IOException {
+        List<FinishedPaymentDTO> transakcije = new ArrayList<>();
+        for(Transakcija t : acquirerService.getAllTransakcije())
+            if(t.getStatus().equals(Status.U_KP) || t.getStatus().equals(Status.N_KP) || t.getStatus().equals(Status.K_KP))
+                transakcije.add(acquirerService.createFinishedPaymentDTO(t));
+
+        return new ResponseEntity<>(transakcije, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/pay/{token}", method = RequestMethod.GET)
@@ -96,7 +103,7 @@ public class AcquirerController {
     }
 
     @RequestMapping(value = "/pay/{token}", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Map> postPaymentInfo(HttpServletResponse httpServletResponse, @PathVariable String token, @Valid @RequestBody BuyerInfoDTO buyerInfoDTO) throws IOException, PaymentException, NotFoundException, FundsException {
+    public ResponseEntity<Map> postPaymentInfo(HttpServletResponse httpServletResponse, @PathVariable String token, @Valid @RequestBody BuyerInfoDTO buyerInfoDTO) throws IOException, PaymentException, NotFoundException, FundsException, ParseException {
 
         Map<String, String> map = new HashMap<>();
 

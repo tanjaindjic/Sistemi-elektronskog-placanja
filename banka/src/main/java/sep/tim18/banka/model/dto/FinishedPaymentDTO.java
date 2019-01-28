@@ -2,6 +2,8 @@ package sep.tim18.banka.model.dto;
 
 import java.util.Date;
 
+import sep.tim18.banka.model.PaymentInfo;
+import sep.tim18.banka.model.Transakcija;
 import sep.tim18.banka.model.enums.Status;
 
 public class FinishedPaymentDTO {

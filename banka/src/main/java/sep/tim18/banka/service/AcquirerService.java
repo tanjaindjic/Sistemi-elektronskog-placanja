@@ -8,11 +8,14 @@ import sep.tim18.banka.exceptions.PaymentException;
 import sep.tim18.banka.model.PaymentInfo;
 import sep.tim18.banka.model.Transakcija;
 import sep.tim18.banka.model.dto.BuyerInfoDTO;
+import sep.tim18.banka.model.dto.FinishedPaymentDTO;
 import sep.tim18.banka.model.dto.KPRequestDTO;
 import sep.tim18.banka.model.dto.PCCReplyDTO;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.text.ParseException;
+import java.util.List;
 import java.util.Map;
 
 public interface AcquirerService {
@@ -28,7 +31,9 @@ public interface AcquirerService {
     PaymentInfo createPaymentDetails(KPRequestDTO request);
     void finalizePayment(PCCReplyDTO pccReplyDTO) throws NotFoundException;
     boolean isPaymentFinished(String token);
-    boolean checkCredentials(String token, BuyerInfoDTO buyerInfoDTO);
+    boolean checkCredentials(String token, BuyerInfoDTO buyerInfoDTO) throws ParseException;
     PaymentInfo findByPaymentURL(String token);
     boolean isTransakcijaPending(String token);
+    List<Transakcija> getAllTransakcije();
+    FinishedPaymentDTO createFinishedPaymentDTO(Transakcija t);
 }
