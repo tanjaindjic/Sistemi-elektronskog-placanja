@@ -22,19 +22,24 @@ public class BankResponseDTO {
 	
 	@NotNull
 	private TransakcijaStatus status;
+	
+	@NotNull
+	private String redirectURL;
 
 	public BankResponseDTO() {
 		super();
 	}
 
 	public BankResponseDTO(@NotNull Long merchantOrderID, @NotNull Long acquirerOrderID,
-			@NotNull Date acquirerTimestamp, @NotNull Long paymentID, @NotNull TransakcijaStatus status) {
+			@NotNull Date acquirerTimestamp, @NotNull Long paymentID, @NotNull TransakcijaStatus status,
+			@NotNull String redirectURL) {
 		super();
 		this.merchantOrderID = merchantOrderID;
 		this.acquirerOrderID = acquirerOrderID;
 		this.acquirerTimestamp = acquirerTimestamp;
 		this.paymentID = paymentID;
 		this.status = status;
+		this.redirectURL = redirectURL;
 	}
 
 	public Long getMerchantOrderID() {
@@ -75,6 +80,14 @@ public class BankResponseDTO {
 
 	public void setStatus(TransakcijaStatus status) {
 		this.status = status;
+	}
+
+	public String getRedirectURL() {
+		return redirectURL;
+	}
+
+	public void setRedirectURL(String redirectURL) {
+		this.redirectURL = redirectURL;
 	}
 
 	@Override
