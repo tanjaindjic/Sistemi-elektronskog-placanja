@@ -57,7 +57,7 @@ public class AcquirerController {
         return new ResponseEntity<Map>(retVal, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/getTransactions", method = RequestMethod.GET)
+    @RequestMapping(value = "/getTransactions", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List> getTransactions(HttpServletResponse httpServletResponse, @PathVariable String token) throws IOException {
         List<FinishedPaymentDTO> transakcije = new ArrayList<>();
         for(Transakcija t : acquirerService.getAllTransakcije())

@@ -247,15 +247,26 @@ public class AcquirerServiceImpl implements AcquirerService {
         FinishedPaymentDTO finishedPaymentDTO = new FinishedPaymentDTO();
 
         finishedPaymentDTO.setMerchantOrderID(t.getMerchantOrderId());
-        finishedPaymentDTO.setAcquirerOrderID(t.getOrderID()); //ista banka
+        finishedPaymentDTO.setAcquirerOrderID(t.getOrderID());
         finishedPaymentDTO.setAcquirerTimestamp(t.getTimestamp());
         finishedPaymentDTO.setPaymentID(paymentInfo.getPaymentID());
+
         if(t.getStatus()==Status.U_KP) {
             finishedPaymentDTO.setStatusTransakcije(Status.U);
             finishedPaymentDTO.setRedirectURL(t.getSuccessURL());
-        }else if(t.getStatus().equals(Status.N_KP) || t.getStatus().equals(Status.K_KP)) {
+            t.setStatus(Status.U);
+            transakcijaRepository.save(t);
+
+        }else if(t.getStatus().equals(Status.N_KP)){
             finishedPaymentDTO.setStatusTransakcije(Status.N);
             finishedPaymentDTO.setRedirectURL(t.getFailedURL());
+            t.setStatus(Status.N);
+            transakcijaRepository.save(t);
+        }else if(t.getStatus().equals(Status.K_KP)){
+            finishedPaymentDTO.setStatusTransakcije(Status.K);
+            finishedPaymentDTO.setRedirectURL(t.getFailedURL());
+            t.setStatus(Status.K);
+            transakcijaRepository.save(t);
         }
         return finishedPaymentDTO;
     }
