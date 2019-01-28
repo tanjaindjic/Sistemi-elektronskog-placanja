@@ -13,9 +13,11 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.ftn.paymentGateway.dto.TransakcijaIshodDTO;
+import com.ftn.paymentGateway.enumerations.IdPoljePlacanja;
 import com.ftn.paymentGateway.enumerations.TransakcijaStatus;
 import com.ftn.paymentGateway.exceptions.PaymentErrorException;
 import com.ftn.paymentGateway.model.PodrzanoPlacanje;
+import com.ftn.paymentGateway.model.PoljePodrzanoPlacanje;
 import com.ftn.paymentGateway.model.Transakcija;
 import com.ftn.paymentGateway.paymentStrategy.PaymentStrategy;
 import com.ftn.paymentGateway.repository.PodrzanoPlacanjeRepository;
@@ -42,6 +44,9 @@ public class PayPalPayment implements PaymentStrategy{
 	
 	@Override
 	public TransakcijaIshodDTO doPayment(Transakcija transakcija, PodrzanoPlacanje podrzanoPlacanje) throws PaymentErrorException{
+		if(transakcija==null || podrzanoPlacanje==null){
+			throw new PaymentErrorException();
+		}
 		TransakcijaIshodDTO response = new TransakcijaIshodDTO();
 		HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
 		String cancelUrl = URLUtils.getBaseURl(request) + "/" + PAYPAL_CANCEL_URL;
@@ -69,12 +74,24 @@ public class PayPalPayment implements PaymentStrategy{
 	    redirectUrls.setReturnUrl(successUrl);
 	    payment.setRedirectUrls(redirectUrls);
 	    Payment createdPayment;
+	    
+	    String merchant_id = "";
+	    String merchant_secret = "";
+		
+		for(PoljePodrzanoPlacanje polje : podrzanoPlacanje.getPolja()) {
+			if(polje.getIdPolja().equals(IdPoljePlacanja.MERCHANT_ID)) {
+				merchant_id = polje.getVrednost();
+			}
+			else if(polje.getIdPolja().equals(IdPoljePlacanja.MERCHANT_PASSWORD)){
+				merchant_secret = polje.getVrednost();
+			}
+		}
 	    try {
 	        String redirectUrl = "";
 	        
 	        Map<String, String> sdkConfig = new HashMap<String, String>();
 	        sdkConfig.put("mode", "sandbox");
-	        String accessToken = new OAuthTokenCredential(podrzanoPlacanje.getIdNaloga(), podrzanoPlacanje.getSifraNaloga(), sdkConfig).getAccessToken();
+	        String accessToken = new OAuthTokenCredential(merchant_id, merchant_secret, sdkConfig).getAccessToken();
 	        APIContext apiContext = new APIContext(accessToken);
 	        System.out.println(accessToken);
 	                // still need to toss in the sdkConfig here
@@ -111,10 +128,22 @@ public class PayPalPayment implements PaymentStrategy{
 
 	    PaymentExecution paymentExecution = new PaymentExecution();
 	    paymentExecution.setPayerId(request.getParameter("PayerID"));
+	    
+	    String merchant_id = "";
+	    String merchant_secret = "";
+		
+		for(PoljePodrzanoPlacanje polje : podrzanoPlacanje.getPolja()) {
+			if(polje.getIdPolja().equals(IdPoljePlacanja.MERCHANT_ID)) {
+				merchant_id = polje.getVrednost();
+			}
+			else if(polje.getIdPolja().equals(IdPoljePlacanja.MERCHANT_PASSWORD)){
+				merchant_secret = polje.getVrednost();
+			}
+		}
 	    try {
 	    	Map<String, String> sdkConfig = new HashMap<String, String>();
 	        sdkConfig.put("mode", "sandbox");
-	        String accessToken = new OAuthTokenCredential(podrzanoPlacanje.getIdNaloga(), podrzanoPlacanje.getSifraNaloga(), sdkConfig).getAccessToken();
+	        String accessToken = new OAuthTokenCredential(merchant_id, merchant_secret, sdkConfig).getAccessToken();
 	        APIContext apiContext = new APIContext(accessToken);
 	        System.out.println(accessToken);
 	        apiContext.setConfigurationMap(sdkConfig); 

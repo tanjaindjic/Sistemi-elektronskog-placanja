@@ -25,9 +25,6 @@ public class PoljePodrzanoPlacanje {
 	
 	@Column(nullable = true, length = 120)
 	private String vrednost;
-	
-	@ManyToOne(optional = false)
-	private PodrzanoPlacanje podrzanoPlacanje;
 
 	public PoljePodrzanoPlacanje() {
 		super();

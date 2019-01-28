@@ -39,8 +39,8 @@ public class CreditCardPayment implements PaymentStrategy{
 			return new TransakcijaIshodDTO(false, false, TransakcijaStatus.N, null, null);
 		}
 		
-		BankRequestDTO theBankReq = new BankRequestDTO(podrzanoPlacanje.getIdNaloga(), podrzanoPlacanje.getIdNaloga(), transakcija.getIznos(),
-				transakcija.getId(), transakcija.getVreme(), successURL, failedURL, errorURL);
+//		BankRequestDTO theBankReq = new BankRequestDTO(podrzanoPlacanje.getIdNaloga(), podrzanoPlacanje.getIdNaloga(), transakcija.getIznos(),
+//				transakcija.getId(), transakcija.getVreme(), successURL, failedURL, errorURL);
 		
 		RestTemplate restTemplate = new RestTemplate();
 		HttpsURLConnection.setDefaultHostnameVerifier ((hostname, session) -> true);
