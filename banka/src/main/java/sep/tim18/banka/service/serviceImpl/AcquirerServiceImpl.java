@@ -454,7 +454,7 @@ public class AcquirerServiceImpl implements AcquirerService {
 
         HttpsURLConnection.setDefaultHostnameVerifier((hostname, session)->true);
         RestTemplate template = new RestTemplate();
-        try{
+        try{//TODO vrati success url ili failed url od kp
             template.postForEntity(replyToKP, finishedPaymentDTO, FinishedPaymentDTO.class);
         }catch(Exception e){
             System.out.println("KP nije dostupan.");
@@ -481,7 +481,7 @@ public class AcquirerServiceImpl implements AcquirerService {
 
         HttpsURLConnection.setDefaultHostnameVerifier((hostname, session)->true);
         RestTemplate template = new RestTemplate();
-        try {
+        try {//TODO vrati success url ili failed url od kp
             template.postForEntity(replyToKP, finishedPaymentDTO, FinishedPaymentDTO.class);
         } catch(Exception e) {
             System.out.println("KP nije dostupan.");
