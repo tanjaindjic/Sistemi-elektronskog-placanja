@@ -53,6 +53,7 @@ public class AcquirerController {
         PaymentInfo paymentInfo = acquirerService.createPaymentDetails(request);
         retVal.put("paymentURL", BAddress + "pay/" + paymentInfo.getPaymentURL());
         retVal.put("paymentID", paymentInfo.getPaymentID());
+        retVal.put("izvrsnaTransakcijaId", paymentInfo.getTransakcija().getOrderID());
 
         return new ResponseEntity<Map>(retVal, HttpStatus.OK);
     }
