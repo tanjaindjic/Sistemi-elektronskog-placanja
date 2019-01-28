@@ -16,7 +16,7 @@ mainModule.config(function($stateProvider, $urlRouterProvider) {
         controller : 'mainPanelController'
     })
     .state('success', {
-        url: '/success/{token}',
+        url: '/success',
         templateUrl : 'appParts/success/success.html',
         controller : 'successController'
     })

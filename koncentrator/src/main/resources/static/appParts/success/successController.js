@@ -1,4 +1,4 @@
-(function() { "use strict";
+3(function() { "use strict";
 
     success.controller('successController', [ '$scope','$window','$localStorage','$location', '$stateParams','mainService',
         function($scope, $window, $localStorage, $location, $stateParams, mainService) {
