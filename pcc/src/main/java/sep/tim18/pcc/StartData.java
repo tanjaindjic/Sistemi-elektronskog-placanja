@@ -10,6 +10,7 @@ import sep.tim18.pcc.repository.BankaRepository;
 import javax.annotation.PostConstruct;
 @PropertySource(ignoreResourceNotFound = true, value = "classpath:application.properties")
 @Component
+@Deprecated
 public class StartData {
 
     private static String B1URL;
@@ -40,7 +41,7 @@ public class StartData {
     @Autowired
     private BankaRepository bankaRepository;
 
-    @PostConstruct
+    //@PostConstruct
     private void initData(){
         Banka b1 = new Banka();
         b1.setBrojBanke(B1N);

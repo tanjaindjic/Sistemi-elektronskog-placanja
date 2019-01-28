@@ -8,9 +8,11 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
+import sep.tim18.banka.exceptions.FundsException;
 import sep.tim18.banka.exceptions.NotFoundException;
 import sep.tim18.banka.exceptions.PaymentException;
 import sep.tim18.banka.model.PaymentInfo;
+import sep.tim18.banka.model.Transakcija;
 import sep.tim18.banka.model.dto.BuyerInfoDTO;
 import sep.tim18.banka.model.dto.KPRequestDTO;
 import sep.tim18.banka.model.dto.PCCReplyDTO;
@@ -63,10 +65,21 @@ public class AcquirerController {
 
         Map retVal = new HashMap<String, String>();
 
+        if(acquirerService.findByPaymentURL(token) == null) {
+            System.out.println("Nema informacija o ovom tokenu.");
+            retVal.put("Location", "/404");
+            return new ResponseEntity<>(retVal, HttpStatus.BAD_REQUEST);
+        }
+
         if(acquirerService.isPaymentFinished(token)) {
             System.out.println("Transakcija je zavrsena.");
             retVal.put("Location", "/404");
             return new ResponseEntity<Map>(retVal, HttpStatus.BAD_REQUEST);
+        }
+
+        if(acquirerService.isTransakcijaPending(token)){
+            retVal.put("Location", "/paymentSent");
+            return new ResponseEntity<>(retVal, HttpStatus.BAD_REQUEST);
         }
 
         if(acquirerService.isTokenExpired(token)) {
@@ -83,17 +96,57 @@ public class AcquirerController {
     }
 
     @RequestMapping(value = "/pay/{token}", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Map> postPaymentInfo(HttpServletResponse httpServletResponse, @PathVariable String token, @Valid @RequestBody BuyerInfoDTO buyerInfoDTO) throws IOException, PaymentException {
+    public ResponseEntity<Map> postPaymentInfo(HttpServletResponse httpServletResponse, @PathVariable String token, @Valid @RequestBody BuyerInfoDTO buyerInfoDTO) throws IOException, PaymentException, NotFoundException, FundsException {
 
         Map<String, String> map = new HashMap<>();
 
+        PaymentInfo paymentInfo = acquirerService.findByPaymentURL(token);
+        if(paymentInfo == null){
+            System.out.println("Token ne postoji.");
+            map.put("Location", "/failed");
+            return new ResponseEntity<>(map, HttpStatus.BAD_REQUEST);
+        }
+
+        Transakcija t = paymentInfo.getTransakcija();
+        if(t == null){
+            System.out.println("Transakcija ne postoji.");
+            map.put("Location", "/failed");
+            return new ResponseEntity<>(map, HttpStatus.BAD_REQUEST);
+        }
+
+        if(acquirerService.isTransakcijaPending(token) || acquirerService.isTokenExpired(token)){
+            System.out.println("Transakcija je vec zapoceta.");
+            map.put("Location", "/failed");
+            return new ResponseEntity<>(map, HttpStatus.BAD_REQUEST);
+        }
+
         if(acquirerService.checkCredentials(token, buyerInfoDTO)){
             System.out.println("Podaci su validni.");
-            return acquirerService.tryPayment(token, buyerInfoDTO, httpServletResponse);
+
+            try {
+                return acquirerService.tryPayment(token, buyerInfoDTO, httpServletResponse);
+
+            }catch (PaymentException e){
+                System.out.println(e.getMessage());
+                acquirerService.paymentFailed(paymentInfo, t, token, buyerInfoDTO, false);
+                map.put("Location", "/failed");
+                return new ResponseEntity<>(map, HttpStatus.BAD_REQUEST);
+
+            }catch (NotFoundException e){
+                System.out.println(e.getMessage());
+                map.put("Poruka", "Podaci nisu ispravni.");
+                return new ResponseEntity<>(map, HttpStatus.BAD_REQUEST);
+
+            }catch (FundsException e){
+                System.out.println("Nedovoljno sredstava.");
+                acquirerService.paymentFailed(paymentInfo, t, token, buyerInfoDTO, true);
+                map.put("Location", "/failed");
+                return new ResponseEntity<>(map, HttpStatus.BAD_REQUEST);
+            }
         }
         else{
             System.out.println("Podaci nisu validni.");
-            map.put("Location", "/failed");
+            map.put("Poruka", "Podaci nisu ispravni."); //samo vratim odgovor da je omasio br kartice
             return new ResponseEntity<>(map, HttpStatus.BAD_REQUEST);
         }
     }
@@ -102,7 +155,11 @@ public class AcquirerController {
     public void pccReply(@Valid @RequestBody PCCReplyDTO pccReplyDTO) throws NotFoundException {
 
         System.out.println("Odgovor od PCC-a: " + pccReplyDTO.toString());
-        acquirerService.finalizePayment(pccReplyDTO);
+        try {
+            acquirerService.finalizePayment(pccReplyDTO);
+        }catch (NotFoundException e){
+            System.out.println(e.getMessage());;
+        }
     }
 
 

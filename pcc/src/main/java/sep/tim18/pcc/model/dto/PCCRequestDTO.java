@@ -2,35 +2,37 @@ package sep.tim18.pcc.model.dto;
 
 import org.hibernate.validator.constraints.Length;
 
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 public class PCCRequestDTO {
+    @NotNull
     private Long acquirerOrderID;
-
+    @NotNull
     private Date acquirerTimestamp;
-
+    @NotNull
     private Long merchantOrderID;
-
+    @NotNull
     private Date merchantTimestamp;
-
+    @NotNull
     @Length(min = 8, max = 19)
     private String panPosaljioca;
-
+    @NotNull
     @Length(min = 3, max = 4)
     private String cvv;
-
+    @NotNull
     @Length(min = 1)
     private String ime;
-
+    @NotNull
     @Length(min = 1)
     private String prezime;
-
+    @NotNull
     private int mesec;
-
+    @NotNull
     private int godina;
 
     private String returnURL;
-
+    @NotNull
     private Float iznos;
 
     private String panPrimaoca;

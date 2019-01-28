@@ -1,6 +1,9 @@
 mainModule.controller('centerController', ['$scope', '$window', 'mainService', '$http', '$location',
     function($scope, $window, mainService, $http, $location){
 
+     /*   $scope.$on('$locationChangeStart', function(event, next, current){
+                event.preventDefault();
+            });*/
         var init = function(){
             console.log(ROOT_PATH + "pay/" + /[^/]*$/.exec(window.location.href)[0])
             $http({
@@ -39,7 +42,10 @@ mainModule.controller('centerController', ['$scope', '$window', 'mainService', '
                     console.log(response)
                     $location.path(response.data.Location);
                 }, function errorCallback(response) {
-                    $location.path(response.data.Location);
+                     console.log("grerska" + JSON.stringify(response.data))
+                     if(response.data.Location!=null){
+                        $location.path(response.data.Location);
+                     } else alert(response.data.Poruka);
             });
 
         }

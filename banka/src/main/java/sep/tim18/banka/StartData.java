@@ -44,7 +44,9 @@ public class StartData {
     @Autowired
     private PaymentInfoRepository paymentInfoRepository;
 
-    @PostConstruct
+    static final long ONE_MINUTE_IN_MILLIS=60000;//millisecs
+
+    //@PostConstruct
     private void init(){
         Klijent klijent1 = new Klijent("prvi", "prvic", "1", "pass1", "mejl1", new ArrayList<>());
         Klijent klijent2 = new Klijent("drugi", "drugic", "2", "pass2", "mejl2", new ArrayList<>());
@@ -53,7 +55,7 @@ public class StartData {
         klijentRepository.save(klijent2);
         klijentRepository.save(klijent3);
 
-        Kartica kartica1 = new Kartica(BNumber + "2233334444", "111", "1/25", BNumber + "001", 10000F, 0F, klijent1 );
+        Kartica kartica1 = new Kartica(BNumber + "2233334444", "111", "1/25", BNumber + "001", 0F, 0F, klijent1 );
         Kartica kartica2 = new Kartica(BNumber + "3344445555", "222", "1/25", BNumber + "002", 10000F, 0F, klijent2 );
         Kartica kartica3 = new Kartica(BNumber + "4455556666", "333", "1/25", BNumber + "003", 10000F, 0F, klijent3 );
         karticaRepository.save(kartica1);
@@ -72,6 +74,11 @@ public class StartData {
         transakcijaRepository.save(transakcija1);
         PaymentInfo paymentInfo = new PaymentInfo(transakcija1, "1");
         paymentInfoRepository.save(paymentInfo);
+        Transakcija transakcija2 = new Transakcija(null, klijent2, "2",new Date(System.currentTimeMillis()  - (30 * ONE_MINUTE_IN_MILLIS)) , Status.K,
+                kartica1.getPan(), null, 100F, "succ", "fail", "error", 5L, new Date(System.currentTimeMillis()  - (30 * ONE_MINUTE_IN_MILLIS)));
+        transakcijaRepository.save(transakcija2);
+        PaymentInfo paymentInfo2 = new PaymentInfo(transakcija2, "2");
+        paymentInfoRepository.save(paymentInfo2);
 
 
     }

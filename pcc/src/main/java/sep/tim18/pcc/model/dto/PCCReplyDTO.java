@@ -2,13 +2,16 @@ package sep.tim18.pcc.model.dto;
 
 import sep.tim18.pcc.model.enums.Status;
 
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 public class PCCReplyDTO {
 
     private Long issuerOrderID;
     private Date issuerTimestamp;
+    @NotNull
     private Status status;
+    @NotNull
     private Long acquirerOrderID;
 
     public PCCReplyDTO() {

@@ -25,7 +25,7 @@ public class Transakcija {
     private String paymentURL; //ne treba za issuer transakciju jer je ovo vezano samo za token
 
     @Column(nullable = false)
-	@Temporal(TemporalType.DATE)
+	@Temporal(TemporalType.TIMESTAMP)
     private Date timestamp; //ako transakcija u banci prodavca onda Acquirer timestamp a ako je od kupca onda je issuer timestamp
 
     @Column(nullable = false)
@@ -55,8 +55,16 @@ public class Transakcija {
     private Long merchantOrderId; //id transakcije sa NC
 
     @Column(nullable = false)
-	@Temporal(TemporalType.DATE)
+    @Temporal(TemporalType.TIMESTAMP)
     private Date merchantTimestamp; //timestamp NC transakcije
+
+    @Column
+    private Long issuerOrderId;
+
+    @Column
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date issuerTimestamp;
+
 
     public Transakcija() {
     }
@@ -204,6 +212,22 @@ public class Transakcija {
 
     public void setMerchantTimestamp(Date dateTime) {
         this.merchantTimestamp = dateTime;
+    }
+
+    public Long getIssuerOrderId() {
+        return issuerOrderId;
+    }
+
+    public void setIssuerOrderId(Long issuerOrderId) {
+        this.issuerOrderId = issuerOrderId;
+    }
+
+    public Date getIssuerTimestamp() {
+        return issuerTimestamp;
+    }
+
+    public void setIssuerTimestamp(Date issuerTimestamp) {
+        this.issuerTimestamp = issuerTimestamp;
     }
 }
 

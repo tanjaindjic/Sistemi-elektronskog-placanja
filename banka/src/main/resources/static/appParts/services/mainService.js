@@ -1,6 +1,6 @@
 mainModule.service('mainService', [ '$http','jwtHelper','$window','$localStorage',
     function($http, jwtHelper, $window, $localStorage) {
-
+        $window.onpopstate = function (e) { window.history.forward(1); }
         this.validate = function(){
 
             var cardNumber = document.getElementById("cardNumber").value.replace(/ /g,'');

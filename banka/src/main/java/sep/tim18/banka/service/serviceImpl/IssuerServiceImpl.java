@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
+import sep.tim18.banka.exceptions.PaymentException;
 import sep.tim18.banka.model.Kartica;
 import sep.tim18.banka.model.Klijent;
 import sep.tim18.banka.model.Transakcija;
@@ -57,7 +58,8 @@ public class IssuerServiceImpl implements IssuerService {
         t.setTimestamp(new Date());
         t.setStatus(Status.K);
         t.setPanPrimaoca(request.getPanPrimaoca());
-        t.setPanPosaljioca(kartica.getPan());
+        if(kartica!=null)
+            t.setPanPosaljioca(kartica.getPan());
         t.setIznos(request.getIznos());
         t.setErrorURL("");
         t.setFailedURL("");
@@ -67,55 +69,6 @@ public class IssuerServiceImpl implements IssuerService {
         transakcijaRepository.save(t);
         return t;
 
-    }
-
-    @Override
-    @Transactional(readOnly = false, rollbackFor = Exception.class, propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
-    public void tryPayment(PCCRequestDTO request, Transakcija t, Klijent k) throws JsonProcessingException {
-
-        PCCReplyDTO pccReplyDTO = new PCCReplyDTO();
-        pccReplyDTO.setAcquirerOrderID(request.getAcquirerOrderID());
-
-        Kartica kartica = karticaRepository.findByPan(t.getPanPosaljioca());
-        int idx = k.getKartice().indexOf(kartica);
-
-        if(kartica.getRaspolozivaSredstva() - t.getIznos() < 0){
-            System.out.println("Transakcija neuspesna, nedovoljno sredstava.");
-            t.setStatus(Status.N);
-            transakcijaRepository.save(t);
-            pccReplyDTO.setStatus(Status.N);
-            sendReply(pccReplyDTO);
-            return;
-        }
-
-        Float raspolozivo = kartica.getRaspolozivaSredstva();
-        kartica.setRaspolozivaSredstva(raspolozivo - t.getIznos());
-        karticaRepository.save(kartica);
-
-        k.getKartice().set(idx, kartica);
-        klijentRepository.save(k);
-
-        t.setStatus(Status.U);
-        transakcijaRepository.save(t);
-
-        pccReplyDTO.setIssuerOrderID(t.getOrderID());
-        pccReplyDTO.setIssuerTimestamp(t.getTimestamp());
-        pccReplyDTO.setStatus(Status.U);
-        System.out.println("Transakcija je uspesna.");
-        sendReply(pccReplyDTO);
-
-    }
-
-    @Override
-    public void sendReply(PCCReplyDTO reply) {
-
-        HttpsURLConnection.setDefaultHostnameVerifier((hostname, session)->true);
-        RestTemplate template = new RestTemplate();
-        try {
-            template.postForEntity(replyToPCC, reply, PCCReplyDTO.class);
-        }catch (Exception e){
-            System.out.println("PCC nedostupan.");
-        }
     }
 
     @Override
@@ -142,29 +95,96 @@ public class IssuerServiceImpl implements IssuerService {
     }
 
     @Override
-    public void startPayment(@Valid PCCRequestDTO request) throws JsonProcessingException {
+    public void checkPayment(@Valid PCCRequestDTO request) throws JsonProcessingException, PaymentException {
 
         Klijent k = klijentRepository.findByKartice_pan(request.getPanPosaljioca());
+        Transakcija t = createTransakcija(request, k);
 
         if (k != null) {
-
             if (checkCredentials(request, k)) {
-                Transakcija t = createTransakcija(request, k);
-                transakcijaRepository.save(t);
-                tryPayment(request, t, k);
+                processPayment(request, t, k);
             }else {
                 System.out.println("Podaci kupca nisu validni.");
+                t.setStatus(Status.N);
+                transakcijaRepository.save(t);
                 PCCReplyDTO pccReplyDTO = new PCCReplyDTO();
                 pccReplyDTO.setAcquirerOrderID(request.getAcquirerOrderID());
                 pccReplyDTO.setStatus(Status.N);
-                sendReply(pccReplyDTO);
+                sendReply(pccReplyDTO, t);
             }
         }else {
             System.out.println("Nalog kupca ne postoji u trazenoj banci.");
+            t.setStatus(Status.N);
+            transakcijaRepository.save(t);
             PCCReplyDTO pccReplyDTO = new PCCReplyDTO();
             pccReplyDTO.setAcquirerOrderID(request.getAcquirerOrderID());
             pccReplyDTO.setStatus(Status.N);
-            sendReply(pccReplyDTO);
+            sendReply(pccReplyDTO, t);
         }
     }
+
+    @Override
+    @Transactional(readOnly = false, rollbackFor = Exception.class, propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
+    public void processPayment(PCCRequestDTO request, Transakcija t, Klijent k) throws JsonProcessingException, PaymentException {
+
+        PCCReplyDTO pccReplyDTO = new PCCReplyDTO();
+        pccReplyDTO.setAcquirerOrderID(request.getAcquirerOrderID());
+
+        Kartica kartica = karticaRepository.findByPan(t.getPanPosaljioca());
+        int idx = k.getKartice().indexOf(kartica);
+
+        if (idx == -1){
+            System.out.println("Transakcija neuspesna, nije pronadjena kartica.");
+            t.setStatus(Status.N);
+            transakcijaRepository.save(t);
+            pccReplyDTO.setStatus(Status.N);
+            sendReply(pccReplyDTO, t);
+            return;
+        }
+
+        if(kartica.getRaspolozivaSredstva() - t.getIznos() < 0){
+            System.out.println("Transakcija neuspesna, nedovoljno sredstava.");
+            t.setStatus(Status.N);
+            transakcijaRepository.save(t);
+            pccReplyDTO.setStatus(Status.N);
+            sendReply(pccReplyDTO, t);
+            return;
+        }
+
+        Float raspolozivo = kartica.getRaspolozivaSredstva();
+        kartica.setRaspolozivaSredstva(raspolozivo - t.getIznos());
+        karticaRepository.save(kartica);
+
+        k.getKartice().set(idx, kartica);
+        klijentRepository.save(k);
+
+        t.setStatus(Status.U);
+        transakcijaRepository.save(t);
+
+        pccReplyDTO.setIssuerOrderID(t.getOrderID());
+        pccReplyDTO.setIssuerTimestamp(t.getTimestamp());
+        pccReplyDTO.setStatus(Status.U);
+        System.out.println("Transakcija je uspesna.");
+        sendReply(pccReplyDTO, t);
+
+    }
+
+    @Override
+    public void sendReply(PCCReplyDTO reply, Transakcija t) {
+
+        HttpsURLConnection.setDefaultHostnameVerifier((hostname, session)->true);
+        RestTemplate template = new RestTemplate();
+        try {
+            template.postForEntity(replyToPCC, reply, PCCReplyDTO.class);
+        }catch (Exception e){
+            System.out.println("PCC nedostupan.");
+            if(t.getStatus()==Status.N)
+                t.setStatus(Status.N_PCC);
+            else t.setStatus(Status.U_PCC);
+            transakcijaRepository.save(t);
+        }
+    }
+
+
+
 }
