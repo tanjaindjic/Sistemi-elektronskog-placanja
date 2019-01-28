@@ -1,6 +1,16 @@
 package com.ftn.paymentGateway.model;
 
-import javax.persistence.*;
+import java.util.List;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 @Entity
 public class PodrzanoPlacanje {
@@ -9,11 +19,12 @@ public class PodrzanoPlacanje {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
 	
-	@Column(nullable = false, length = 120)
-	private String idNaloga;
+	@Column(nullable = false)
+	private boolean pretplata;
 	
-	@Column(nullable = true, length = 120)
-	private String sifraNaloga;
+	@OneToMany
+	@JsonBackReference
+	private List<PoljePodrzanoPlacanje> polja;
 	
 	@ManyToOne(optional = true)
 	private EntitetPlacanja entitetPlacanja;
@@ -25,12 +36,12 @@ public class PodrzanoPlacanje {
 		super();
 	}
 
-	public PodrzanoPlacanje(Long id, String idNaloga, String sifraNaloga, EntitetPlacanja entitetPlacanja,
-			TipPlacanja tipPlacanja) {
+	public PodrzanoPlacanje(Long id, boolean pretplata, List<PoljePodrzanoPlacanje> polja,
+			EntitetPlacanja entitetPlacanja, TipPlacanja tipPlacanja) {
 		super();
 		this.id = id;
-		this.idNaloga = idNaloga;
-		this.sifraNaloga = sifraNaloga;
+		this.pretplata = pretplata;
+		this.polja = polja;
 		this.entitetPlacanja = entitetPlacanja;
 		this.tipPlacanja = tipPlacanja;
 	}
@@ -43,20 +54,20 @@ public class PodrzanoPlacanje {
 		this.id = id;
 	}
 
-	public String getIdNaloga() {
-		return idNaloga;
+	public boolean isPretplata() {
+		return pretplata;
 	}
 
-	public void setIdNaloga(String idNaloga) {
-		this.idNaloga = idNaloga;
+	public void setPretplata(boolean pretplata) {
+		this.pretplata = pretplata;
 	}
 
-	public String getSifraNaloga() {
-		return sifraNaloga;
+	public List<PoljePodrzanoPlacanje> getPolja() {
+		return polja;
 	}
 
-	public void setSifraNaloga(String sifraNaloga) {
-		this.sifraNaloga = sifraNaloga;
+	public void setPolja(List<PoljePodrzanoPlacanje> polja) {
+		this.polja = polja;
 	}
 
 	public EntitetPlacanja getEntitetPlacanja() {

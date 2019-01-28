@@ -1,20 +1,25 @@
 package com.ftn.paymentGateway;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.ftn.paymentGateway.enumerations.IdPoljePlacanja;
 import com.ftn.paymentGateway.enumerations.TransakcijaStatus;
 import com.ftn.paymentGateway.helpClasses.RandomStringGenerator;
 import com.ftn.paymentGateway.model.EntitetPlacanja;
 import com.ftn.paymentGateway.model.PodrzanoPlacanje;
+import com.ftn.paymentGateway.model.PoljePodrzanoPlacanje;
 import com.ftn.paymentGateway.model.TipPlacanja;
 import com.ftn.paymentGateway.model.Transakcija;
 import com.ftn.paymentGateway.repository.EntitetPlacanjaRepository;
 import com.ftn.paymentGateway.repository.PodrzanoPlacanjeRepository;
+import com.ftn.paymentGateway.repository.PoljePodrzanoPlacanjeRepository;
 import com.ftn.paymentGateway.repository.TipPlacanjaRepository;
 import com.ftn.paymentGateway.repository.TransakcijaRepository;
 
@@ -35,6 +40,9 @@ public class StartData {
 	
 	@Autowired
 	private RandomStringGenerator randomStringGenerator;
+	@Autowired 
+	private PoljePodrzanoPlacanjeRepository poljePodrzanoPlacanjeRepository;
+	
 	
 	public StartData() {}
 	
@@ -67,27 +75,88 @@ public class StartData {
 		ep6 = entitetPlacanjaRepository.save(ep6);
 		
 		/* Kreditne Kartice */
-		PodrzanoPlacanje pp1 = new PodrzanoPlacanje(null, "Merchant1", "pass1", ep3, tp1);
-		PodrzanoPlacanje pp2 = new PodrzanoPlacanje(null, "Merchant1", "pass1", ep4, tp1);
-		PodrzanoPlacanje pp3 = new PodrzanoPlacanje(null, "Merchant1", "pass1", ep5, tp1);
-		PodrzanoPlacanje pp4 = new PodrzanoPlacanje(null, "Merchant1", "pass1", ep6, tp1);
+		PoljePodrzanoPlacanje ppb1 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_ID, "1");
+		PoljePodrzanoPlacanje ppb2 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_ID, "2");
+		PoljePodrzanoPlacanje ppb3 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_ID, "3");
+		PoljePodrzanoPlacanje ppb11 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_PASSWORD, "pass1");
+		PoljePodrzanoPlacanje ppb21 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_PASSWORD, "pass2");
+		PoljePodrzanoPlacanje ppb31 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_PASSWORD, "pass3");
+		
+		ppb1 = poljePodrzanoPlacanjeRepository.save(ppb1);
+		ppb2 = poljePodrzanoPlacanjeRepository.save(ppb2);
+		ppb3 = poljePodrzanoPlacanjeRepository.save(ppb3);
+		ppb11 = poljePodrzanoPlacanjeRepository.save(ppb11);
+		ppb21 = poljePodrzanoPlacanjeRepository.save(ppb21);
+		ppb31 = poljePodrzanoPlacanjeRepository.save(ppb31);
+		
+		List<PoljePodrzanoPlacanje> banka1PP = new ArrayList<>();
+		banka1PP.add(ppb1);
+		banka1PP.add(ppb11);
+		
+		List<PoljePodrzanoPlacanje> banka2PP = new ArrayList<>();
+		banka2PP.add(ppb2);
+		banka2PP.add(ppb21);
+		
+		List<PoljePodrzanoPlacanje> banka3PP = new ArrayList<>();
+		banka3PP.add(ppb3);
+		banka3PP.add(ppb31);
+		
+		
+		PodrzanoPlacanje pp1 = new PodrzanoPlacanje(null, false, banka1PP, ep1, tp1);
+		PodrzanoPlacanje pp2 = new PodrzanoPlacanje(null, false, banka2PP, ep2, tp1);
+		PodrzanoPlacanje pp3 = new PodrzanoPlacanje(null, false, banka3PP, ep3, tp1);
+		
+		pp1 = podrzanoPlacanjeRepository.save(pp1);
+		pp2 = podrzanoPlacanjeRepository.save(pp2);
+		pp3 = podrzanoPlacanjeRepository.save(pp3);
+		
 		
 		/* PayPal */
-		PodrzanoPlacanje pp5 = new PodrzanoPlacanje(null, "AS5IMk8HPdQhY6_LF4MismGdr9j73ERw2K9fYVhtH1O5cTQPqX5ec5vaEm5MlSl8GosBEczyC8UcJo1-", "EHijiYCc4J0QRBlB475fXO23eUBSatQONjw-OaGrTjPgEv2J-uKEBkLFsQuSeFFjX9KwMIxkjXbS_yjw", ep3, tp2);
-		PodrzanoPlacanje pp6 = new PodrzanoPlacanje(null, "AS5IMk8HPdQhY6_LF4MismGdr9j73ERw2K9fYVhtH1O5cTQPqX5ec5vaEm5MlSl8GosBEczyC8UcJo1-", "EHijiYCc4J0QRBlB475fXO23eUBSatQONjw-OaGrTjPgEv2J-uKEBkLFsQuSeFFjX9KwMIxkjXbS_yjw", ep5, tp2);
+		PoljePodrzanoPlacanje pppp1 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_ID, "AS5IMk8HPdQhY6_LF4MismGdr9j73ERw2K9fYVhtH1O5cTQPqX5ec5vaEm5MlSl8GosBEczyC8UcJo1-");
+		PoljePodrzanoPlacanje pppp2 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_ID, "AS5IMk8HPdQhY6_LF4MismGdr9j73ERw2K9fYVhtH1O5cTQPqX5ec5vaEm5MlSl8GosBEczyC8UcJo1-");
+		PoljePodrzanoPlacanje pppp11 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_PASSWORD, "EHijiYCc4J0QRBlB475fXO23eUBSatQONjw-OaGrTjPgEv2J-uKEBkLFsQuSeFFjX9KwMIxkjXbS_yjw");
+		PoljePodrzanoPlacanje pppp21 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_PASSWORD, "EHijiYCc4J0QRBlB475fXO23eUBSatQONjw-OaGrTjPgEv2J-uKEBkLFsQuSeFFjX9KwMIxkjXbS_yjw");
+		
+
+		pppp1 = poljePodrzanoPlacanjeRepository.save(pppp1);
+		pppp11 = poljePodrzanoPlacanjeRepository.save(pppp11);
+		pppp2 = poljePodrzanoPlacanjeRepository.save(pppp2);
+		pppp21 = poljePodrzanoPlacanjeRepository.save(pppp21);
+		
+		List<PoljePodrzanoPlacanje> pppp1PP = new ArrayList<>();
+		pppp1PP.add(pppp1);
+		pppp1PP.add(pppp11);
+		
+		List<PoljePodrzanoPlacanje> pppp2PP = new ArrayList<>();
+		pppp2PP.add(pppp2);
+		pppp2PP.add(pppp21);
+		
+
+		PodrzanoPlacanje pp4 = new PodrzanoPlacanje(null, false, pppp1PP, ep3, tp2);
+		PodrzanoPlacanje pp5 = new PodrzanoPlacanje(null, false, pppp2PP, ep4, tp2);
+		
+		pp4 = podrzanoPlacanjeRepository.save(pp4);
+		pp5 = podrzanoPlacanjeRepository.save(pp5);
 		
 		/* Bitcoin */
-		PodrzanoPlacanje pp7 = new PodrzanoPlacanje(null, "vXSzu6yK-XC9Gf1B2_TaS3Pfdp4bkefDsyxD7yXi", null, ep3, tp3);
-		PodrzanoPlacanje pp8 = new PodrzanoPlacanje(null, "vXSzu6yK-XC9Gf1B2_TaS3Pfdp4bkefDsyxD7yXi", null, ep4, tp3);
+		PoljePodrzanoPlacanje ppbc1 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_ID, "vXSzu6yK-XC9Gf1B2_TaS3Pfdp4bkefDsyxD7yXi");
+		PoljePodrzanoPlacanje ppbc2 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_ID, "vXSzu6yK-XC9Gf1B2_TaS3Pfdp4bkefDsyxD7yXi");
 		
-		podrzanoPlacanjeRepository.save(pp1);
-		podrzanoPlacanjeRepository.save(pp2);
-		podrzanoPlacanjeRepository.save(pp3);
-		podrzanoPlacanjeRepository.save(pp4);
-		podrzanoPlacanjeRepository.save(pp5);
-		podrzanoPlacanjeRepository.save(pp6);
-		podrzanoPlacanjeRepository.save(pp7);
-		podrzanoPlacanjeRepository.save(pp8);
+
+		ppbc1 = poljePodrzanoPlacanjeRepository.save(ppbc1);
+		ppbc2 = poljePodrzanoPlacanjeRepository.save(ppbc2);
+		
+		List<PoljePodrzanoPlacanje> ppbc1PP = new ArrayList<>();
+		banka1PP.add(ppbc1);
+		
+		List<PoljePodrzanoPlacanje> ppbc2PP = new ArrayList<>();
+		banka2PP.add(ppbc2);
+		
+		PodrzanoPlacanje pp6 = new PodrzanoPlacanje(null, false, ppbc1PP, ep3, tp3);
+		PodrzanoPlacanje pp7 = new PodrzanoPlacanje(null, false, ppbc2PP, ep4, tp3);
+		
+		pp6 = podrzanoPlacanjeRepository.save(pp6);
+		pp7 = podrzanoPlacanjeRepository.save(pp7);
 		
 		String token1 = randomStringGenerator.genRandomString(90);
 		String token2 = randomStringGenerator.genRandomString(90);

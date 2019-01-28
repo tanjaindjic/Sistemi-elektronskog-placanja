@@ -19,10 +19,12 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import com.ftn.paymentGateway.dto.TransakcijaIshodDTO;
+import com.ftn.paymentGateway.enumerations.IdPoljePlacanja;
 import com.ftn.paymentGateway.enumerations.TransakcijaStatus;
 import com.ftn.paymentGateway.exceptions.PaymentErrorException;
 import com.ftn.paymentGateway.exceptions.UnsupportedMethodException;
 import com.ftn.paymentGateway.model.PodrzanoPlacanje;
+import com.ftn.paymentGateway.model.PoljePodrzanoPlacanje;
 import com.ftn.paymentGateway.model.Transakcija;
 import com.ftn.paymentGateway.paymentStrategy.PaymentStrategy;
 
@@ -37,9 +39,18 @@ public class BitcoinPayment implements PaymentStrategy{
 			throw new PaymentErrorException();
 		}
 		
+		String idNaloga = "";
+		
+		for(PoljePodrzanoPlacanje polje : podrzanoPlacanje.getPolja()) {
+			if(polje.getIdPolja().equals(IdPoljePlacanja.MERCHANT_ID)) {
+				idNaloga = polje.getVrednost();
+				break;
+			}	
+		}
+		
 		HttpHeaders headers = new HttpHeaders();
 		headers.set("Content-Type", "application/x-www-form-urlencoded");
-		headers.set("Authorization", "Token "+podrzanoPlacanje.getIdNaloga());
+		headers.set("Authorization", "Token "+idNaloga);
 		
 		MultiValueMap<String, String> bitcoinRequestParams= new LinkedMultiValueMap<String, String>();
 		bitcoinRequestParams.add("order_id", transakcija.getId().toString());
