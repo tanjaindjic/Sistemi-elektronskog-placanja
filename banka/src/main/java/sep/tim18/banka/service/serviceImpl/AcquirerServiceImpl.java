@@ -353,7 +353,7 @@ public class AcquirerServiceImpl implements AcquirerService {
             map.put("Location", "/paymentSent");
             return new ResponseEntity<>(map, HttpStatus.OK);
         }
-
+        System.out.println("Kupac je u istoj banci.");
         List<Kartica> match = kupac.getKartice().stream()
                 .filter(s -> buyerInfoDTO.getPan().equals(s.getPan()))
                 .collect(Collectors.toList());
@@ -381,11 +381,14 @@ public class AcquirerServiceImpl implements AcquirerService {
         if(idx == -1)
             throw new PaymentException("Nije moguce naci karticu.");
 
+        System.out.println("Prebacivanje sredstava: " + t.getIznos());
+        System.out.println("Stanje pre: " + zaPlacanje.getRaspolozivaSredstva());
         Float raspolozivo = zaPlacanje.getRaspolozivaSredstva();
         zaPlacanje.setRaspolozivaSredstva(raspolozivo - t.getIznos());
         karticaRepository.save(zaPlacanje);
         kupac.getKartice().set(idx, zaPlacanje);
         klijentRepository.save(kupac);
+        System.out.println("Stanje posle: " + zaPlacanje.getRaspolozivaSredstva());
 
         Kartica primalac = karticaRepository.findByPan(t.getPanPrimaoca());
         raspolozivo = primalac.getRaspolozivaSredstva();
@@ -401,8 +404,11 @@ public class AcquirerServiceImpl implements AcquirerService {
         t.setPanPrimaoca(kupac.getKartice().get(0).getPan());
         transakcijaRepository.save(t);
 
-        paymentSuccessful(paymentInfo, t, token, buyerInfoDTO);
-        map.put("Location", "/success");
+        System.out.println("Uspesno prebacivanje novca.");
+
+        String location = paymentSuccessful(paymentInfo, t, token, buyerInfoDTO);
+        System.out.println("Lokacija:  " + location);
+        map.put("Location", location);
         return new ResponseEntity<>(map, HttpStatus.OK);
 
     }
@@ -442,7 +448,7 @@ public class AcquirerServiceImpl implements AcquirerService {
     }
 
     @Override
-    public void paymentFailed(PaymentInfo paymentInfo, Transakcija t, String token, BuyerInfoDTO buyerInfoDTO, boolean rollback) throws JsonProcessingException {
+    public String paymentFailed(PaymentInfo paymentInfo, Transakcija t, String token, BuyerInfoDTO buyerInfoDTO, boolean rollback) throws JsonProcessingException {
 
         FinishedPaymentDTO finishedPaymentDTO = new FinishedPaymentDTO();
         finishedPaymentDTO.setStatusTransakcije(Status.N);
@@ -455,19 +461,23 @@ public class AcquirerServiceImpl implements AcquirerService {
         HttpsURLConnection.setDefaultHostnameVerifier((hostname, session)->true);
         RestTemplate template = new RestTemplate();
         try{//TODO vrati success url ili failed url od kp
-            template.postForEntity(replyToKP, finishedPaymentDTO, FinishedPaymentDTO.class);
+            ResponseEntity<Boolean> response = template.postForEntity(replyToKP, finishedPaymentDTO, Boolean.class);
+            if(response.getBody())
+                return t.getSuccessURL();
+            else return t.getFailedURL();
         }catch(Exception e){
             System.out.println("KP nije dostupan.");
             if(rollback)
                 t.setStatus(Status.K_KP);
             else t.setStatus(Status.N_KP);
             transakcijaRepository.save(t);
+            return "/paymentSent";
         }
 
     }
 
     @Override
-    public void paymentSuccessful(PaymentInfo paymentInfo, Transakcija t, String token, BuyerInfoDTO buyerInfoDTO) throws JsonProcessingException {
+    public String paymentSuccessful(PaymentInfo paymentInfo, Transakcija t, String token, BuyerInfoDTO buyerInfoDTO) throws JsonProcessingException {
 
         //ovde su i merchant i acquirer isti jer je ista banka
 
@@ -482,11 +492,15 @@ public class AcquirerServiceImpl implements AcquirerService {
         HttpsURLConnection.setDefaultHostnameVerifier((hostname, session)->true);
         RestTemplate template = new RestTemplate();
         try {//TODO vrati success url ili failed url od kp
-            template.postForEntity(replyToKP, finishedPaymentDTO, FinishedPaymentDTO.class);
+            ResponseEntity<Boolean> response = template.postForEntity(replyToKP, finishedPaymentDTO, Boolean.class);
+            if(response.getBody())
+                return t.getSuccessURL();
+            else return t.getFailedURL();
         } catch(Exception e) {
             System.out.println("KP nije dostupan.");
             t.setStatus(Status.U_KP);
             transakcijaRepository.save(t);
+            return "/paymentSent";
         }
 
     }
