@@ -196,14 +196,15 @@ public class PaymentController {
 		return new ModelAndView("redirect:" + urlRedirect);
     }
 	
-	@RequestMapping(value = "success", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE, consumes= MediaType.APPLICATION_JSON_VALUE)
-	public ModelAndView completePayment(HttpServletRequest request, BankResponseDTO bankResponse){
+	@RequestMapping(value = "bankResponse", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE, consumes= MediaType.APPLICATION_JSON_VALUE)
+	public Boolean completePayment(HttpServletRequest request, BankResponseDTO bankResponse){
+		System.out.println("usao u bank response");
 		Transakcija transakcija = transakcijaService.getById(bankResponse.getMerchantOrderID());
 		TipPlacanja tipPlacanja = tipPlacanjaService.getById(transakcija.getTipPlacanja().getId());
 		ArrayList<PodrzanoPlacanje> podrzanaPlacanja = podrzanoPlacanjeService.getByEntitetPlacanjaAndTipPlacanja(transakcija.getEntitetPlacanja(), tipPlacanja);
 		
 		if(podrzanaPlacanja.isEmpty()) {
-			return null;
+			return false;
 		}
 		
 		PodrzanoPlacanje podrzanoPlacanje = podrzanaPlacanja.get(0);
@@ -211,7 +212,7 @@ public class PaymentController {
 		try {
 			retVal = paymentFactory.getPaymentStrategy(tipPlacanja).completePayment(request, podrzanoPlacanje);
 			if(retVal==null){
-				return null;
+				return false;
 			}
 			System.out.println("USPESNO RADI ZA BANKU success");
 		} catch (UnsupportedMethodException e) {
@@ -231,7 +232,7 @@ public class PaymentController {
 	        transakcija.setStatus(TransakcijaStatus.U);
 	        System.out.println("TANJA CAREEEEE");
 	        urlRedirect = "https://localhost:8098/paymentGateway/#!/success/"+transakcija.getJedinstveniToken();
-	        return new ModelAndView("redirect:" + urlRedirect);
+	        return true;
 		//TODO dodati redirekciju na odgovarajucu stranicu i za controller za "/cancel"
 		}
 		else{
@@ -241,6 +242,6 @@ public class PaymentController {
             transakcija.setStatus(TransakcijaStatus.N);
         }
         transakcijaService.save(transakcija);
-		return new ModelAndView("redirect:" + urlRedirect);
+		return false;
     }
 }
