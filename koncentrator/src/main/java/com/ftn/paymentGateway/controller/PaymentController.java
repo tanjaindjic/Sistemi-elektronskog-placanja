@@ -87,7 +87,7 @@ public class PaymentController {
 		HttpHeaders headers = new HttpHeaders();
 		headers.add("Location", redirectionUrl+novaTransakcija.getJedinstveniToken());
 		
-		return new ResponseEntity<PaymentResponseDTO>(new PaymentResponseDTO(paymentRequest.getMaticnaTransakcija(), TransakcijaStatus.C, "Transakcija je uspesno zabelezena, bicete preusmereni na panel za placanje."), headers, HttpStatus.FOUND);
+		return new ResponseEntity<PaymentResponseDTO>(new PaymentResponseDTO(paymentRequest.getMaticnaTransakcija(), TransakcijaStatus.C, "Transakcija je uspesno zabelezena, bicete preusmereni na panel za placanje."), headers, HttpStatus.OK);
 	}
 	
 	@RequestMapping(value = "doPayment", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
