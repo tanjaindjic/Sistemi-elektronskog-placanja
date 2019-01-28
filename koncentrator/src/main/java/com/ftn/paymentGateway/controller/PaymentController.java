@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
+import org.hibernate.engine.transaction.jta.platform.internal.SynchronizationRegistryBasedSynchronizationStrategy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.ModelAndView;
 
 import com.ftn.paymentGateway.dto.PaymentRequestDTO;
 import com.ftn.paymentGateway.dto.PaymentResponseDTO;
@@ -27,6 +29,7 @@ import com.ftn.paymentGateway.enumerations.TransakcijaStatus;
 import com.ftn.paymentGateway.exceptions.InvalidPaymentTypeException;
 import com.ftn.paymentGateway.exceptions.PaymentErrorException;
 import com.ftn.paymentGateway.exceptions.TransactionUpdateExeption;
+import com.ftn.paymentGateway.exceptions.UnsupportedMethodException;
 import com.ftn.paymentGateway.model.EntitetPlacanja;
 import com.ftn.paymentGateway.model.PodrzanoPlacanje;
 import com.ftn.paymentGateway.model.TipPlacanja;
@@ -114,7 +117,8 @@ public class PaymentController {
 		if(podrzanaPlacanja.isEmpty()) {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
-		
+		transakcija.setTipPlacanja(tipPlacanja);
+		transakcijaService.save(transakcija);
 		PodrzanoPlacanje podrzanoPlacanje = podrzanaPlacanja.get(0);
 		
 		TransakcijaIshodDTO retVal = null;
@@ -147,31 +151,52 @@ public class PaymentController {
 	}
 	
 	@RequestMapping(value = "success", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<PaymentResponseDTO> completePayment(HttpServletRequest request, @RequestParam("paymentId") String paymentId, @RequestParam("PayerID") String payerId, @RequestParam("token") String token){
+	public ModelAndView completePayment(HttpServletRequest request, @RequestParam("paymentId") String paymentId, @RequestParam("PayerID") String payerId, @RequestParam("token") String token){
 		Transakcija transakcija = transakcijaService.findByIzvrsnaTransakcija(request.getParameter("paymentId"));
-		TipPlacanja tipPlacanja = tipPlacanjaService.getByKod("PPP");
+		System.out.println("prvo: "+transakcija.getTipPlacanja().getId());
+		System.out.println("drugo: "+tipPlacanjaService.getByKod("PPP").getId());
+		TipPlacanja tipPlacanja = tipPlacanjaService.getById(transakcija.getTipPlacanja().getId());
 		ArrayList<PodrzanoPlacanje> podrzanaPlacanja = podrzanoPlacanjeService.getByEntitetPlacanjaAndTipPlacanja(transakcija.getEntitetPlacanja(), tipPlacanja);
-		if(podrzanaPlacanja.isEmpty()) {
-			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-		}		
-		PodrzanoPlacanje podrzanoPlacanje = podrzanaPlacanja.get(0);
 		
-        Boolean uspesno = payPalPayment.completePayment(request, podrzanoPlacanje);
-        PaymentResponseDTO response = new PaymentResponseDTO();
-        if(!uspesno){
-            response.setPoruka("PayPal uplata je uspesno izvrsena");
-            response.setStatus(TransakcijaStatus.N);
-            transakcija.setStatus(TransakcijaStatus.N);
-        }
-        else{
+		if(podrzanaPlacanja.isEmpty()) {
+			return null;
+		}
+		
+		PodrzanoPlacanje podrzanoPlacanje = podrzanaPlacanja.get(0);
+		Boolean retVal= false;
+		try {
+			retVal = paymentFactory.getPaymentStrategy(tipPlacanja).completePayment(request, podrzanoPlacanje);
+			if(retVal==null){
+				return null;
+			}
+			System.out.println("USPESNO RADI ZA REDIREKCIJU");
+		} catch (UnsupportedMethodException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InvalidPaymentTypeException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		String urlRedirect = "https://localhost:8098/paymentGateway/#!/home";
+		PaymentResponseDTO response = new PaymentResponseDTO();
+		if(retVal){		
+			System.out.println("USPESNO zavrsio ZA PAYPAL REDIREKCIJU");		        
 	        response.setMaticnaTransakcija(transakcija.getMaticnaTransakcija());
-	        response.setPoruka("PayPal uplata je uspesno izvrsena");
+	        response.setPoruka("Uplata je uspesno izvrsena");
 	        response.setStatus(TransakcijaStatus.U);
 	        transakcija.setStatus(TransakcijaStatus.U);
 	        System.out.println("NINA CAREEEEE");
-	    }
+	        urlRedirect = "https://localhost:8098/paymentGateway/#!/success/"+transakcija.getJedinstveniToken();
+	        return new ModelAndView("redirect:" + urlRedirect);
+		//TODO dodati redirekciju na odgovarajucu stranicu i za controller za "/cancel"
+		}
+		else{
+			System.out.println("NEUSPESNO zarsio ZA PAYPAL REDIREKCIJU");
+            response.setPoruka("Uplata je NIJE uspesno izvrsena");
+            response.setStatus(TransakcijaStatus.N);
+            transakcija.setStatus(TransakcijaStatus.N);
+        }
         transakcijaService.save(transakcija);
-		return new ResponseEntity<>(response, HttpStatus.OK);
-	//TODO dodati redirekciju na odgovarajucu stranicu i za controller za "/cancel"
+		return new ModelAndView("redirect:" + urlRedirect);
     }
 }
