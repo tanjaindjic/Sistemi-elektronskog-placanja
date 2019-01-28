@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
-import org.hibernate.engine.transaction.jta.platform.internal.SynchronizationRegistryBasedSynchronizationStrategy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -22,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.ftn.paymentGateway.dto.BankResponseDTO;
 import com.ftn.paymentGateway.dto.PaymentRequestDTO;
 import com.ftn.paymentGateway.dto.PaymentResponseDTO;
 import com.ftn.paymentGateway.dto.TransakcijaIshodDTO;
@@ -188,6 +188,54 @@ public class PaymentController {
 		}
 		else{
 			System.out.println("NEUSPESNO zarsio ZA PAYPAL REDIREKCIJU");
+            response.setPoruka("Uplata je NIJE uspesno izvrsena");
+            response.setStatus(TransakcijaStatus.N);
+            transakcija.setStatus(TransakcijaStatus.N);
+        }
+        transakcijaService.save(transakcija);
+		return new ModelAndView("redirect:" + urlRedirect);
+    }
+	
+	@RequestMapping(value = "success", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE, consumes= MediaType.APPLICATION_JSON_VALUE)
+	public ModelAndView completePayment(HttpServletRequest request, BankResponseDTO bankResponse){
+		Transakcija transakcija = transakcijaService.getById(bankResponse.getMerchantOrderID());
+		TipPlacanja tipPlacanja = tipPlacanjaService.getById(transakcija.getTipPlacanja().getId());
+		ArrayList<PodrzanoPlacanje> podrzanaPlacanja = podrzanoPlacanjeService.getByEntitetPlacanjaAndTipPlacanja(transakcija.getEntitetPlacanja(), tipPlacanja);
+		
+		if(podrzanaPlacanja.isEmpty()) {
+			return null;
+		}
+		
+		PodrzanoPlacanje podrzanoPlacanje = podrzanaPlacanja.get(0);
+		Boolean retVal= false;
+		try {
+			retVal = paymentFactory.getPaymentStrategy(tipPlacanja).completePayment(request, podrzanoPlacanje);
+			if(retVal==null){
+				return null;
+			}
+			System.out.println("USPESNO RADI ZA BANKU success");
+		} catch (UnsupportedMethodException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InvalidPaymentTypeException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		String urlRedirect = "https://localhost:8098/paymentGateway/#!/home";
+		PaymentResponseDTO response = new PaymentResponseDTO();
+		if(retVal){		
+			System.out.println("USPESNO zavrsio ZA BANKU REDIREKCIJU");		        
+	        response.setMaticnaTransakcija(transakcija.getMaticnaTransakcija());
+	        response.setPoruka("Uplata je uspesno izvrsena");
+	        response.setStatus(TransakcijaStatus.U);
+	        transakcija.setStatus(TransakcijaStatus.U);
+	        System.out.println("TANJA CAREEEEE");
+	        urlRedirect = "https://localhost:8098/paymentGateway/#!/success/"+transakcija.getJedinstveniToken();
+	        return new ModelAndView("redirect:" + urlRedirect);
+		//TODO dodati redirekciju na odgovarajucu stranicu i za controller za "/cancel"
+		}
+		else{
+			System.out.println("NIJE USPESNO zavrsio ZA BANKU REDIREKCIJU");
             response.setPoruka("Uplata je NIJE uspesno izvrsena");
             response.setStatus(TransakcijaStatus.N);
             transakcija.setStatus(TransakcijaStatus.N);

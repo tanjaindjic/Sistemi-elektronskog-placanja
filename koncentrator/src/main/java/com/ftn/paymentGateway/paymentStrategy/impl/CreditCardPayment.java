@@ -12,6 +12,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.ftn.paymentGateway.dto.BankRequestDTO;
 import com.ftn.paymentGateway.dto.BankResponseDTO;
@@ -24,6 +26,7 @@ import com.ftn.paymentGateway.model.PodrzanoPlacanje;
 import com.ftn.paymentGateway.model.PoljePodrzanoPlacanje;
 import com.ftn.paymentGateway.model.Transakcija;
 import com.ftn.paymentGateway.paymentStrategy.PaymentStrategy;
+import com.ftn.paymentGateway.utils.URLUtils;
 
 public class CreditCardPayment implements PaymentStrategy{
 	
@@ -33,7 +36,6 @@ public class CreditCardPayment implements PaymentStrategy{
 	@Value("${frontend.failedURL}")
 	private String failedURL;
 	
-	@Value("${frontend.errorURL}")
 	private String errorURL = "rest/success";
 	
 	private String bankRequestUrl1 = "https://localhost:8081/";
@@ -59,9 +61,10 @@ public class CreditCardPayment implements PaymentStrategy{
 				merchant_secret = polje.getVrednost();
 			}
 		}
-		
+		HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+		String urlBase = URLUtils.getBaseURl(request) + "/";
 		BankRequestDTO theBankReq = new BankRequestDTO(merchant_id, merchant_secret, transakcija.getIznos(),
-				transakcija.getId(), transakcija.getVreme(), "rest/success", "rest/success", "rest/success");
+				transakcija.getId(), transakcija.getVreme(), urlBase+"rest/success", urlBase+"rest/success", urlBase+"rest/success");
 		
 		RestTemplate restTemplate = new RestTemplate();
 		HttpsURLConnection.setDefaultHostnameVerifier ((hostname, session) -> true);
@@ -83,8 +86,8 @@ public class CreditCardPayment implements PaymentStrategy{
 	@Override
 	public Boolean completePayment(HttpServletRequest request, PodrzanoPlacanje podrzanoPlacanje)
 			throws UnsupportedMethodException {
-		// TODO Auto-generated method stub
-		return null;
+		
+		return true;
 	}
 
 }
