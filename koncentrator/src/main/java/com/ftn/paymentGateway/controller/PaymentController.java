@@ -1,9 +1,12 @@
 package com.ftn.paymentGateway.controller;
 
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
+import javax.net.ssl.HttpsURLConnection;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
@@ -19,6 +22,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.ftn.paymentGateway.dto.BankResponseDTO;
@@ -181,6 +186,7 @@ public class PaymentController {
 	        response.setPoruka("Uplata je uspesno izvrsena");
 	        response.setStatus(TransakcijaStatus.U);
 	        transakcija.setStatus(TransakcijaStatus.U);
+	        transakcijaService.save(transakcija);
 	        System.out.println("NINA CAREEEEE");
 	        urlRedirect = "https://localhost:8098/paymentGateway/#!/success/"+transakcija.getJedinstveniToken();
 	        return new ModelAndView("redirect:" + urlRedirect);
@@ -244,4 +250,50 @@ public class PaymentController {
         transakcijaService.save(transakcija);
 		return false;
     }
+	
+	@RequestMapping(value = "proveriStatusTransakcije", method = RequestMethod.GET)
+	public ResponseEntity<TransakcijaStatus> proveriStatusTransakcije(@RequestParam("uniqueToken") String uniqueToken) throws URISyntaxException, UnsupportedEncodingException {
+		
+		if(uniqueToken.isEmpty() || uniqueToken==null) {
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		}
+		Transakcija transakcija = transakcijaService.getByJedinstveniToken(uniqueToken);
+		if(transakcija==null){
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+			
+		}
+		return new ResponseEntity<TransakcijaStatus>(transakcija.getStatus(), HttpStatus.OK);
+
+	}
+	
+	@RequestMapping(value = "obaviVracanje", method = RequestMethod.GET)
+	public ResponseEntity<Boolean> obaviVracanje(@RequestParam("uniqueToken") String uniqueToken) throws URISyntaxException, UnsupportedEncodingException {		
+		if(uniqueToken.isEmpty() || uniqueToken==null) {
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		}
+		Transakcija transakcija = transakcijaService.getByJedinstveniToken(uniqueToken);
+		if(transakcija==null){
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+			
+		}
+		////////////
+		RestTemplate restTemplate = new RestTemplate();
+		HttpsURLConnection.setDefaultHostnameVerifier ((hostname, session) -> true);
+		Boolean uspesno = false;
+		if(transakcija.getStatus().equals("U"))
+			uspesno=true;
+		TransakcijaIshodDTO retVal = new TransakcijaIshodDTO(uspesno, true, transakcija.getStatus(), entitetPlacanjaService.getUrlResponse(transakcija.getEntitetPlacanja()), "");
+	    ResponseEntity<TransakcijaIshodDTO> response = null;
+		try {
+			response = restTemplate.postForEntity(new URI(entitetPlacanjaService.getUrlResponse(transakcija.getEntitetPlacanja())), retVal, TransakcijaIshodDTO.class);
+		} catch (RestClientException | URISyntaxException e) {
+			e.printStackTrace();
+		}
+		/////////////
+		HttpHeaders headers = new HttpHeaders();
+		headers.add("Location", entitetPlacanjaService.getUrlLocation(transakcija.getEntitetPlacanja()));
+		headers.add("Access-Control-Allow-Origin", "*");
+		return new ResponseEntity<Boolean>(true, headers, HttpStatus.OK);
+
+	}
 }
