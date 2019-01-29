@@ -1,15 +1,11 @@
 <div class="container" ng-init="init()">
 	<div class="row">
-        <div class="center-box card card-block bg-faded" style="height: 150px ">
+        <div class="center-box card card-block bg-faded" style="height: 200px ">
             <h1 class="panel-title">{{poruka_prvi_red}}</h1>
             <h1 class="panel-title">{{poruka_drugi_red}}</h1>
-        </div>
-	</div>
-	<div class="row" ng-if="status=='U'">
-        <div class="panel-body">
-            <div class="text-center gap-top-md div-padding-sm" ng-controller="successController">
+            <div ng-show="status=='U'">
                 Bićete redirektovani na matičnu stranicu za {{countdown}}
             </div>
         </div>
-	</div>
+     </div>
 </div>

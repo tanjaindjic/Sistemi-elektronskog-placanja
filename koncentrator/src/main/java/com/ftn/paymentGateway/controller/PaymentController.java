@@ -4,7 +4,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.servlet.http.HttpServletRequest;
@@ -280,12 +279,14 @@ public class PaymentController {
 		RestTemplate restTemplate = new RestTemplate();
 		HttpsURLConnection.setDefaultHostnameVerifier ((hostname, session) -> true);
 		Boolean uspesno = false;
-		if(transakcija.getStatus().equals("U"))
+		if(transakcija.getStatus().equals(TransakcijaStatus.U))
 			uspesno=true;
 		TransakcijaIshodDTO retVal = new TransakcijaIshodDTO(uspesno, true, transakcija.getStatus(), entitetPlacanjaService.getUrlResponse(transakcija.getEntitetPlacanja()), "");
 	    ResponseEntity<TransakcijaIshodDTO> response = null;
 		try {
-			response = restTemplate.postForEntity(new URI(entitetPlacanjaService.getUrlResponse(transakcija.getEntitetPlacanja())), retVal, TransakcijaIshodDTO.class);
+			String retUrl = entitetPlacanjaService.getUrlResponse(transakcija.getEntitetPlacanja());
+			System.out.println("URL: "+retUrl);			
+			response = restTemplate.postForEntity(new URI(retUrl), retVal, TransakcijaIshodDTO.class);
 		} catch (RestClientException | URISyntaxException e) {
 			e.printStackTrace();
 		}

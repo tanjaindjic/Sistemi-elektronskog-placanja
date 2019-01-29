@@ -1,7 +1,7 @@
 (function() { "use strict";
 
-	mainModule.controller('successController', [ '$scope','$window','$localStorage','$location', '$stateParams','mainService','$timeout',
-        function($scope, $window, $localStorage, $location, $stateParams, mainService, $timeout) {
+	mainModule.controller('successController', [ '$scope','$window','$localStorage','$location', '$stateParams','mainService','$interval',
+        function($scope, $window, $localStorage, $location, $stateParams, mainService, $interval) {
             $scope.token = $stateParams.token;
             $scope.paymentIdx = -1;
             $scope.tipoviPlacanja = [];
@@ -15,6 +15,7 @@
                         	$scope.status = response.data;
                             if(response.data=="U"){
                             	$scope.poruka_prvi_red = "Plaćanje je uspešno obavljeno";
+                            	$scope.fight();
                             }
                             else if(response.data=="C"){
                             	$scope.poruka_prvi_red = "Transakcija još nije";
@@ -32,23 +33,28 @@
                     );
             }
             $scope.countdown = 5;
-            $scope.updateCounter = function() {
-            	if($scope.status=='U'){           
-	                $scope.countdown--;
-	                $timeout(countdown, 1000);
-	                if($scope.countdown==-1){
-	                	mainService.obaviVracanje($scope.token).then(
-	                            function successCallback(response){
-	                                if(response.headers('Location')){
-	                                    $window.location.href = response.headers('Location');
-	                                }else{
-	                                    alert("Redirekcija nije uspešno obavljena, refrešujte stranicu.");
-	                                }
-	                            });
-	                }
-            	}
+            var stop;
+            $scope.fight = function() {
+                // Don't start a new fight if we are already fighting
+                if ( angular.isDefined(stop) ) return;
+                stop = $interval(function() {
+                  if ($scope.countdown>1) {
+                	  $scope.countdown = $scope.countdown -1;
+                  } else {
+                	  if($scope.status=='U' && $scope.countdown==1){
+                    	$scope.countdown = $scope.countdown -1;
+      	        		mainService.obaviVracanje($scope.token).then(
+                                  function successCallback(response){
+                                      if(response.headers('Location')){
+                                          $window.location.href = response.headers('Location');
+                                      }else{
+                                          alert("Redirekcija nije uspešno obavljena, refrešujte stranicu.");
+                                      }
+                                  });
+      	        		}
+                  }
+                }, 1000);
             };
-            $scope.updateCounter();
             
 
         }
