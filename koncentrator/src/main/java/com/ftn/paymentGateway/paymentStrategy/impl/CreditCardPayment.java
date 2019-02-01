@@ -30,11 +30,6 @@ import com.ftn.paymentGateway.utils.URLUtils;
 
 public class CreditCardPayment implements PaymentStrategy{
 	
-	@Value("${frontend.successURL}")
-	private String successURL;
-	
-	@Value("${frontend.failedURL}")
-	private String failedURL;
 	
 	private String errorURL = "rest/success";
 	
