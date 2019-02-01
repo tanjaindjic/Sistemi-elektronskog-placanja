@@ -39,7 +39,7 @@
                     method: 'GET',
                     url: ROOT_PATH+'proveriStatusTransakcije/',
                     params: {
-                        uniqueToken : token
+                        uniqueToken : "AAA"
                     }
                 }
                 return $http(req);

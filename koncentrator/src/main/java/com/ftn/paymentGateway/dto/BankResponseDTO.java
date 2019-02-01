@@ -20,6 +20,14 @@ public class BankResponseDTO {
 
 	private String redirectURL; //ili je success ili failed url
 
+	public TransakcijaStatus getStatusTransakcije() {
+		return statusTransakcije;
+	}
+
+	public void setStatusTransakcije(TransakcijaStatus statusTransakcije) {
+		this.statusTransakcije = statusTransakcije;
+	}
+
 	public BankResponseDTO() {
 		super();
 	}
@@ -86,8 +94,11 @@ public class BankResponseDTO {
 
 	@Override
 	public String toString() {
-		return "BankResponseDTO [merchantOrderID=" + merchantOrderID + ", acquirerOrderID=" + acquirerOrderID
-				+ ", acquirerTimestamp=" + acquirerTimestamp + ", paymentID=" + paymentID + ", status=" + statusTransakcije + "]";
+		return "BankResponseDTO [statusTransakcije=" + statusTransakcije + ", merchantOrderID=" + merchantOrderID
+				+ ", acquirerOrderID=" + acquirerOrderID + ", acquirerTimestamp=" + acquirerTimestamp + ", paymentID="
+				+ paymentID + ", redirectURL=" + redirectURL + "]";
 	}
+
+	
 
 }

@@ -20,7 +20,14 @@ public class FinishedPaymentDTO {
 
     private String redirectURL; //ili je success ili failed url
 
-    public FinishedPaymentDTO() {
+    @Override
+	public String toString() {
+		return "FinishedPaymentDTO [statusTransakcije=" + statusTransakcije + ", merchantOrderID=" + merchantOrderID
+				+ ", acquirerOrderID=" + acquirerOrderID + ", acquirerTimestamp=" + acquirerTimestamp + ", paymentID="
+				+ paymentID + ", redirectURL=" + redirectURL + "]";
+	}
+
+	public FinishedPaymentDTO() {
     }
 
     public Status getStatusTransakcije() {

@@ -1,5 +1,7 @@
 package com.ftn.paymentGateway.dto;
 
+import javax.validation.constraints.NotNull;
+
 public class EntitetPlacanjaDTO {
 	
 	private String identifikacioniKod;

@@ -17,18 +17,31 @@ public class PaymentRequestDTO {
 	
 	@NotNull
 	private Long maticnaTransakcija;
+	
+	@NotNull
+    private String successURL;
+    
+	@NotNull
+    private String failedURL;
+    
+	@NotNull
+    private String errorURL;
 
 	public PaymentRequestDTO() {
 		super();
 	}
 
 	public PaymentRequestDTO(@NotNull EntitetPlacanjaDTO entitetPlacanja, @NotNull double iznos,
-			@NotNull Long maticnaTransakcija, @NotNull boolean pretplata) {
+			@NotNull boolean pretplata, @NotNull Long maticnaTransakcija, @NotNull String successURL,
+			@NotNull String failedURL, @NotNull String errorURL) {
 		super();
 		this.entitetPlacanja = entitetPlacanja;
 		this.iznos = iznos;
-		this.maticnaTransakcija = maticnaTransakcija;
 		this.pretplata = pretplata;
+		this.maticnaTransakcija = maticnaTransakcija;
+		this.successURL = successURL;
+		this.failedURL = failedURL;
+		this.errorURL = errorURL;
 	}
 
 	public EntitetPlacanjaDTO getEntitetPlacanja() {
@@ -47,6 +60,14 @@ public class PaymentRequestDTO {
 		this.iznos = iznos;
 	}
 
+	public boolean isPretplata() {
+		return pretplata;
+	}
+
+	public void setPretplata(boolean pretplata) {
+		this.pretplata = pretplata;
+	}
+
 	public Long getMaticnaTransakcija() {
 		return maticnaTransakcija;
 	}
@@ -55,12 +76,28 @@ public class PaymentRequestDTO {
 		this.maticnaTransakcija = maticnaTransakcija;
 	}
 
-	public boolean isPretplata() {
-		return pretplata;
+	public String getSuccessURL() {
+		return successURL;
 	}
 
-	public void setPretplata(boolean pretplata) {
-		this.pretplata = pretplata;
+	public void setSuccessURL(String successURL) {
+		this.successURL = successURL;
+	}
+
+	public String getFailedURL() {
+		return failedURL;
+	}
+
+	public void setFailedURL(String failedURL) {
+		this.failedURL = failedURL;
+	}
+
+	public String getErrorURL() {
+		return errorURL;
+	}
+
+	public void setErrorURL(String errorURL) {
+		this.errorURL = errorURL;
 	}
 	
 }

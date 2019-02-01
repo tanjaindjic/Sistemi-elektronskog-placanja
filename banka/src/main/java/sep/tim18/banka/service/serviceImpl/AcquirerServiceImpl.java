@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -409,7 +410,10 @@ public class AcquirerServiceImpl implements AcquirerService {
         String location = paymentSuccessful(paymentInfo, t, token, buyerInfoDTO);
         System.out.println("Lokacija:  " + location);
         map.put("Location", location);
-        return new ResponseEntity<>(map, HttpStatus.OK);
+        HttpHeaders headers = new HttpHeaders();
+		headers.add("Location", location);
+		headers.add("Access-Control-Allow-Origin", "*");
+		return new ResponseEntity<>(map, headers, HttpStatus.OK);
 
     }
 
@@ -488,10 +492,12 @@ public class AcquirerServiceImpl implements AcquirerService {
         finishedPaymentDTO.setAcquirerTimestamp(t.getTimestamp());
         finishedPaymentDTO.setPaymentID(paymentInfo.getPaymentID());
         finishedPaymentDTO.setRedirectURL(t.getSuccessURL());
-
+        System.out.println(finishedPaymentDTO.toString());
+        
         HttpsURLConnection.setDefaultHostnameVerifier((hostname, session)->true);
         RestTemplate template = new RestTemplate();
         try {//TODO vrati success url ili failed url od kp
+        	System.out.println("*** "+replyToKP);
             ResponseEntity<Boolean> response = template.postForEntity(replyToKP, finishedPaymentDTO, Boolean.class);
             if(response.getBody())
                 return t.getSuccessURL();

@@ -10,7 +10,7 @@
             $scope.status = "";
             
             $scope.init = function(){
-            	mainService.proveriStatus($scope.token).then(
+            	mainService.proveriStatus("").then(
                         function successCallback(response){
                         	$scope.status = response.data;
                             if(response.data=="U"){

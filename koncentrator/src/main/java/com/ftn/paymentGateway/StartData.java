@@ -163,12 +163,12 @@ public class StartData {
 		String token3 = randomStringGenerator.genRandomString(90);
 		
 		/* Transakcije */
-		Transakcija tr1 = new Transakcija(null, new Long(1), null, 5.00, new Date(System.currentTimeMillis()), TransakcijaStatus.C, token1, ep3, tp1);
-		Transakcija tr2 = new Transakcija(null, new Long(2), null, 9.00, new Date(System.currentTimeMillis()), TransakcijaStatus.C, token2, ep4, tp1);
-		Transakcija tr3 = new Transakcija(null, new Long(3), null, 12.00, new Date(System.currentTimeMillis()), TransakcijaStatus.C, token3, ep5, tp1);
+		Transakcija tr1 = new Transakcija(null, new Long(1), null, 5.00, new Date(System.currentTimeMillis()), TransakcijaStatus.C, token1, false, ep3, tp1, "/success", "/failed", "/error");
+		Transakcija tr2 = new Transakcija(null, new Long(2), null, 9.00, new Date(System.currentTimeMillis()), TransakcijaStatus.C, token2, false, ep4, tp1, "/success", "/failed", "/error");
+		Transakcija tr3 = new Transakcija(null, new Long(3), null, 12.00, new Date(System.currentTimeMillis()), TransakcijaStatus.C, token3, false, ep5, tp1, "/success", "/failed", "/error");
 		
-		Transakcija tr4 = new Transakcija(null, new Long(4), null, 11.00, new Date(System.currentTimeMillis()), TransakcijaStatus.C, "AAA", ep3, tp1);
-		Transakcija tr5 = new Transakcija(null, new Long(5), null, 7.00, new Date(System.currentTimeMillis()), TransakcijaStatus.C, "BBB", ep4, tp1);
+		Transakcija tr4 = new Transakcija(null, new Long(4), null, 11.00, new Date(System.currentTimeMillis()), TransakcijaStatus.C, "AAA", false, ep3, tp1, "/success", "/failed", "/error");
+		Transakcija tr5 = new Transakcija(null, new Long(5), null, 7.00, new Date(System.currentTimeMillis()), TransakcijaStatus.C, "BBB", false, ep4, tp1, "/success", "/failed", "/error");
 		
 		transakcijaRepository.save(tr1);
 		transakcijaRepository.save(tr2);

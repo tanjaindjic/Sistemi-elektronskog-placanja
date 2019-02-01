@@ -40,7 +40,10 @@ mainModule.controller('centerController', ['$scope', '$window', 'mainService', '
                 data: payload
                 }).then(function successCallback(response) {
                     console.log(response)
-                    $location.path(response.data.Location);
+                    if(response.headers('Location')){
+                    	console.log("ima heder location: " + response.headers('Location'))
+                        $window.location.href = response.headers('Location');
+                    }else $location.path(response.data.Location);
                 }, function errorCallback(response) {
                      console.log("grerska" + JSON.stringify(response.data))
                      if(response.data.Location!=null){

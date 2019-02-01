@@ -9,6 +9,7 @@ import javax.net.ssl.HttpsURLConnection;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
+import org.hibernate.engine.transaction.jta.platform.internal.SynchronizationRegistryBasedSynchronizationStrategy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -78,12 +79,12 @@ public class PaymentController {
 		}
 		
 		if(!entitetPlacanjaService.validateChain(paymentRequest.getEntitetPlacanja())) {
-			return new ResponseEntity<PaymentResponseDTO>(new PaymentResponseDTO(paymentRequest.getMaticnaTransakcija(), TransakcijaStatus.N, "Neispravan entitet placanja."), HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<PaymentResponseDTO>(new PaymentResponseDTO(paymentRequest.getMaticnaTransakcija(), TransakcijaStatus.N, "Neispravan entitet placanja."), HttpStatus.OK);
 		}
 		
 		EntitetPlacanja ep = entitetPlacanjaService.getByIdentifikacioniKod(paymentRequest.getEntitetPlacanja().getIdentifikacioniKod());
 		
-		Transakcija novaTransakcija = transakcijaService.insertNewTransaction(ep, paymentRequest);
+		Transakcija novaTransakcija = transakcijaService.insertNewTransaction(ep, paymentRequest, paymentRequest.isPretplata(), paymentRequest.getSuccessURL(), paymentRequest.getFailedURL(), paymentRequest.getErrorURL());
 		
 		if(novaTransakcija == null) {
 			return new ResponseEntity<PaymentResponseDTO>(new PaymentResponseDTO(paymentRequest.getMaticnaTransakcija(), TransakcijaStatus.N, "Neuspesno placanje, pokusajte kasnije."), HttpStatus.OK);
@@ -153,8 +154,9 @@ public class PaymentController {
 	@RequestMapping(value = "success", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ModelAndView completePayment(HttpServletRequest request, @RequestParam("paymentId") String paymentId, @RequestParam("PayerID") String payerId, @RequestParam("token") String token){
 		Transakcija transakcija = transakcijaService.findByIzvrsnaTransakcija(request.getParameter("paymentId"));
-		System.out.println("prvo: "+transakcija.getTipPlacanja().getId());
-		System.out.println("drugo: "+tipPlacanjaService.getByKod("PPP").getId());
+		System.out.println(transakcija.toString());
+	//	System.out.println("prvo: "+transakcija.getTipPlacanja().getId());
+	//	System.out.println("drugo: "+tipPlacanjaService.getByKod("PPP").getId());
 		TipPlacanja tipPlacanja = tipPlacanjaService.getById(transakcija.getTipPlacanja().getId());
 		ArrayList<PodrzanoPlacanje> podrzanaPlacanja = podrzanoPlacanjeService.getByEntitetPlacanjaAndTipPlacanja(transakcija.getEntitetPlacanja(), tipPlacanja);
 		
@@ -202,8 +204,9 @@ public class PaymentController {
     }
 	
 	@RequestMapping(value = "bankResponse", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE, consumes= MediaType.APPLICATION_JSON_VALUE)
-	public Boolean completePayment(HttpServletRequest request, BankResponseDTO bankResponse){
+	public Boolean completePayment(@RequestBody BankResponseDTO bankResponse, HttpServletRequest request){
 		System.out.println("usao u bank response");
+		System.out.println(bankResponse.toString());
 		Transakcija transakcija = transakcijaService.getById(bankResponse.getMerchantOrderID());
 		TipPlacanja tipPlacanja = tipPlacanjaService.getById(transakcija.getTipPlacanja().getId());
 		ArrayList<PodrzanoPlacanje> podrzanaPlacanja = podrzanoPlacanjeService.getByEntitetPlacanjaAndTipPlacanja(transakcija.getEntitetPlacanja(), tipPlacanja);

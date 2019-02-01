@@ -12,6 +12,7 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.validation.constraints.NotNull;
 
 import com.ftn.paymentGateway.enumerations.TransakcijaStatus;
 
@@ -50,14 +51,23 @@ public class Transakcija {
 	
 	@ManyToOne(optional = true)
 	private TipPlacanja tipPlacanja;
+	
+	@Column(nullable = true)
+    private String successURL;
+    
+	@Column(nullable = true)
+    private String failedURL;
+    
+	@Column(nullable = true)
+    private String errorURL;
 
 	public Transakcija() {
 		super();
 	}
 
 	public Transakcija(Long id, Long maticnaTransakcija, String izvrsnaTransakcija, double iznos, Date vreme,
-			TransakcijaStatus status, String jedinstveniToken, EntitetPlacanja entitetPlacanja,
-			TipPlacanja tipPlacanja) {
+			TransakcijaStatus status, String jedinstveniToken, boolean pretplata, EntitetPlacanja entitetPlacanja,
+			TipPlacanja tipPlacanja, String successURL, String failedURL, String errorURL) {
 		super();
 		this.id = id;
 		this.maticnaTransakcija = maticnaTransakcija;
@@ -66,8 +76,12 @@ public class Transakcija {
 		this.vreme = vreme;
 		this.status = status;
 		this.jedinstveniToken = jedinstveniToken;
+		this.pretplata = pretplata;
 		this.entitetPlacanja = entitetPlacanja;
 		this.tipPlacanja = tipPlacanja;
+		this.successURL = successURL;
+		this.failedURL = failedURL;
+		this.errorURL = errorURL;
 	}
 
 	public Long getId() {
@@ -140,6 +154,38 @@ public class Transakcija {
 
 	public void setTipPlacanja(TipPlacanja tipPlacanja) {
 		this.tipPlacanja = tipPlacanja;
+	}
+
+	public boolean isPretplata() {
+		return pretplata;
+	}
+
+	public void setPretplata(boolean pretplata) {
+		this.pretplata = pretplata;
+	}
+
+	public String getSuccessURL() {
+		return successURL;
+	}
+
+	public void setSuccessURL(String successURL) {
+		this.successURL = successURL;
+	}
+
+	public String getFailedURL() {
+		return failedURL;
+	}
+
+	public void setFailedURL(String failedURL) {
+		this.failedURL = failedURL;
+	}
+
+	public String getErrorURL() {
+		return errorURL;
+	}
+
+	public void setErrorURL(String errorURL) {
+		this.errorURL = errorURL;
 	}
 	
 }

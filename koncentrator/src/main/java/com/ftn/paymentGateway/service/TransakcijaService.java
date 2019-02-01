@@ -10,7 +10,7 @@ public interface TransakcijaService {
 	
 	public Transakcija getById(Long id);
 	
-	public Transakcija insertNewTransaction(EntitetPlacanja entitetPlacanja, PaymentRequestDTO paymentInfo);
+	public Transakcija insertNewTransaction(EntitetPlacanja entitetPlacanja, PaymentRequestDTO paymentInfo, boolean pretplata, String successUrl, String failedUrl, String errorUrl);
 	
 	public Transakcija getByJedinstveniToken(String jedinstveniToken);
 	

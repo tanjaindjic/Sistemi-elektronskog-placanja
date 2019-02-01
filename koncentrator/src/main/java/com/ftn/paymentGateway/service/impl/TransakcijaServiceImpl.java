@@ -42,7 +42,7 @@ public class TransakcijaServiceImpl implements TransakcijaService{
 	}
 
 	@Override
-	public Transakcija insertNewTransaction(EntitetPlacanja entitetPlacanja, PaymentRequestDTO paymentInfo) {
+	public Transakcija insertNewTransaction(EntitetPlacanja entitetPlacanja, PaymentRequestDTO paymentInfo, boolean pretplata, String successUrl, String failedUrl, String errorUrl) {
 		
 		if(paymentInfo.getIznos() < 0.00 || entitetPlacanja == null) {
 			return null;
@@ -51,7 +51,7 @@ public class TransakcijaServiceImpl implements TransakcijaService{
 		String uniqueToken = generateUniqueToken();
 		
 		Transakcija newPayment = new Transakcija(null, paymentInfo.getMaticnaTransakcija(), null, paymentInfo.getIznos(),
-				new Date(System.currentTimeMillis()), TransakcijaStatus.C, uniqueToken, entitetPlacanja, null);
+				new Date(System.currentTimeMillis()), TransakcijaStatus.C, uniqueToken, pretplata, entitetPlacanja, null, successUrl, failedUrl, errorUrl);
 		
 		return transakcijaRepository.save(newPayment);
 	}
