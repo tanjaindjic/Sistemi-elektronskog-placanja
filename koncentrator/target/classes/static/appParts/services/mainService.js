@@ -33,6 +33,28 @@
                 }
                 return $http(req);
             }
+            this.proveriStatus = function(token){
+
+                var req = {
+                    method: 'GET',
+                    url: ROOT_PATH+'proveriStatusTransakcije/',
+                    params: {
+                        uniqueToken : token
+                    }
+                }
+                return $http(req);
+            }
+            this.obaviVracanje = function(token){
+
+                var req = {
+                    method: 'GET',
+                    url: ROOT_PATH+'obaviVracanje/',
+                    params: {
+                        uniqueToken : token
+                    }
+                }
+                return $http(req);
+            }
         }
     ]);
 })()

@@ -7,24 +7,18 @@ import javax.validation.constraints.NotNull;
 import com.ftn.paymentGateway.enumerations.TransakcijaStatus;
 
 public class BankResponseDTO {
-	
-	@NotNull
-	private Long merchantOrderID;
-	
-	@NotNull
-	private Long acquirerOrderID;
-	
-	@NotNull
-	private Date acquirerTimestamp;
-	
-	@NotNull
-	private Long paymentID;
-	
-	@NotNull
-	private TransakcijaStatus status;
-	
-	@NotNull
-	private String redirectURL;
+
+	private TransakcijaStatus statusTransakcije;
+
+	private Long merchantOrderID; //ono sto je poslao prodavac u prvom zahtevu
+
+	private Long acquirerOrderID; //isto kao gore ako je ista banka ili drugi id od kreirane druge transakcije
+
+	private Date acquirerTimestamp; //-||-
+
+	private Long paymentID; //id pocetne transakcije
+
+	private String redirectURL; //ili je success ili failed url
 
 	public BankResponseDTO() {
 		super();
@@ -38,7 +32,7 @@ public class BankResponseDTO {
 		this.acquirerOrderID = acquirerOrderID;
 		this.acquirerTimestamp = acquirerTimestamp;
 		this.paymentID = paymentID;
-		this.status = status;
+		this.statusTransakcije = status;
 		this.redirectURL = redirectURL;
 	}
 
@@ -75,11 +69,11 @@ public class BankResponseDTO {
 	}
 
 	public TransakcijaStatus getStatus() {
-		return status;
+		return statusTransakcije;
 	}
 
 	public void setStatus(TransakcijaStatus status) {
-		this.status = status;
+		this.statusTransakcije = status;
 	}
 
 	public String getRedirectURL() {
@@ -93,7 +87,7 @@ public class BankResponseDTO {
 	@Override
 	public String toString() {
 		return "BankResponseDTO [merchantOrderID=" + merchantOrderID + ", acquirerOrderID=" + acquirerOrderID
-				+ ", acquirerTimestamp=" + acquirerTimestamp + ", paymentID=" + paymentID + ", status=" + status + "]";
+				+ ", acquirerTimestamp=" + acquirerTimestamp + ", paymentID=" + paymentID + ", status=" + statusTransakcije + "]";
 	}
 
 }

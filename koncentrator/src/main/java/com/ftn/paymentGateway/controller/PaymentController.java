@@ -275,7 +275,7 @@ public class PaymentController {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 			
 		}
-		////////////
+		
 		RestTemplate restTemplate = new RestTemplate();
 		HttpsURLConnection.setDefaultHostnameVerifier ((hostname, session) -> true);
 		Boolean uspesno = false;
@@ -290,7 +290,7 @@ public class PaymentController {
 		} catch (RestClientException | URISyntaxException e) {
 			e.printStackTrace();
 		}
-		/////////////
+		
 		HttpHeaders headers = new HttpHeaders();
 		headers.add("Location", entitetPlacanjaService.getUrlLocation(transakcija.getEntitetPlacanja()));
 		headers.add("Access-Control-Allow-Origin", "*");

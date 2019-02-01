@@ -1,8 +1,11 @@
-
-<div class="container">
+<div class="container" ng-init="init()">
 	<div class="row">
-        <div class="center-box card card-block bg-faded">
-            <h1 class="panel-title">Plaćanje uspešno obavljeno</h1>
+        <div class="center-box card card-block bg-faded" style="height: 200px ">
+            <h1 class="panel-title">{{poruka_prvi_red}}</h1>
+            <h1 class="panel-title">{{poruka_drugi_red}}</h1>
+            <div ng-show="status=='U'">
+                Bićete redirektovani na matičnu stranicu za {{countdown}}
+            </div>
         </div>
-	</div>
+     </div>
 </div>

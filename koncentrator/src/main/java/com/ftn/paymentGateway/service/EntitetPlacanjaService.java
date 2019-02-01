@@ -14,4 +14,8 @@ public interface EntitetPlacanjaService {
 	
 	public boolean validateChain(EntitetPlacanjaDTO entitetPlacanja);
 
+	public String getUrlLocation(EntitetPlacanja entitetPlacanja);
+
+	public String getUrlResponse(EntitetPlacanja entitetPlacanja);
+
 }

@@ -56,7 +56,19 @@ public class EntitetPlacanjaServiceImpl implements EntitetPlacanjaService {
 		return true;
 	}
 	
-	
+	@Override
+	public String getUrlLocation(EntitetPlacanja entitetPlacanja) {
+		//TODO ubaciti if za vrednosti za svaku pojedinacnu naucnu centralu
+		String retVal="https://localhost:8087/NaucnaCentrala/#!/login";
+		return retVal;
+	}
+
+	@Override
+	public String getUrlResponse(EntitetPlacanja entitetPlacanja) {
+		// TODO Auto-generated method stub
+		String retVal="https://localhost:8087/NaucnaCentrala/rest/receiveResponse";
+		return retVal;
+	}
 	
 	
 	

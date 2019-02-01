@@ -59,7 +59,7 @@ public class CreditCardPayment implements PaymentStrategy{
 		HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
 		String urlBase = URLUtils.getBaseURl(request) + "/";
 		BankRequestDTO theBankReq = new BankRequestDTO(merchant_id, merchant_secret, transakcija.getIznos(),
-				transakcija.getId(), transakcija.getVreme(), urlBase+"rest/success", urlBase+"rest/success", urlBase+"rest/success");
+				transakcija.getId(), transakcija.getVreme(), urlBase+"success", urlBase+"failed", urlBase+"error");
 		
 		RestTemplate restTemplate = new RestTemplate();
 		HttpsURLConnection.setDefaultHostnameVerifier ((hostname, session) -> true);

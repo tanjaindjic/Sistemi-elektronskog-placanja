@@ -57,8 +57,7 @@ public class StartData {
 
         //nedovoljno sredstava
         Kartica kartica1 = new Kartica(BNumber + "1122223333", "111", "1/25", BNumber + "001", 0F, 0F, klijent1 );
-        //istekla kartica
-        Kartica kartica2 = new Kartica(BNumber + "1133334444", "222", "1/18", BNumber + "002", 10000F, 0F, klijent2 );
+        Kartica kartica2 = new Kartica(BNumber + "1133334444", "222", "1/25", BNumber + "002", 10000F, 0F, klijent2 );
         //sve ok
         Kartica kartica3 = new Kartica(BNumber + "1144445555", "333", "1/25", BNumber + "003", 10000F, 0F, klijent3 );
         karticaRepository.save(kartica1);
