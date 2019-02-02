@@ -25,7 +25,7 @@ public class Klijent {
     @Column(nullable = false, length=90)
     private String email;
     
-    @OneToMany
+    @OneToMany(cascade = CascadeType.ALL, fetch=FetchType.EAGER)
     private List<Kartica> kartice;
 
     public Klijent() {

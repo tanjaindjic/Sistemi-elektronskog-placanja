@@ -471,6 +471,7 @@ public class AcquirerServiceImpl implements AcquirerService {
             else return t.getFailedURL();
         }catch(Exception e){
             System.out.println("KP nije dostupan.");
+            System.out.println(e.getMessage());
             if(rollback)
                 t.setStatus(Status.K_KP);
             else t.setStatus(Status.N_KP);
