@@ -42,7 +42,9 @@ mainModule.controller('centerController', ['$scope', '$window', 'mainService', '
                     console.log(response)
                     if(response.headers('Location')){
                     	console.log("ima heder location: " + response.headers('Location'))
-                        $window.location.href = response.headers('Location');
+                    	if(response.headers('Location').indexOf("http")!=-1)
+                            $window.location.href = response.headers('Location');
+                        else $location.path(response.data.Location);
                     }else $location.path(response.data.Location);
                 }, function errorCallback(response) {
                      console.log("grerska" + JSON.stringify(response.data))

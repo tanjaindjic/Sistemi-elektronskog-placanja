@@ -7,6 +7,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -563,9 +564,9 @@ public class AcquirerServiceImpl implements AcquirerService {
         HttpsURLConnection.setDefaultHostnameVerifier((hostname, session)->true);
         RestTemplate template = new RestTemplate();
         try {
-            template.postForEntity(replyToKP, finishedPaymentDTO, FinishedPaymentDTO.class);
+            template.postForEntity(replyToKP, finishedPaymentDTO, Boolean.class);
         }catch(Exception e){
-            System.out.println("KP nije dostupan.");
+            System.out.println("KP nije dostupan,metoda sendReplyToKP.");
             if(t.getStatus()==Status.U)
                 t.setStatus(Status.U_KP);
             else t.setStatus(Status.K_KP);
