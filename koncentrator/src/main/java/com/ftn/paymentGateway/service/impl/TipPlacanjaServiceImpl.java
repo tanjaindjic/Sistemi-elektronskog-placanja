@@ -1,5 +1,7 @@
 package com.ftn.paymentGateway.service.impl;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,7 +30,14 @@ public class TipPlacanjaServiceImpl implements TipPlacanjaService{
 	@Override
 	public TipPlacanja getByKod(String kod) {
 		
+		System.out.println("POZVAO za KOD");
 		return tipPlacanjaRepository.findByKod(kod);
+	}
+
+	@Override
+	public List<TipPlacanja> getAll() {
+		// TODO Auto-generated method stub
+		return tipPlacanjaRepository.findAll();
 	}
 	
 	

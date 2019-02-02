@@ -2,6 +2,7 @@ package com.ftn.paymentGateway.service.impl;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,6 +17,7 @@ import com.ftn.paymentGateway.enumerations.TransakcijaStatus;
 import com.ftn.paymentGateway.exceptions.TransactionUpdateExeption;
 import com.ftn.paymentGateway.helpClasses.RandomStringGenerator;
 import com.ftn.paymentGateway.model.EntitetPlacanja;
+import com.ftn.paymentGateway.model.TipPlacanja;
 import com.ftn.paymentGateway.model.Transakcija;
 import com.ftn.paymentGateway.repository.TransakcijaRepository;
 import com.ftn.paymentGateway.service.TransakcijaService;
@@ -86,7 +88,7 @@ public class TransakcijaServiceImpl implements TransakcijaService{
 		}
 		
 		transakcija.setStatus(transakcijaIshod.getNoviStatus());
-		transakcija.setIzvrsnaTransakcija(transakcijaIshod.getIzvrsnaTransakcija()+"");
+		transakcija.setIzvrsnaTransakcija(transakcijaIshod.getIzvrsnaTransakcija());
 		
 		return transakcijaRepository.save(transakcija);
 	}
@@ -111,6 +113,12 @@ public class TransakcijaServiceImpl implements TransakcijaService{
 	@Override
 	public Transakcija save(Transakcija transakcija) {
 		return transakcijaRepository.save(transakcija);
+	}
+
+	@Override
+	public List<Transakcija> get10ByStatusAndType(TransakcijaStatus status, TipPlacanja tipPlacanja) {
+		
+		return transakcijaRepository.findFirst10ByStatusAndTipPlacanja(status, tipPlacanja);
 	}
 
 }

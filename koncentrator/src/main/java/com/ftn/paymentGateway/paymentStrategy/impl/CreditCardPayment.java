@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -83,6 +84,12 @@ public class CreditCardPayment implements PaymentStrategy{
 			throws UnsupportedMethodException {
 		
 		return true;
+	}
+
+	@Override
+	@Scheduled(initialDelay = 5000, fixedRate = 300000)
+	public void syncDB() {
+		
 	}
 
 }

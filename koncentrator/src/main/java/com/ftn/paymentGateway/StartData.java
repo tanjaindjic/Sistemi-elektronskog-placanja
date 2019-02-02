@@ -142,15 +142,14 @@ public class StartData {
 		PoljePodrzanoPlacanje ppbc1 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_ID, "vXSzu6yK-XC9Gf1B2_TaS3Pfdp4bkefDsyxD7yXi");
 		PoljePodrzanoPlacanje ppbc2 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_ID, "vXSzu6yK-XC9Gf1B2_TaS3Pfdp4bkefDsyxD7yXi");
 		
-
 		ppbc1 = poljePodrzanoPlacanjeRepository.save(ppbc1);
 		ppbc2 = poljePodrzanoPlacanjeRepository.save(ppbc2);
 		
 		List<PoljePodrzanoPlacanje> ppbc1PP = new ArrayList<>();
-		banka1PP.add(ppbc1);
+		ppbc1PP.add(ppbc1);
 		
 		List<PoljePodrzanoPlacanje> ppbc2PP = new ArrayList<>();
-		banka2PP.add(ppbc2);
+		ppbc2PP.add(ppbc2);
 		
 		PodrzanoPlacanje pp6 = new PodrzanoPlacanje(null, false, ppbc1PP, ep3, tp3);
 		PodrzanoPlacanje pp7 = new PodrzanoPlacanje(null, false, ppbc2PP, ep4, tp3);
@@ -161,23 +160,27 @@ public class StartData {
 		String token1 = randomStringGenerator.genRandomString(90);
 		String token2 = randomStringGenerator.genRandomString(90);
 		String token3 = randomStringGenerator.genRandomString(90);
+		String token4 = randomStringGenerator.genRandomString(90);
+		String token5 = randomStringGenerator.genRandomString(90);
 		
 		/* Transakcije */
-		Transakcija tr1 = new Transakcija(null, new Long(1), null, 5.00, new Date(System.currentTimeMillis()), TransakcijaStatus.C, token1, false, ep3, tp1, "/success", "/failed", "/error");
-		Transakcija tr2 = new Transakcija(null, new Long(2), null, 9.00, new Date(System.currentTimeMillis()), TransakcijaStatus.C, token2, false, ep4, tp1, "/success", "/failed", "/error");
-		Transakcija tr3 = new Transakcija(null, new Long(3), null, 12.00, new Date(System.currentTimeMillis()), TransakcijaStatus.C, token3, false, ep5, tp1, "/success", "/failed", "/error");
+		Transakcija tr1 = new Transakcija(null, new Long(1), null, 5.00, new Date(System.currentTimeMillis()), TransakcijaStatus.C, token1, false, ep3, tp1, "https://localhost:8098/paymentGateway/#!/success", "/failed", "/error");
+		Transakcija tr2 = new Transakcija(null, new Long(2), null, 9.00, new Date(System.currentTimeMillis()), TransakcijaStatus.C, token2, false, ep4, tp1, "https://localhost:8098/paymentGateway/#!/success", "/failed", "/error");
+		Transakcija tr3 = new Transakcija(null, new Long(3), null, 12.00, new Date(System.currentTimeMillis()), TransakcijaStatus.C, token3, false, ep5, tp1, "https://localhost:8098/paymentGateway/#!/success", "/failed", "/error");
+		Transakcija tr4 = new Transakcija(null, new Long(4), "152975", 9.00, new Date(System.currentTimeMillis()), TransakcijaStatus.C, token4, false, ep3, tp3, "https://localhost:8098/paymentGateway/#!/success", "/failed", "/error");
+		Transakcija tr5 = new Transakcija(null, new Long(5), "152976", 12.00, new Date(System.currentTimeMillis()), TransakcijaStatus.C, token5, false, ep3, tp3, "https://localhost:8098/paymentGateway/#!/success", "/failed", "/error");
 		
-		Transakcija tr4 = new Transakcija(null, new Long(4), null, 11.00, new Date(System.currentTimeMillis()), TransakcijaStatus.C, "AAA", false, ep3, tp1, "/success", "/failed", "/error");
-		Transakcija tr5 = new Transakcija(null, new Long(5), null, 7.00, new Date(System.currentTimeMillis()), TransakcijaStatus.C, "BBB", false, ep4, tp1, "/success", "/failed", "/error");
+		Transakcija tr6 = new Transakcija(null, new Long(6), null, 11.00, new Date(System.currentTimeMillis()), TransakcijaStatus.C, "AAA", false, ep3, null, "https://localhost:8098/paymentGateway/#!/success", "/failed", "/error");
+		Transakcija tr7 = new Transakcija(null, new Long(7), null, 7.00, new Date(System.currentTimeMillis()), TransakcijaStatus.C, "BBB", false, ep4, null, "https://localhost:8098/paymentGateway/#!/success", "/failed", "/error");
 		
 		transakcijaRepository.save(tr1);
 		transakcijaRepository.save(tr2);
 		transakcijaRepository.save(tr3);
 		transakcijaRepository.save(tr4);
 		transakcijaRepository.save(tr5);
+		transakcijaRepository.save(tr6);
+		transakcijaRepository.save(tr7);
 		
-	//	for(Transakcija t0 : transakcijaRepository.findAll())
-	//		System.out.println(t0.getJedinstveniToken());
 	}
 
 }
