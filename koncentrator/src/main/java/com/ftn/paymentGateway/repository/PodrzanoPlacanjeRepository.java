@@ -3,6 +3,7 @@ package com.ftn.paymentGateway.repository;
 import java.util.ArrayList;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.http.HttpHeaders;
 
 import com.ftn.paymentGateway.model.EntitetPlacanja;
 import com.ftn.paymentGateway.model.PodrzanoPlacanje;
@@ -13,5 +14,7 @@ public interface PodrzanoPlacanjeRepository extends JpaRepository<PodrzanoPlacan
 	public ArrayList<PodrzanoPlacanje> findByEntitetPlacanjaAndTipPlacanja(EntitetPlacanja entitetPlacanja, TipPlacanja tipPlacanja);
 	
 	public ArrayList<PodrzanoPlacanje> findByEntitetPlacanja(EntitetPlacanja entitetPlacanja);
+
+	public ArrayList<PodrzanoPlacanje> findDistinctByTipPlacanja(TipPlacanja payPalTip);
 	
 }

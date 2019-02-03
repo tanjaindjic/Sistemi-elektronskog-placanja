@@ -20,5 +20,7 @@ public interface TransakcijaRepository extends JpaRepository<Transakcija, Long>{
 	public Transakcija checkTokenValidity(String token, Date startTimestamp, Date endTimestamp);
 	
 	public List<Transakcija> findFirst10ByStatusAndTipPlacanja(TransakcijaStatus status, TipPlacanja tipPlacanja);
+
+	public List<Transakcija> findByStatusAndTipPlacanja(TransakcijaStatus c, TipPlacanja payPalTip);
 	
 }
