@@ -1,12 +1,22 @@
-package sep.tim18.pcc.model.dto;
+package sep.tim18.banka.model;
 
 import org.hibernate.validator.constraints.Length;
-import sep.tim18.pcc.model.PCCRequest;
+import sep.tim18.banka.model.dto.PCCReplyDTO;
+import sep.tim18.banka.model.dto.PCCRequestDTO;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
 
-public class PCCRequestDTO {
+@Entity
+public class PCCRequest {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long id;
+
     @NotNull
     private Long acquirerOrderID;
     @NotNull
@@ -15,7 +25,7 @@ public class PCCRequestDTO {
     private Long merchantOrderID;
     @NotNull
     private Date merchantTimestamp;
-    @NotNull
+
     @Length(min = 8, max = 19)
     private String panPosaljioca;
     @NotNull
@@ -40,25 +50,45 @@ public class PCCRequestDTO {
 
     private String brojBankeProdavca;
 
-    public PCCRequestDTO() {
-
+    public PCCRequest() {
     }
 
-    public PCCRequestDTO(PCCRequest pccRequest) {
-        this.acquirerOrderID =  pccRequest.getAcquirerOrderID();
-        this.acquirerTimestamp =  pccRequest.getAcquirerTimestamp();
-        this.merchantOrderID =  pccRequest.getMerchantOrderID();
-        this.merchantTimestamp =  pccRequest.getMerchantTimestamp();
-        this.panPosaljioca =  pccRequest.getPanPosaljioca();
-        this.cvv =  pccRequest.getCvv();
-        this.ime =  pccRequest.getIme();
-        this.prezime =  pccRequest.getPrezime();
-        this.mesec =  pccRequest.getMesec();
-        this.godina =  pccRequest.getGodina();
-        this.returnURL =  pccRequest.getReturnURL();
-        this.iznos =  pccRequest.getIznos();
-        this.panPrimaoca =  pccRequest.getPanPrimaoca();
-        this.brojBankeProdavca =  pccRequest.getBrojBankeProdavca();
+    public PCCRequest(PCCRequestDTO pccRequestDTO) {
+        this.acquirerOrderID =  pccRequestDTO.getAcquirerOrderID();
+        this.acquirerTimestamp =  pccRequestDTO.getAcquirerTimestamp();
+        this.merchantOrderID =  pccRequestDTO.getMerchantOrderID();
+        this.merchantTimestamp =  pccRequestDTO.getMerchantTimestamp();
+        this.panPosaljioca =  pccRequestDTO.getPanPosaljioca();
+        this.cvv =  pccRequestDTO.getCvv();
+        this.ime =  pccRequestDTO.getIme();
+        this.prezime =  pccRequestDTO.getPrezime();
+        this.mesec =  pccRequestDTO.getMesec();
+        this.godina =  pccRequestDTO.getGodina();
+        this.returnURL =  pccRequestDTO.getReturnURL();
+        this.iznos =  pccRequestDTO.getIznos();
+        this.panPrimaoca =  pccRequestDTO.getPanPrimaoca();
+        this.brojBankeProdavca =  pccRequestDTO.getBrojBankeProdavca();
+    }
+
+    @Override
+    public String toString() {
+        return "PCCRequest{" +
+                "id=" + id +
+                ", acquirerOrderID=" + acquirerOrderID +
+                ", acquirerTimestamp=" + acquirerTimestamp +
+                ", merchantOrderID=" + merchantOrderID +
+                ", merchantTimestamp=" + merchantTimestamp +
+                ", panPosaljioca='" + panPosaljioca + '\'' +
+                ", cvv='" + cvv + '\'' +
+                ", ime='" + ime + '\'' +
+                ", prezime='" + prezime + '\'' +
+                ", mesec=" + mesec +
+                ", godina=" + godina +
+                ", returnURL='" + returnURL + '\'' +
+                ", iznos=" + iznos +
+                ", panPrimaoca='" + panPrimaoca + '\'' +
+                ", brojBankeProdavca='" + brojBankeProdavca + '\'' +
+                '}';
     }
 
     public Long getAcquirerOrderID() {
@@ -75,6 +105,22 @@ public class PCCRequestDTO {
 
     public void setAcquirerTimestamp(Date acquirerTimestamp) {
         this.acquirerTimestamp = acquirerTimestamp;
+    }
+
+    public Long getMerchantOrderID() {
+        return merchantOrderID;
+    }
+
+    public void setMerchantOrderID(Long merchantOrderID) {
+        this.merchantOrderID = merchantOrderID;
+    }
+
+    public Date getMerchantTimestamp() {
+        return merchantTimestamp;
+    }
+
+    public void setMerchantTimestamp(Date merchantTimestamp) {
+        this.merchantTimestamp = merchantTimestamp;
     }
 
     public String getPanPosaljioca() {
@@ -133,12 +179,12 @@ public class PCCRequestDTO {
         this.returnURL = returnURL;
     }
 
-    public void setIznos(Float iznos) {
-        this.iznos = iznos;
-    }
-
     public Float getIznos() {
         return iznos;
+    }
+
+    public void setIznos(Float iznos) {
+        this.iznos = iznos;
     }
 
     public String getPanPrimaoca() {
@@ -155,21 +201,5 @@ public class PCCRequestDTO {
 
     public void setBrojBankeProdavca(String brojBankeProdavca) {
         this.brojBankeProdavca = brojBankeProdavca;
-    }
-
-    public Long getMerchantOrderID() {
-        return merchantOrderID;
-    }
-
-    public void setMerchantOrderID(Long merchantOrderID) {
-        this.merchantOrderID = merchantOrderID;
-    }
-
-    public Date getMerchantTimestamp() {
-        return merchantTimestamp;
-    }
-
-    public void setMerchantTimestamp(Date merchantTimestamp) {
-        this.merchantTimestamp = merchantTimestamp;
     }
 }

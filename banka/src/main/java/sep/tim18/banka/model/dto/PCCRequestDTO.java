@@ -3,6 +3,7 @@ package sep.tim18.banka.model.dto;
 import java.util.Date;
 
 import org.hibernate.validator.constraints.Length;
+import sep.tim18.banka.model.PCCRequest;
 
 import javax.validation.constraints.NotNull;
 
@@ -42,6 +43,24 @@ public class PCCRequestDTO {
 
     public PCCRequestDTO() {
     }
+    public PCCRequestDTO(PCCRequest pccRequest) {
+        this.acquirerOrderID =  pccRequest.getAcquirerOrderID();
+        this.acquirerTimestamp =  pccRequest.getAcquirerTimestamp();
+        this.merchantOrderID =  pccRequest.getMerchantOrderID();
+        this.merchantTimestamp =  pccRequest.getMerchantTimestamp();
+        this.panPosaljioca =  pccRequest.getPanPosaljioca();
+        this.cvv =  pccRequest.getCvv();
+        this.ime =  pccRequest.getIme();
+        this.prezime =  pccRequest.getPrezime();
+        this.mesec =  pccRequest.getMesec();
+        this.godina =  pccRequest.getGodina();
+        this.returnURL =  pccRequest.getReturnURL();
+        this.iznos =  pccRequest.getIznos();
+        this.panPrimaoca =  pccRequest.getPanPrimaoca();
+        this.brojBankeProdavca =  pccRequest.getBrojBankeProdavca();
+    }
+
+
 
     public Long getAcquirerOrderID() {
         return acquirerOrderID;

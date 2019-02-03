@@ -25,6 +25,9 @@ public class Zahtev {
     @Temporal(TemporalType.TIMESTAMP)
     private Date issuerTimestamp;
 
+    @Column
+    private Long merchantOrderId;
+
     @ManyToOne
     private Banka bankaProdavca;
 
@@ -121,5 +124,13 @@ public class Zahtev {
 
     public void setIssuerTimestamp(Date issuerTimestamp) {
         this.issuerTimestamp = issuerTimestamp;
+    }
+
+    public Long getMerchantOrderId() {
+        return merchantOrderId;
+    }
+
+    public void setMerchantOrderId(Long merchantOrderId) {
+        this.merchantOrderId = merchantOrderId;
     }
 }

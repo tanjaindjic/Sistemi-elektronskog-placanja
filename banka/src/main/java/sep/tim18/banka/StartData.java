@@ -77,7 +77,7 @@ public class StartData {
         PaymentInfo paymentInfo = new PaymentInfo(transakcija1, "1");
         paymentInfoRepository.save(paymentInfo);
         Transakcija transakcija2 = new Transakcija(null, klijent2, "2",new Date(System.currentTimeMillis()  - (30 * ONE_MINUTE_IN_MILLIS)) , Status.K,
-                kartica1.getPan(), null, 100F, "succ", "fail", "error", 5L, new Date(System.currentTimeMillis()  - (30 * ONE_MINUTE_IN_MILLIS)));
+                kartica1.getPan(), null, 100F, "succ", "fail", "error", 7L, new Date(System.currentTimeMillis()  - (30 * ONE_MINUTE_IN_MILLIS)));
         transakcijaRepository.save(transakcija2);
         PaymentInfo paymentInfo2 = new PaymentInfo(transakcija2, "2");
         paymentInfoRepository.save(paymentInfo2);

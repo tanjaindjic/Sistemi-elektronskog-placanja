@@ -10,9 +10,12 @@ import java.util.stream.Collectors;
 import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
@@ -20,20 +23,15 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
+import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 import sep.tim18.banka.exceptions.FundsException;
 import sep.tim18.banka.exceptions.NotFoundException;
 import sep.tim18.banka.exceptions.PaymentException;
-import sep.tim18.banka.model.Kartica;
-import sep.tim18.banka.model.Klijent;
-import sep.tim18.banka.model.PaymentInfo;
-import sep.tim18.banka.model.Transakcija;
+import sep.tim18.banka.model.*;
 import sep.tim18.banka.model.dto.*;
 import sep.tim18.banka.model.enums.Status;
-import sep.tim18.banka.repository.KarticaRepository;
-import sep.tim18.banka.repository.KlijentRepository;
-import sep.tim18.banka.repository.PaymentInfoRepository;
-import sep.tim18.banka.repository.TransakcijaRepository;
+import sep.tim18.banka.repository.*;
 import sep.tim18.banka.service.AcquirerService;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -59,6 +57,13 @@ public class AcquirerServiceImpl implements AcquirerService {
         requestToPCC = s;
     }
 
+    private static String pccSync;
+
+    @Value("${pccSync}")
+    public void setpccsync(String s) {
+        pccSync = s;
+    }
+
     private static String replyToKP;
 
     @Value("${replyToKP}")
@@ -80,6 +85,13 @@ public class AcquirerServiceImpl implements AcquirerService {
         BAddress = bankAdress;
     }
 
+    private static boolean taskEnabled;
+
+    @Value("${TASK_ENABLED}")
+    public void setEnabled(Boolean enabled) {
+        taskEnabled = enabled;
+    }
+
     @Autowired
     private TransakcijaRepository transakcijaRepository;
 
@@ -92,6 +104,83 @@ public class AcquirerServiceImpl implements AcquirerService {
     @Autowired
     private PaymentInfoRepository paymentInfoRepository;
 
+    @Autowired
+    private PCCRequestRepository pccRequestRepository;
+
+    @Scheduled(initialDelay = 5000, fixedRate = 30000)
+    public void getTransactions() {
+        if(!taskEnabled){//u slucaju issuera ne bi trebalo da se pokrecu ovi taskovi
+            System.out.println("SCHEDULED TASK---not enabled on ISSUER server");
+            return;
+        }
+        System.out.println("SCHEDULED TASK---Kontaktira PCC da preuzme neresene transakcije");
+        HttpsURLConnection.setDefaultHostnameVerifier((hostname, session)->true);
+        RestTemplate restTemplate = new RestTemplate();
+        try {
+            ResponseEntity<List<PCCReplyDTO>> response = restTemplate.exchange(pccSync,HttpMethod.GET,null,new ParameterizedTypeReference<List<PCCReplyDTO>>() {});
+            List<PCCReplyDTO> preostaleTransakcije = response.getBody();
+            System.out.println("SCHEDULED TASK---Primio sa PCC-a: " + preostaleTransakcije.size());
+            for (PCCReplyDTO pccReplyDTO : preostaleTransakcije) {
+                Transakcija t = transakcijaRepository.findById(pccReplyDTO.getAcquirerOrderID()).get();
+                t.setStatus(pccReplyDTO.getStatus());
+                transakcijaRepository.save(t);
+            }
+        }catch (Exception e){
+            System.out.println("SCHEDULED TASK---PCC nije dostupan.");
+        }
+    }
+
+    @Scheduled(initialDelay = 5000, fixedRate = 30000)
+    public void sendRemainingTransactions() throws JsonProcessingException {
+        if(!taskEnabled){
+            System.out.println("SCHEDULED TASK---not enabled on ISSUER server");
+            return;
+        }
+        System.out.println("SCHEDULED TASK---Usao u slanje neposlatih transakcija na PCC");
+        if(transakcijaRepository.findByStatus(Status.C_PCC).isEmpty()){
+            System.out.println("SCHEDULED TASK---Nema neposlatih transakcija.");
+            return;
+        }
+        RestTemplate template = new RestTemplate();
+        HttpsURLConnection.setDefaultHostnameVerifier((hostname, session)->true);
+        for(Transakcija t : transakcijaRepository.findByStatus(Status.C_PCC)) {
+
+            PCCRequest pccRequest = pccRequestRepository.findByMerchantOrderID(t.getMerchantOrderId());
+            PCCRequestDTO pccRequestDTO = new PCCRequestDTO(pccRequest);
+
+            try {
+                template.postForEntity(requestToPCC, pccRequestDTO, PCCRequestDTO.class);
+                pccRequestRepository.delete(pccRequest);
+                t.setStatus(Status.C);
+                transakcijaRepository.save(t);
+                System.out.println("SCHEDULED TASK---Poslata transakcija ID: " + t.getOrderID());
+            } catch (Exception e) {
+                System.out.println("SCHEDULED TASK---PCC nije dostupan. Transakcija ID: " + t.getOrderID() + " nije poslata.");
+                t.setStatus(Status.C_PCC); //cuvam status samo pamtim da treba pccu da se posalje ponovo
+                transakcijaRepository.save(t);
+            }
+        }
+
+    }
+
+   @Scheduled(initialDelay = 5000, fixedRate = 30000)
+    public void checkExpiredTransactions() {
+        System.out.println("SCHEDULED TASK---provera vazenja tokena");
+        for(Transakcija t : transakcijaRepository.findByStatus(Status.K)){
+            if(isTokenExpired(t.getPaymentURL())){
+                System.out.println("Transakcija ID: " + t.getOrderID() + " je istekla.");
+                t.setStatus(Status.E_KP);
+                transakcijaRepository.save(t);
+            }
+        }
+        for(Transakcija t : transakcijaRepository.findByStatus(Status.K_KP)){
+            if(isTokenExpired(t.getPaymentURL())){
+                System.out.println("Transakcija ID: " + t.getOrderID() + " je istekla.");
+                t.setStatus(Status.E_KP);
+                transakcijaRepository.save(t);
+            }
+        }
+    }
     /** pomocne metode **/
     @Override
     public boolean validate(KPRequestDTO request) {
@@ -253,7 +342,27 @@ public class AcquirerServiceImpl implements AcquirerService {
         finishedPaymentDTO.setAcquirerTimestamp(t.getTimestamp());
         finishedPaymentDTO.setPaymentID(paymentInfo.getPaymentID());
 
-        if(t.getStatus()==Status.U_KP) {
+       /* if(t.getStatus().equals(Status.K_KP)){ //moze se desiti ili da je bilo neuspesno placanje ali nije istekao token pa je
+            //status vracen na Kreirano jer moze opet da se proba ili mozda kupac nikad nije ni uneo podatke i probao da plati na stranici banke
+            if(isTokenExpired(t.getPaymentURL())) {
+                finishedPaymentDTO.setStatusTransakcije(Status.E);
+                t.setStatus(Status.E);
+                transakcijaRepository.save(t);
+            }
+            else{
+                finishedPaymentDTO.setStatusTransakcije(Status.K);
+                t.setStatus(Status.K);
+                transakcijaRepository.save(t);
+            }
+            finishedPaymentDTO.setRedirectURL(t.getErrorURL());
+
+        }else */
+        if(t.getStatus().equals(Status.C) || t.getStatus().equals(Status.C_PCC)){ //ako se ceka odgovor PCC-a jos uvek ili nije ni uspela
+            //komunikacija sa PCC-om
+            finishedPaymentDTO.setStatusTransakcije(Status.C);
+            finishedPaymentDTO.setRedirectURL(t.getErrorURL());
+
+        }else if(t.getStatus()==Status.U_KP) {
             finishedPaymentDTO.setStatusTransakcije(Status.U);
             finishedPaymentDTO.setRedirectURL(t.getSuccessURL());
             t.setStatus(Status.U);
@@ -264,11 +373,14 @@ public class AcquirerServiceImpl implements AcquirerService {
             finishedPaymentDTO.setRedirectURL(t.getFailedURL());
             t.setStatus(Status.N);
             transakcijaRepository.save(t);
-        }else if(t.getStatus().equals(Status.K_KP)){
-            finishedPaymentDTO.setStatusTransakcije(Status.K);
+
+        }
+        else if(t.getStatus().equals(Status.E_KP)){
+            finishedPaymentDTO.setStatusTransakcije(Status.E);
             finishedPaymentDTO.setRedirectURL(t.getFailedURL());
-            t.setStatus(Status.K);
+            t.setStatus(Status.E);
             transakcijaRepository.save(t);
+
         }
         return finishedPaymentDTO;
     }
@@ -442,12 +554,22 @@ public class AcquirerServiceImpl implements AcquirerService {
 
         HttpsURLConnection.setDefaultHostnameVerifier((hostname, session)->true);
         RestTemplate template = new RestTemplate();
-        try{
-            template.postForEntity(requestToPCC, pccRequestDTO, PCCRequestDTO.class);
+        try {
+            ResponseEntity responseEntity = template.postForEntity(requestToPCC, pccRequestDTO, PCCRequestDTO.class);
+
+        }catch (HttpStatusCodeException exception) {
+            if(exception.getStatusCode().is5xxServerError()){
+                System.out.println("Poslata vec postojeca transakcija na PCC");
+                t.setStatus(Status.N);
+                transakcijaRepository.save(t);
+            }
         }catch(Exception e){
             System.out.println("Greska kod slanja zahteva na PCC.");
             t.setStatus(Status.C_PCC); //cuvam status samo pamtim da treba pccu da se posalje ponovo
             transakcijaRepository.save(t);
+            PCCRequest pccRequest = new PCCRequest(pccRequestDTO);
+            pccRequestRepository.save(pccRequest);
+            System.out.println("Sacuvan PCCRequest:" + pccRequest.toString());
         }
 
     }
@@ -472,7 +594,7 @@ public class AcquirerServiceImpl implements AcquirerService {
             else return t.getFailedURL();
         }catch(Exception e){
             System.out.println("KP nije dostupan.");
-            System.out.println(e.getMessage());
+            e.printStackTrace();
             if(rollback)
                 t.setStatus(Status.K_KP);
             else t.setStatus(Status.N_KP);
@@ -484,8 +606,6 @@ public class AcquirerServiceImpl implements AcquirerService {
 
     @Override
     public String paymentSuccessful(PaymentInfo paymentInfo, Transakcija t, String token, BuyerInfoDTO buyerInfoDTO) throws JsonProcessingException {
-
-        //ovde su i merchant i acquirer isti jer je ista banka
 
         FinishedPaymentDTO finishedPaymentDTO = new FinishedPaymentDTO();
         finishedPaymentDTO.setStatusTransakcije(Status.U);
@@ -506,6 +626,7 @@ public class AcquirerServiceImpl implements AcquirerService {
             else return t.getFailedURL();
         } catch(Exception e) {
             System.out.println("KP nije dostupan.");
+            e.printStackTrace();
             t.setStatus(Status.U_KP);
             transakcijaRepository.save(t);
             return "/paymentSent";
@@ -527,8 +648,9 @@ public class AcquirerServiceImpl implements AcquirerService {
         if (paymentInfo == null)
             throw new NotFoundException();
 
-        if(pccReplyDTO.getStatus()==Status.N)
-            t.setStatus(Status.K);//vracamo na pocetno stanje jer dok ne istekne token moze ponovo da proba sa drugom karticom da plati
+        if(pccReplyDTO.getStatus()==Status.N) {
+            t.setStatus(Status.N);
+        }
         else{
             t.setIssuerOrderId(pccReplyDTO.getIssuerOrderID());
             t.setIssuerTimestamp(pccReplyDTO.getIssuerTimestamp());
@@ -546,6 +668,7 @@ public class AcquirerServiceImpl implements AcquirerService {
 
         }
         transakcijaRepository.save(t);
+        System.out.println("Novi status transakcije ID: " + t.getOrderID() + " je " + t.getStatus().toString());
         sendReplyToKP(t, paymentInfo);
     }
 
@@ -571,6 +694,7 @@ public class AcquirerServiceImpl implements AcquirerService {
                 t.setStatus(Status.U_KP);
             else t.setStatus(Status.K_KP);
             transakcijaRepository.save(t);
+
 
         }
 

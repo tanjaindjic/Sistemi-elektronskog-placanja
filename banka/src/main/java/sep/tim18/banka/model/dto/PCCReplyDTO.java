@@ -13,10 +13,19 @@ public class PCCReplyDTO {
     private Status status;
     @NotNull
     private Long acquirerOrderID;
+    private Long merchantOrderID;
 
-    public PCCReplyDTO() {
+    public PCCReplyDTO(){
+
     }
 
+    public PCCReplyDTO(Long issuerOrderID, Date issuerTimestamp, @NotNull Status status, @NotNull Long acquirerOrderID, Long merchantOrderID) {
+        this.issuerOrderID = issuerOrderID;
+        this.issuerTimestamp = issuerTimestamp;
+        this.status = status;
+        this.acquirerOrderID = acquirerOrderID;
+        this.merchantOrderID = merchantOrderID;
+    }
 
     public Long getAcquirerOrderID() {
         return acquirerOrderID;
@@ -59,6 +68,14 @@ public class PCCReplyDTO {
                 ", status=" + status +
                 ", acquirerOrderID=" + acquirerOrderID +
                 '}';
+    }
+
+    public Long getMerchantOrderID() {
+        return merchantOrderID;
+    }
+
+    public void setMerchantOrderID(Long merchantOrderID) {
+        this.merchantOrderID = merchantOrderID;
     }
 }
 
