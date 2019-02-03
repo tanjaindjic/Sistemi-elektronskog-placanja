@@ -16,6 +16,5 @@ public interface MainService {
     Zahtev createZahtev(PCCRequestDTO request);
     void sendReply(PCCReplyDTO pccReplyDTO, Zahtev returnURL);
     void finish(PCCReplyDTO replyDTO);
-    List<Zahtev> getZahtevi(Long acquirerOrderID);
     Zahtev checkRequest(@Valid PCCRequestDTO request);
 }

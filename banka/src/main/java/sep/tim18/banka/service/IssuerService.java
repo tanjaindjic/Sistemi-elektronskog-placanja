@@ -8,6 +8,7 @@ import sep.tim18.banka.model.dto.PCCReplyDTO;
 import sep.tim18.banka.model.dto.PCCRequestDTO;
 
 import javax.validation.Valid;
+import java.util.List;
 
 public interface IssuerService {
 
@@ -16,4 +17,5 @@ public interface IssuerService {
     void sendReply(PCCReplyDTO reply, Transakcija t);
     boolean checkCredentials(PCCRequestDTO request, Klijent k);
     void checkPayment(@Valid PCCRequestDTO request) throws JsonProcessingException, PaymentException;
+    List<Transakcija> getAllTransakcije();
 }

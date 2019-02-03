@@ -1,6 +1,7 @@
 package sep.tim18.banka.service.serviceImpl;
 
 import java.util.Date;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -118,6 +119,7 @@ public class IssuerServiceImpl implements IssuerService {
             transakcijaRepository.save(t);
             PCCReplyDTO pccReplyDTO = new PCCReplyDTO();
             pccReplyDTO.setAcquirerOrderID(request.getAcquirerOrderID());
+            pccReplyDTO.setMerchantOrderID(request.getMerchantOrderID());
             pccReplyDTO.setStatus(Status.N);
             sendReply(pccReplyDTO, t);
         }
@@ -129,7 +131,7 @@ public class IssuerServiceImpl implements IssuerService {
 
         PCCReplyDTO pccReplyDTO = new PCCReplyDTO();
         pccReplyDTO.setAcquirerOrderID(request.getAcquirerOrderID());
-
+        pccReplyDTO.setMerchantOrderID(request.getMerchantOrderID());
         Kartica kartica = karticaRepository.findByPan(t.getPanPosaljioca());
         int idx = k.getKartice().indexOf(kartica);
 
@@ -183,6 +185,11 @@ public class IssuerServiceImpl implements IssuerService {
             else t.setStatus(Status.U_PCC);
             transakcijaRepository.save(t);
         }
+    }
+
+    @Override
+    public List<Transakcija> getAllTransakcije() {
+        return transakcijaRepository.findAll();
     }
 
 

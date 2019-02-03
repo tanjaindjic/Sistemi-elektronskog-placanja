@@ -41,7 +41,7 @@ public class AcquirerController {
     @RequestMapping(value = "/initiatePayment", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Map> initiatePayment(@Valid @RequestBody KPRequestDTO request){
         System.out.println(request.toString());
-    //FIXME uskladiti sa kp
+
         Map retVal = new HashMap<String, String>();
 
         if(!acquirerService.validate(request)){
@@ -60,10 +60,10 @@ public class AcquirerController {
     }
 
     @RequestMapping(value = "/getTransactions", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List> getTransactions(HttpServletResponse httpServletResponse, @PathVariable String token) throws IOException {
+    public ResponseEntity<List> getTransactions() throws IOException {
         List<FinishedPaymentDTO> transakcije = new ArrayList<>();
         for(Transakcija t : acquirerService.getAllTransakcije())
-            if(t.getStatus().equals(Status.U_KP) || t.getStatus().equals(Status.N_KP) || t.getStatus().equals(Status.K_KP))
+            if(t.getStatus().equals(Status.K_KP) || t.getStatus().equals(Status.C) || t.getStatus().equals(Status.C_PCC) || t.getStatus().equals(Status.U_KP) || t.getStatus().equals(Status.N_KP) || t.getStatus().equals(Status.E_KP))
                 transakcije.add(acquirerService.createFinishedPaymentDTO(t));
 
         return new ResponseEntity<>(transakcije, HttpStatus.OK);
@@ -105,7 +105,7 @@ public class AcquirerController {
     }
 
     @RequestMapping(value = "/pay/{token}", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Map> postPaymentInfo(HttpServletResponse httpServletResponse, @PathVariable String token, @Valid @RequestBody BuyerInfoDTO buyerInfoDTO) throws IOException, PaymentException, NotFoundException, FundsException, ParseException {
+    public ResponseEntity<Map> postPaymentForm(HttpServletResponse httpServletResponse, @PathVariable String token, @Valid @RequestBody BuyerInfoDTO buyerInfoDTO) throws IOException, PaymentException, NotFoundException, FundsException, ParseException {
 
         Map<String, String> map = new HashMap<>();
 
