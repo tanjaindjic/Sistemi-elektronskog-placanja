@@ -13,4 +13,6 @@ public interface PaymentStrategy {
 	public TransakcijaIshodDTO doPayment(Transakcija transakcija, PodrzanoPlacanje podrzanoPlacanje) throws PaymentErrorException;
 	
 	public Boolean completePayment (HttpServletRequest request, PodrzanoPlacanje podrzanoPlacanje) throws UnsupportedMethodException;
+
+	public void syncDB();
 }

@@ -8,6 +8,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -155,6 +156,14 @@ public class PayPalPayment implements PaymentStrategy{
 	        System.err.println(e.getDetails());
 	    }
 	    return false;
+	}
+
+
+	@Override
+	@Scheduled(initialDelay = 5000, fixedRate = 300000)
+	public void syncDB() {
+		
+		
 	}
 		
 	

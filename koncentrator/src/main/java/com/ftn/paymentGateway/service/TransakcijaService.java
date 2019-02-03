@@ -1,9 +1,13 @@
 package com.ftn.paymentGateway.service;
 
+import java.util.List;
+
 import com.ftn.paymentGateway.dto.PaymentRequestDTO;
 import com.ftn.paymentGateway.dto.TransakcijaIshodDTO;
+import com.ftn.paymentGateway.enumerations.TransakcijaStatus;
 import com.ftn.paymentGateway.exceptions.TransactionUpdateExeption;
 import com.ftn.paymentGateway.model.EntitetPlacanja;
+import com.ftn.paymentGateway.model.TipPlacanja;
 import com.ftn.paymentGateway.model.Transakcija;
 
 public interface TransakcijaService {
@@ -21,5 +25,7 @@ public interface TransakcijaService {
 	public Transakcija save(Transakcija transakcija);
 	
 	public Transakcija checkTokenValidity(Transakcija transakcija);
+	
+	public List<Transakcija> get10ByStatusAndType(TransakcijaStatus status, TipPlacanja tipPlacanja);
 	
 }
