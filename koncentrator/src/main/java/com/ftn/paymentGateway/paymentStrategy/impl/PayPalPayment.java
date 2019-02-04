@@ -234,22 +234,23 @@ public class PayPalPayment implements PaymentStrategy  {
 		////////
 		if(statusi==null){
 			return;	
- //       System.out.println("*******ACCESS TOKEN******    "+accessToken);
 		}
+//        System.out.println("*******ACCESS TOKEN******    "+accessToken);
 		for(Transakcija ppt0 : ppTransakcije) {
+			System.out.println("-----"+ppt0.getIzvrsnaTransakcija());
 			if(!ppt0.getStatus().equals(TransakcijaStatus.C))
 				continue;
-			System.out.println("-----"+ppt0.getIzvrsnaTransakcija());
 			String status = statusi.get(ppt0.getIzvrsnaTransakcija());
 			if(status==null)
 				continue;
 					System.out.println(statusi.get(ppt0.getIzvrsnaTransakcija()));
-					System.out.println("-----");
-			if(!status.equals("UNVERIFIED")){
+					System.out.println(".........................................");
+			//opcije za status su failed, created i approved
+			if(status.equals("approved")){
 				ppt0.setStatus(TransakcijaStatus.U);
 				transakcijaRepository.save(ppt0);
 			}
-			else{
+			else if(status.equals("failed")){
 				ppt0.setStatus(TransakcijaStatus.E);
 				transakcijaRepository.save(ppt0);
 			}
@@ -296,9 +297,9 @@ public class PayPalPayment implements PaymentStrategy  {
 	}
 	private void dodajUListu(HashMap<String, String> retVal, ArrayList<Payment> payments) {
 		for(Payment p : payments){
-			retVal.put(p.getId(), p.getPayer().getStatus());
-			System.out.println("id       "+p.getId());
-			System.out.println("status   "+p.getPayer().getStatus());
+			retVal.put(p.getId(), p.getState());
+			System.out.println("---------------------------------------");
+			System.out.println(p.toString());
 			System.out.println("---------------------------------------");
 		}
 	}

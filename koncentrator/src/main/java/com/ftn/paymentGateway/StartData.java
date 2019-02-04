@@ -66,6 +66,7 @@ public class StartData {
 		EntitetPlacanja ep4 = new EntitetPlacanja(null, "Casopis 2", "CAS2#CAS2#", false, ep1);
 		EntitetPlacanja ep5 = new EntitetPlacanja(null, "Casopis 3", "CAS3#CAS3#", false, ep2);
 		EntitetPlacanja ep6 = new EntitetPlacanja(null, "Casopis 4", "CAS4#CAS4#", false, ep2);
+		EntitetPlacanja ep7 = new EntitetPlacanja(null, "Casopis 5", "CAS5#CAS5#", false, ep2);
 		
 		ep1 = entitetPlacanjaRepository.save(ep1);
 		ep2 = entitetPlacanjaRepository.save(ep2);
@@ -73,6 +74,7 @@ public class StartData {
 		ep4 = entitetPlacanjaRepository.save(ep4);
 		ep5 = entitetPlacanjaRepository.save(ep5);
 		ep6 = entitetPlacanjaRepository.save(ep6);
+		ep7 = entitetPlacanjaRepository.save(ep7);
 		
 		/* Kreditne Kartice */
 		PoljePodrzanoPlacanje ppb1 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_ID, "1");
@@ -172,6 +174,7 @@ public class StartData {
 		
 		Transakcija tr6 = new Transakcija(null, new Long(6), null, 11.00, new Date(System.currentTimeMillis()), TransakcijaStatus.C, "AAA", false, ep3, null, "https://localhost:8098/paymentGateway/#!/success", "/failed", "/error");
 		Transakcija tr7 = new Transakcija(null, new Long(7), null, 7.00, new Date(System.currentTimeMillis()), TransakcijaStatus.C, "BBB", false, ep4, null, "https://localhost:8098/paymentGateway/#!/success", "/failed", "/error");
+		Transakcija tr8 = new Transakcija(null, new Long(7), "PAYID-LRG2ZZA83L075397U358772A", 11.00, new Date(System.currentTimeMillis()), TransakcijaStatus.C, "CCC", false, ep7, tp2, "https://localhost:8098/paymentGateway/#!/success", "/failed", "/error");
 		
 		transakcijaRepository.save(tr1);
 		transakcijaRepository.save(tr2);
@@ -180,6 +183,7 @@ public class StartData {
 		transakcijaRepository.save(tr5);
 		transakcijaRepository.save(tr6);
 		transakcijaRepository.save(tr7);
+		transakcijaRepository.save(tr8);
 		
 	}
 
