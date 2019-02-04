@@ -8,8 +8,14 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -17,32 +23,52 @@ import com.ftn.paymentGateway.dto.TransakcijaIshodDTO;
 import com.ftn.paymentGateway.enumerations.IdPoljePlacanja;
 import com.ftn.paymentGateway.enumerations.TransakcijaStatus;
 import com.ftn.paymentGateway.exceptions.PaymentErrorException;
+import com.ftn.paymentGateway.helpClasses.RSAEncryptDecrypt;
 import com.ftn.paymentGateway.model.PodrzanoPlacanje;
 import com.ftn.paymentGateway.model.PoljePodrzanoPlacanje;
+import com.ftn.paymentGateway.model.TipPlacanja;
 import com.ftn.paymentGateway.model.Transakcija;
 import com.ftn.paymentGateway.paymentStrategy.PaymentStrategy;
 import com.ftn.paymentGateway.repository.PodrzanoPlacanjeRepository;
+import com.ftn.paymentGateway.repository.TipPlacanjaRepository;
+import com.ftn.paymentGateway.repository.TransakcijaRepository;
 import com.ftn.paymentGateway.utils.URLUtils;
 import com.paypal.api.payments.Amount;
 import com.paypal.api.payments.Links;
 import com.paypal.api.payments.Payer;
 import com.paypal.api.payments.Payment;
 import com.paypal.api.payments.PaymentExecution;
+import com.paypal.api.payments.PaymentHistory;
 import com.paypal.api.payments.RedirectUrls;
 import com.paypal.api.payments.Transaction;
 import com.paypal.base.rest.APIContext;
 import com.paypal.base.rest.OAuthTokenCredential;
 import com.paypal.base.rest.PayPalRESTException;
+import com.paypal.base.rest.RESTUtil;
 
-@Component
-public class PayPalPayment implements PaymentStrategy{
+
+@Service
+public class PayPalPayment implements PaymentStrategy  {
 
 	public static final String PAYPAL_SUCCESS_URL = "rest/success";
 	public static final String PAYPAL_CANCEL_URL = "rest/cancel";
+	public static PaymentHistory ph = null;
 //	private GenericApplicationContext ctx;
+	
+	
+	
 	@Autowired
 	private PodrzanoPlacanjeRepository podrzanoPlacanjeRepository;
+	@Autowired
+	private TipPlacanjaRepository tipPlacanjaRepository;
+	@Autowired
+	private TransakcijaRepository transakcijaRepository;
+	@Autowired
+	private RSAEncryptDecrypt rsa;
 	
+	
+	public PayPalPayment() {
+	}
 	@Override
 	public TransakcijaIshodDTO doPayment(Transakcija transakcija, PodrzanoPlacanje podrzanoPlacanje) throws PaymentErrorException{
 		if(transakcija==null || podrzanoPlacanje==null){
@@ -87,6 +113,15 @@ public class PayPalPayment implements PaymentStrategy{
 				merchant_secret = polje.getVrednost();
 			}
 		}
+		try {
+			merchant_id = rsa.decrypt(merchant_id);
+			merchant_secret = rsa.decrypt(merchant_secret);
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			System.out.println("greska prilikom dekriptovanja - NEMOGUC PRISTUP BITNIM KREDENCIJALIMA");
+			e1.printStackTrace();
+			return null;
+		}
 	    try {
 	        String redirectUrl = "";
 	        
@@ -122,7 +157,7 @@ public class PayPalPayment implements PaymentStrategy{
 	}
 
 
-	public Boolean completePayment(HttpServletRequest request, PodrzanoPlacanje podrzanoPlacanje) {
+	public Boolean completePayment(HttpServletRequest request, PodrzanoPlacanje podrzanoPlacanje){
 		String response = "";
 	    Payment payment = new Payment();
 	    payment.setId(request.getParameter("paymentId"));
@@ -141,6 +176,16 @@ public class PayPalPayment implements PaymentStrategy{
 				merchant_secret = polje.getVrednost();
 			}
 		}
+		try {
+			merchant_id = rsa.decrypt(merchant_id);
+			merchant_secret = rsa.decrypt(merchant_secret);
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			System.out.println("greska prilikom dekriptovanja - NEMOGUC PRISTUP BITNIM KREDENCIJALIMA");
+			e1.printStackTrace();
+			return null;
+		}
+		
 	    try {
 	    	Map<String, String> sdkConfig = new HashMap<String, String>();
 	        sdkConfig.put("mode", "sandbox");
@@ -162,9 +207,130 @@ public class PayPalPayment implements PaymentStrategy{
 	@Override
 	@Scheduled(initialDelay = 5000, fixedRate = 300000)
 	public void syncDB() {
+		List<Transakcija> ppTransakcije = null;
+		TipPlacanja payPalTip = tipPlacanjaRepository.findByKod("PPP");
+		try {
+			ppTransakcije = transakcijaRepository.findByStatusAndTipPlacanja(TransakcijaStatus.C, payPalTip);
+		}catch(Exception e) {
+			return;
+		}		
+			
+		PodrzanoPlacanje accountInfo =  podrzanoPlacanjeRepository.findDistinctByTipPlacanja(payPalTip).get(0);
+		if(accountInfo==null){
+			System.out.println("NINA KRALJU");
+			return;
+		}
 		
-		
+		HttpHeaders headers = new HttpHeaders();
+		String merchant_id = "";
+		for(PoljePodrzanoPlacanje polje : accountInfo.getPolja()) {
+			if(polje.getIdPolja().equals(IdPoljePlacanja.MERCHANT_ID)) {
+				merchant_id = polje.getVrednost();
+				break;
+			}	
+		}
+		String merchant_secret = "";
+		for(PoljePodrzanoPlacanje polje : accountInfo.getPolja()) {
+			if(polje.getIdPolja().equals(IdPoljePlacanja.MERCHANT_PASSWORD)) {
+				merchant_secret = polje.getVrednost();
+				break;
+			}	
+		}
+		try {
+			merchant_id = rsa.decrypt(merchant_id);
+			merchant_secret = rsa.decrypt(merchant_secret);
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			System.out.println("greska prilikom dekriptovanja - NEMOGUC PRISTUP BITNIM KREDENCIJALIMA");
+			e1.printStackTrace();
+			return;
+		}
+		//////////
+		Map<String, String> sdkConfig = new HashMap<String, String>();
+        sdkConfig.put("mode", "sandbox");
+        String accessToken = "";
+        HashMap<String, String> statusi = new HashMap<String, String>();
+		try {
+			accessToken = new OAuthTokenCredential(merchant_id, merchant_secret, sdkConfig).getAccessToken();
+			statusi = getStatus(accessToken);
+		} catch (PayPalRESTException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+			System.out.println("NE moze da dobije accessToken");
+			return;
+		}
+		////////
+		if(statusi==null){
+			return;	
+		}
+//        System.out.println("*******ACCESS TOKEN******    "+accessToken);
+		for(Transakcija ppt0 : ppTransakcije) {
+			System.out.println("-----"+ppt0.getIzvrsnaTransakcija());
+			if(!ppt0.getStatus().equals(TransakcijaStatus.C))
+				continue;
+			String status = statusi.get(ppt0.getIzvrsnaTransakcija());
+			if(status==null)
+				continue;
+					System.out.println(statusi.get(ppt0.getIzvrsnaTransakcija()));
+					System.out.println("PAYPAL.................ISPRAVIO STATUS TRANSAKCIJE KOJI SE NE POKLAPA SA ONIM U BAZI");
+			//opcije za status su failed, created i approved
+			if(status.equals("approved")){
+				ppt0.setStatus(TransakcijaStatus.U);
+				transakcijaRepository.save(ppt0);
+			}
+			else if(status.equals("failed")){
+				ppt0.setStatus(TransakcijaStatus.E);
+				transakcijaRepository.save(ppt0);
+			}
+			
+		}
 	}
+
+
+	private HashMap<String, String> getStatus(String accessToken) throws PayPalRESTException {
+		HashMap<String, String> mapa = new HashMap<>();
+		HashMap<String, String> retVal = new HashMap<>();
+		int index = 0;
+		ArrayList<Payment> lista = new ArrayList<Payment> ();
+		do{
+			mapa.put("count", "20");
+			mapa.put("start_index", String.valueOf(index));
+			mapa.put("sort_by", "create_time");
+			mapa.put("sort_order", "desc");
+			RestTemplate restTemplate = new RestTemplate();
+			Object[] parameters = new Object[] {mapa};
+			String pattern = "https://api.sandbox.paypal.com/v1/payments/payment?count={0}&start_index={1}&sort_by={2}&sort_order={3}";
+			String resourcePath = RESTUtil.formatURIPath(pattern, parameters);
+		//	System.out.println(resourcePath);
+		    ResponseEntity<String> bitcoinResponse = null;
+		    HttpHeaders headers = new HttpHeaders();
+		    headers.set("Content-Type", "application/json");
+		    headers.set("Authorization", accessToken);
+		//https://developer.paypal.com/docs/api/payments/v1/
+			ResponseEntity<PaymentHistory> response = null;
+			HttpEntity<?> entity = new HttpEntity<>(headers);
+		//	System.out.println(entity.getHeaders().toString());
+		    try {
+		    	response = restTemplate.exchange(resourcePath, HttpMethod.GET, entity, PaymentHistory.class);
+			} catch (RestClientException e) {
+				e.printStackTrace();
+				return null;
+			}
+		    lista = (ArrayList<Payment>) ((PaymentHistory) response.getBody()).getPayments();
+			dodajUListu(mapa, lista);
+			index+=20;
+		}while(lista.size()==20);
 		
+	    return mapa;
+	}
+	private void dodajUListu(HashMap<String, String> retVal, ArrayList<Payment> payments) {
+		for(Payment p : payments){
+			retVal.put(p.getId(), p.getState());
+		/*	System.out.println("---------------------------------------");
+			System.out.println(p.toString());
+			System.out.println("---------------------------------------");*/
+		}
+	}
+	
 	
 }

@@ -308,5 +308,4 @@ public class PaymentController {
     	return new ResponseEntity<String>("ODGOVOR SA PORTA: NOVO *"+this.serverPort+"*", HttpStatus.OK);
     }
 
-	
 }
