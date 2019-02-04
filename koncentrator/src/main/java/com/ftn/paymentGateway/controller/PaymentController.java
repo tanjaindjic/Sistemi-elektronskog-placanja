@@ -53,6 +53,9 @@ public class PaymentController {
 	@Value("${frontend.redirectURL}")
 	private String redirectionUrl;
 	
+	@Value("${server.port}")
+	private String serverPort;
+	
 	@Autowired 
 	private EntitetPlacanjaService entitetPlacanjaService;
 	
@@ -67,9 +70,7 @@ public class PaymentController {
 	
 	@Autowired 
 	private PaymentFactory paymentFactory;
-	@Autowired 
-	private PayPalPayment payPalPayment;
-	
+
 	
 	@RequestMapping(value = "sendPaymentRequest", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<PaymentResponseDTO> recivePayment(@Valid @RequestBody PaymentRequestDTO paymentRequest, BindingResult bindingResult) throws URISyntaxException, UnsupportedEncodingException {
@@ -300,6 +301,12 @@ public class PaymentController {
 		return new ResponseEntity<Boolean>(true, headers, HttpStatus.OK);
 
 	}
+	
+	@RequestMapping(value = "nginxTest", method = RequestMethod.GET)
+    public ResponseEntity<String> nginxEndpoint(){
+    	
+    	return new ResponseEntity<String>("ODGOVOR SA PORTA: NOVO *"+this.serverPort+"*", HttpStatus.OK);
+    }
 
 	
 }

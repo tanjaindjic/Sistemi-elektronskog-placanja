@@ -163,7 +163,7 @@ public class AcquirerServiceImpl implements AcquirerService {
 
     }
 
-   @Scheduled(initialDelay = 5000, fixedRate = 30000)
+    @Scheduled(initialDelay = 5000, fixedRate = 30000)
     public void checkExpiredTransactions() {
         System.out.println("SCHEDULED TASK---provera vazenja tokena");
         for(Transakcija t : transakcijaRepository.findByStatus(Status.K)){
@@ -699,4 +699,8 @@ public class AcquirerServiceImpl implements AcquirerService {
         }
 
     }
+    
+    
+    
+  
 }
