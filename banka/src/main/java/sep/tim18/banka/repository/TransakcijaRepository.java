@@ -8,4 +8,5 @@ import java.util.List;
 
 public interface TransakcijaRepository extends JpaRepository<Transakcija, Long>{
     List<Transakcija> findByStatus(Status s);
+
 }

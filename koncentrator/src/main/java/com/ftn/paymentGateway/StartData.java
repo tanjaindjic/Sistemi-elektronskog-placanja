@@ -59,6 +59,7 @@ public class StartData {
 		/* Naucne Centrale */
 		EntitetPlacanja ep1 = new EntitetPlacanja(null, "Naucna Centrala 1", "NC1NC1NC1#", true, null);
 		EntitetPlacanja ep2 = new EntitetPlacanja(null, "Naucna Centrala 2", "NC2NC2NC2#", true, null);
+		EntitetPlacanja tanja = new EntitetPlacanja(null, "Tanja Naucna Centrala", "tanjatanja", true, null);
 		
 		
 		/* Casopisi */
@@ -67,14 +68,20 @@ public class StartData {
 		EntitetPlacanja ep5 = new EntitetPlacanja(null, "Casopis 3", "CAS3#CAS3#", false, ep2);
 		EntitetPlacanja ep6 = new EntitetPlacanja(null, "Casopis 4", "CAS4#CAS4#", false, ep2);
 		EntitetPlacanja ep7 = new EntitetPlacanja(null, "Casopis 5", "CAS5#CAS5#", false, ep2);
+		EntitetPlacanja tanjac1 = new EntitetPlacanja(null, "Casopis1", "casopis001", false, tanja);
+		EntitetPlacanja tanjac2 = new EntitetPlacanja(null, "Casopis2", "casopis002", false, tanja);
+
 		
 		ep1 = entitetPlacanjaRepository.save(ep1);
 		ep2 = entitetPlacanjaRepository.save(ep2);
+		tanja = entitetPlacanjaRepository.save(tanja);
 		ep3 = entitetPlacanjaRepository.save(ep3);
 		ep4 = entitetPlacanjaRepository.save(ep4);
 		ep5 = entitetPlacanjaRepository.save(ep5);
 		ep6 = entitetPlacanjaRepository.save(ep6);
 		ep7 = entitetPlacanjaRepository.save(ep7);
+		tanjac1 = entitetPlacanjaRepository.save(tanjac1);
+		tanjac2 = entitetPlacanjaRepository.save(tanjac2);
 		
 		/* Kreditne Kartice */
 		PoljePodrzanoPlacanje ppb1 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_ID, "1");
@@ -83,6 +90,11 @@ public class StartData {
 		PoljePodrzanoPlacanje ppb11 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_PASSWORD, "pass1");
 		PoljePodrzanoPlacanje ppb21 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_PASSWORD, "pass2");
 		PoljePodrzanoPlacanje ppb31 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_PASSWORD, "pass3");
+
+		PoljePodrzanoPlacanje tanjapp1 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_ID, "2");
+		PoljePodrzanoPlacanje tanjapp2 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_PASSWORD, "pass2");
+		PoljePodrzanoPlacanje tanjapp11 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_ID, "2");
+		PoljePodrzanoPlacanje tanjapp22 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_PASSWORD, "pass2");
 		
 		ppb1 = poljePodrzanoPlacanjeRepository.save(ppb1);
 		ppb2 = poljePodrzanoPlacanjeRepository.save(ppb2);
@@ -90,6 +102,11 @@ public class StartData {
 		ppb11 = poljePodrzanoPlacanjeRepository.save(ppb11);
 		ppb21 = poljePodrzanoPlacanjeRepository.save(ppb21);
 		ppb31 = poljePodrzanoPlacanjeRepository.save(ppb31);
+
+		tanjapp1 = poljePodrzanoPlacanjeRepository.save(tanjapp1);
+		tanjapp2 = poljePodrzanoPlacanjeRepository.save(tanjapp2);
+		tanjapp11 = poljePodrzanoPlacanjeRepository.save(tanjapp11);
+		tanjapp22 = poljePodrzanoPlacanjeRepository.save(tanjapp22);
 		
 		List<PoljePodrzanoPlacanje> banka1PP = new ArrayList<>();
 		banka1PP.add(ppb1);
@@ -102,16 +119,28 @@ public class StartData {
 		List<PoljePodrzanoPlacanje> banka3PP = new ArrayList<>();
 		banka3PP.add(ppb3);
 		banka3PP.add(ppb31);
+
+		List<PoljePodrzanoPlacanje> tanjaPoljaBanka = new ArrayList<>();
+		tanjaPoljaBanka.add(tanjapp1);
+		tanjaPoljaBanka.add(tanjapp2);
+
+		List<PoljePodrzanoPlacanje> tanjaPoljaBanka2 = new ArrayList<>();
+		tanjaPoljaBanka2.add(tanjapp11);
+		tanjaPoljaBanka2.add(tanjapp22);
 		
 		
 		PodrzanoPlacanje pp1 = new PodrzanoPlacanje(null, false, banka1PP, ep1, tp1);
 		PodrzanoPlacanje pp2 = new PodrzanoPlacanje(null, false, banka2PP, ep2, tp1);
 		PodrzanoPlacanje pp3 = new PodrzanoPlacanje(null, false, banka3PP, ep3, tp1);
+		PodrzanoPlacanje tanjaPodrzano = new PodrzanoPlacanje(null, false, tanjaPoljaBanka, tanjac1, tp1);
+		PodrzanoPlacanje tanjaPodrzano2 = new PodrzanoPlacanje(null, false, tanjaPoljaBanka2, tanjac2, tp1);
 		
 		pp1 = podrzanoPlacanjeRepository.save(pp1);
 		pp2 = podrzanoPlacanjeRepository.save(pp2);
 		pp3 = podrzanoPlacanjeRepository.save(pp3);
-		
+		tanjaPodrzano = podrzanoPlacanjeRepository.save(tanjaPodrzano);
+		tanjaPodrzano2 = podrzanoPlacanjeRepository.save(tanjaPodrzano2);
+
 		
 		/* PayPal */
 		PoljePodrzanoPlacanje pppp1 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_ID, "AS5IMk8HPdQhY6_LF4MismGdr9j73ERw2K9fYVhtH1O5cTQPqX5ec5vaEm5MlSl8GosBEczyC8UcJo1-");

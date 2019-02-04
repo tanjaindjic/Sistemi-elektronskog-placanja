@@ -515,7 +515,6 @@ public class AcquirerServiceImpl implements AcquirerService {
         klijentRepository.save(prodavac);
 
         t.setStatus(Status.U);
-        t.setPanPrimaoca(kupac.getKartice().get(0).getPan());
         transakcijaRepository.save(t);
 
         System.out.println("Uspesno prebacivanje novca.");

@@ -18,6 +18,14 @@ public class EntitetPlacanjaDTO {
 		this.nadredjeni = nadredjeni;
 	}
 
+	@Override
+	public String toString() {
+		return "EntitetPlacanjaDTO{" +
+				"identifikacioniKod='" + identifikacioniKod + '\'' +
+				", nadredjeni=" + nadredjeni +
+				'}';
+	}
+
 	public String getIdentifikacioniKod() {
 		return identifikacioniKod;
 	}

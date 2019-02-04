@@ -40,6 +40,7 @@ public class AcquirerController {
 
     @RequestMapping(value = "/initiatePayment", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Map> initiatePayment(@Valid @RequestBody KPRequestDTO request){
+        System.out.println("Usao u initiate payment");
         System.out.println(request.toString());
 
         Map retVal = new HashMap<String, String>();
