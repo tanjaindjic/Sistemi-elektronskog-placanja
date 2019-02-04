@@ -63,8 +63,7 @@ public class PayPalPayment implements PaymentStrategy  {
 	private TipPlacanjaRepository tipPlacanjaRepository;
 	@Autowired
 	private TransakcijaRepository transakcijaRepository;
-	@Autowired
-	private RSAEncryptDecrypt rsa;
+
 	
 	
 	public PayPalPayment() {
@@ -114,8 +113,8 @@ public class PayPalPayment implements PaymentStrategy  {
 			}
 		}
 		try {
-			merchant_id = rsa.decrypt(merchant_id);
-			merchant_secret = rsa.decrypt(merchant_secret);
+			merchant_id = RSAEncryptDecrypt.decrypt(merchant_id);
+			merchant_secret = RSAEncryptDecrypt.decrypt(merchant_secret);
 		} catch (Exception e1) {
 			// TODO Auto-generated catch block
 			System.out.println("greska prilikom dekriptovanja - NEMOGUC PRISTUP BITNIM KREDENCIJALIMA");
@@ -177,8 +176,8 @@ public class PayPalPayment implements PaymentStrategy  {
 			}
 		}
 		try {
-			merchant_id = rsa.decrypt(merchant_id);
-			merchant_secret = rsa.decrypt(merchant_secret);
+			merchant_id = RSAEncryptDecrypt.decrypt(merchant_id);
+			merchant_secret = RSAEncryptDecrypt.decrypt(merchant_secret);
 		} catch (Exception e1) {
 			// TODO Auto-generated catch block
 			System.out.println("greska prilikom dekriptovanja - NEMOGUC PRISTUP BITNIM KREDENCIJALIMA");
@@ -237,8 +236,8 @@ public class PayPalPayment implements PaymentStrategy  {
 			}	
 		}
 		try {
-			merchant_id = rsa.decrypt(merchant_id);
-			merchant_secret = rsa.decrypt(merchant_secret);
+			merchant_id = RSAEncryptDecrypt.decrypt(merchant_id);
+			merchant_secret = RSAEncryptDecrypt.decrypt(merchant_secret);
 		} catch (Exception e1) {
 			// TODO Auto-generated catch block
 			System.out.println("greska prilikom dekriptovanja - NEMOGUC PRISTUP BITNIM KREDENCIJALIMA");

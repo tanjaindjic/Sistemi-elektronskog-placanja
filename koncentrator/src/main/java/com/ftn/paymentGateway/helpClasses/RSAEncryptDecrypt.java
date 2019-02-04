@@ -11,33 +11,36 @@ import java.util.Base64;
 
 import javax.crypto.Cipher;
 
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import com.ftn.paymentGateway.PaymentGatewayApplication;
 
-@Service
+
 public class RSAEncryptDecrypt {
 	
-   public String decrypt(String cipherText) throws Exception {
+   public static String decrypt(String cipherText) throws Exception {
+	 //  System.out.println("radim dekriptovanje od "+cipherText);
 		KeyPair pair = getKeyPairFromKeyStore();
 		PrivateKey privateKey = pair.getPrivate();
         byte[] bytes = Base64.getDecoder().decode(cipherText);
 
         Cipher decriptCipher = Cipher.getInstance("RSA");
         decriptCipher.init(Cipher.DECRYPT_MODE, privateKey);
+	  // System.out.println("...................."+new String(decriptCipher.doFinal(bytes), UTF_8));
 
         return new String(decriptCipher.doFinal(bytes), UTF_8);
     }
 	
-	public String encrypt(String plainText) throws Exception {
-	//	System.out.println("radim kriptovanje od "+plainText);
+	public static String encrypt(String plainText) throws Exception {
+		//System.out.println("radim kriptovanje od "+plainText);
 		KeyPair pair = getKeyPairFromKeyStore();
 		PublicKey publicKey = pair.getPublic();
         Cipher encryptCipher = Cipher.getInstance("RSA");
         encryptCipher.init(Cipher.ENCRYPT_MODE, publicKey);
 
         byte[] cipherText = encryptCipher.doFinal(plainText.getBytes(UTF_8));
-    //    System.out.println("...................."+Base64.getEncoder().encodeToString(cipherText));
+      //  System.out.println("...................."+Base64.getEncoder().encodeToString(cipherText));
         return Base64.getEncoder().encodeToString(cipherText);
     }
 	private static KeyPair getKeyPairFromKeyStore() throws Exception {

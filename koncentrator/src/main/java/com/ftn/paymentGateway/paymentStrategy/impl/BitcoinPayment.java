@@ -56,8 +56,6 @@ public class BitcoinPayment implements PaymentStrategy{
 	@Autowired
 	private PodrzanoPlacanjeRepository podrzanoPlacanjeRepository;
 
-	@Autowired
-	private RSAEncryptDecrypt rsa;
 	
 	@Override
 	public TransakcijaIshodDTO doPayment(Transakcija transakcija, PodrzanoPlacanje podrzanoPlacanje) throws PaymentErrorException{
@@ -169,7 +167,7 @@ public class BitcoinPayment implements PaymentStrategy{
 		for(PoljePodrzanoPlacanje polje : polja) {
 			if(polje.getIdPolja().equals(IdPoljePlacanja.MERCHANT_ID)) {
 				try {
-					retVal = rsa.decrypt(polje.getVrednost());
+					retVal = RSAEncryptDecrypt.decrypt(polje.getVrednost());
 				} catch (Exception e1) {
 					// TODO Auto-generated catch block
 					System.out.println("greska prilikom dekriptovanja - NEMOGUC PRISTUP BITNIM KREDENCIJALIMA");

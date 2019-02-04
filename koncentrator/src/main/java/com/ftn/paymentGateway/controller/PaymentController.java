@@ -10,6 +10,8 @@ import javax.net.ssl.HttpsURLConnection;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
+import com.ftn.paymentGateway.enumerations.IdPoljePlacanja;
+import com.ftn.paymentGateway.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -35,10 +37,6 @@ import com.ftn.paymentGateway.exceptions.InvalidPaymentTypeException;
 import com.ftn.paymentGateway.exceptions.PaymentErrorException;
 import com.ftn.paymentGateway.exceptions.TransactionUpdateExeption;
 import com.ftn.paymentGateway.exceptions.UnsupportedMethodException;
-import com.ftn.paymentGateway.model.EntitetPlacanja;
-import com.ftn.paymentGateway.model.PodrzanoPlacanje;
-import com.ftn.paymentGateway.model.TipPlacanja;
-import com.ftn.paymentGateway.model.Transakcija;
 import com.ftn.paymentGateway.paymentStrategy.PaymentFactory;
 import com.ftn.paymentGateway.paymentStrategy.impl.PayPalPayment;
 import com.ftn.paymentGateway.service.EntitetPlacanjaService;
@@ -74,7 +72,7 @@ public class PaymentController {
 	
 	@RequestMapping(value = "sendPaymentRequest", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<PaymentResponseDTO> recivePayment(@Valid @RequestBody PaymentRequestDTO paymentRequest, BindingResult bindingResult) throws URISyntaxException, UnsupportedEncodingException {
-		
+		System.out.println(paymentRequest.toString());
 		if(bindingResult.hasErrors()) {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
@@ -119,14 +117,17 @@ public class PaymentController {
 		}
 		
 		ArrayList<PodrzanoPlacanje> podrzanaPlacanja = podrzanoPlacanjeService.getByEntitetPlacanjaAndTipPlacanja(transakcija.getEntitetPlacanja(), tipPlacanja);
-		
+
+
 		if(podrzanaPlacanja.isEmpty()) {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
 		transakcija.setTipPlacanja(tipPlacanja);
 		transakcijaService.save(transakcija);
 		PodrzanoPlacanje podrzanoPlacanje = podrzanaPlacanja.get(0);
-		
+		String merchant_id = "";
+		String merchant_secret = "";
+
 		TransakcijaIshodDTO retVal = null;
 		try {
 			retVal = paymentFactory.getPaymentStrategy(tipPlacanja).doPayment(transakcija, podrzanoPlacanje);

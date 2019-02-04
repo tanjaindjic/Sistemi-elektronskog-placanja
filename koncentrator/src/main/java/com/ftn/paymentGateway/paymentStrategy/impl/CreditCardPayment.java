@@ -5,6 +5,7 @@ import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.annotation.PostConstruct;
 import javax.net.ssl.HttpsURLConnection;
 import javax.servlet.http.HttpServletRequest;
 
@@ -33,19 +34,20 @@ import com.ftn.paymentGateway.utils.URLUtils;
 @Service
 public class CreditCardPayment implements PaymentStrategy{
 
-	@Autowired
-	private RSAEncryptDecrypt rsa;
-	
 	private String errorURL = "rest/success";
-	
+
 	private String bankRequestUrl1 = "https://localhost:8081/";
-	
+
 	private String bankRequestUrl2 = "https://localhost:8082/";
+
+
+	
+
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public TransakcijaIshodDTO doPayment(Transakcija transakcija, PodrzanoPlacanje podrzanoPlacanje) throws PaymentErrorException{
-		
+
 		if(transakcija == null || podrzanoPlacanje == null) {
 			return new TransakcijaIshodDTO(false, false, TransakcijaStatus.N, null, null);
 		}
@@ -61,10 +63,13 @@ public class CreditCardPayment implements PaymentStrategy{
 				merchant_secret = polje.getVrednost();
 			}
 		}
-
+		System.out.println("ENCRYPT MERCHANT ID........................"+merchant_id);
+		System.out.println("ENCRYPT MERCHANT SECRET...................."+merchant_secret);
 		try {
-			merchant_id = rsa.decrypt(merchant_id);
-			merchant_secret = rsa.decrypt(merchant_secret);
+			merchant_id = RSAEncryptDecrypt.decrypt(merchant_id);
+			System.out.println("DECRYPTED MERCHANT ID........................"+merchant_id);
+			merchant_secret = RSAEncryptDecrypt.decrypt(merchant_secret);
+			System.out.println("DECRYPTED MERCHANT SECRET...................."+merchant_secret);
 		} catch (Exception e1) {
 			// TODO Auto-generated catch block
 			System.out.println("greska prilikom dekriptovanja - NEMOGUC PRISTUP BITNIM KREDENCIJALIMA");

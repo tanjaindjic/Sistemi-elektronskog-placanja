@@ -19,8 +19,6 @@ public class PodrzanoPlacanjeServiceImpl implements PodrzanoPlacanjeService{
 	@Autowired 
 	private PodrzanoPlacanjeRepository podrzanoPlacanjeRepository;
 
-	@Autowired 
-	private RSAEncryptDecrypt rsa;
 	
 	@Override
 	public PodrzanoPlacanje insert(PodrzanoPlacanje podrzanoPlacanje) {

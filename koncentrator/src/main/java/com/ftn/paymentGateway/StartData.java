@@ -43,14 +43,12 @@ public class StartData {
 	private RandomStringGenerator randomStringGenerator;
 	@Autowired 
 	private PoljePodrzanoPlacanjeRepository poljePodrzanoPlacanjeRepository;
-	@Autowired
-	private RSAEncryptDecrypt rsa;
 
 	
 	public StartData() {}
 	
 	@PostConstruct
-	private void init() {
+	private void init() throws Exception {
 		TipPlacanja tp1 = new TipPlacanja(null, "CCP", "Kreditna Kartica", "CreditCardPayment", "../../paymentGateway/assets/images/cc.png");
 		TipPlacanja tp2 = new TipPlacanja(null, "PPP", "Pay Pal", "PayPalPayment", "../../paymentGateway/assets/images/pp.png");
 		TipPlacanja tp3 = new TipPlacanja(null, "BCP", "Bitcoin", "BitcoinPayment", "../../paymentGateway/assets/images/bc.png");
@@ -93,30 +91,30 @@ public class StartData {
 		PoljePodrzanoPlacanje ppb11 = null;
 		PoljePodrzanoPlacanje ppb21 = null;
 		PoljePodrzanoPlacanje ppb31 = null;
+
+        PoljePodrzanoPlacanje tanjapp1 = null;
+        PoljePodrzanoPlacanje tanjapp2 = null;
+        PoljePodrzanoPlacanje tanjapp11 = null;
+        PoljePodrzanoPlacanje tanjapp22 = null;
+
 		try {
-			ppb1 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_ID, rsa.encrypt("1"));
-			ppb2 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_ID, rsa.encrypt("2"));
-			ppb3 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_ID, rsa.encrypt("3"));
-			ppb11 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_PASSWORD, rsa.encrypt("pass1"));
-			ppb21 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_PASSWORD, rsa.encrypt("pass2"));
-			ppb31 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_PASSWORD, rsa.encrypt("pass3"));
+			ppb1 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_ID, RSAEncryptDecrypt.encrypt("1"));
+			ppb2 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_ID, RSAEncryptDecrypt.encrypt("2"));
+			ppb3 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_ID, RSAEncryptDecrypt.encrypt("3"));
+			ppb11 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_PASSWORD, RSAEncryptDecrypt.encrypt("pass1"));
+			ppb21 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_PASSWORD, RSAEncryptDecrypt.encrypt("pass2"));
+			ppb31 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_PASSWORD, RSAEncryptDecrypt.encrypt("pass3"));
 
-
+			tanjapp1 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_ID, RSAEncryptDecrypt.encrypt("2"));
+			tanjapp2 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_PASSWORD, RSAEncryptDecrypt.encrypt("pass2"));
+			tanjapp11 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_ID, RSAEncryptDecrypt.encrypt("2"));
+			tanjapp22 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_PASSWORD, RSAEncryptDecrypt.encrypt("pass2"));
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		PoljePodrzanoPlacanje ppb1 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_ID, "1");
-		PoljePodrzanoPlacanje ppb2 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_ID, "2");
-		PoljePodrzanoPlacanje ppb3 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_ID, "3");
-		PoljePodrzanoPlacanje ppb11 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_PASSWORD, "pass1");
-		PoljePodrzanoPlacanje ppb21 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_PASSWORD, "pass2");
-		PoljePodrzanoPlacanje ppb31 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_PASSWORD, "pass3");
 
-		PoljePodrzanoPlacanje tanjapp1 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_ID, "2");
-		PoljePodrzanoPlacanje tanjapp2 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_PASSWORD, "pass2");
-		PoljePodrzanoPlacanje tanjapp11 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_ID, "2");
-		PoljePodrzanoPlacanje tanjapp22 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_PASSWORD, "pass2");
+
 
 		ppb1 = poljePodrzanoPlacanjeRepository.save(ppb1);
 		ppb2 = poljePodrzanoPlacanjeRepository.save(ppb2);
@@ -170,10 +168,10 @@ public class StartData {
 		PoljePodrzanoPlacanje pppp21 = null;
 		PoljePodrzanoPlacanje pppp11 = null;
 		try {
-			pppp1 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_ID, rsa.encrypt("AS5IMk8HPdQhY6_LF4MismGdr9j73ERw2K9fYVhtH1O5cTQPqX5ec5vaEm5MlSl8GosBEczyC8UcJo1-"));
-			pppp2 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_ID, rsa.encrypt("AS5IMk8HPdQhY6_LF4MismGdr9j73ERw2K9fYVhtH1O5cTQPqX5ec5vaEm5MlSl8GosBEczyC8UcJo1-"));
-			pppp11 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_PASSWORD, rsa.encrypt("EHijiYCc4J0QRBlB475fXO23eUBSatQONjw-OaGrTjPgEv2J-uKEBkLFsQuSeFFjX9KwMIxkjXbS_yjw"));
-			pppp21 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_PASSWORD, rsa.encrypt("EHijiYCc4J0QRBlB475fXO23eUBSatQONjw-OaGrTjPgEv2J-uKEBkLFsQuSeFFjX9KwMIxkjXbS_yjw"));
+			pppp1 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_ID, RSAEncryptDecrypt.encrypt("AS5IMk8HPdQhY6_LF4MismGdr9j73ERw2K9fYVhtH1O5cTQPqX5ec5vaEm5MlSl8GosBEczyC8UcJo1-"));
+			pppp2 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_ID, RSAEncryptDecrypt.encrypt("AS5IMk8HPdQhY6_LF4MismGdr9j73ERw2K9fYVhtH1O5cTQPqX5ec5vaEm5MlSl8GosBEczyC8UcJo1-"));
+			pppp11 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_PASSWORD, RSAEncryptDecrypt.encrypt("EHijiYCc4J0QRBlB475fXO23eUBSatQONjw-OaGrTjPgEv2J-uKEBkLFsQuSeFFjX9KwMIxkjXbS_yjw"));
+			pppp21 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_PASSWORD, RSAEncryptDecrypt.encrypt("EHijiYCc4J0QRBlB475fXO23eUBSatQONjw-OaGrTjPgEv2J-uKEBkLFsQuSeFFjX9KwMIxkjXbS_yjw"));
 			} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -203,8 +201,8 @@ public class StartData {
 		PoljePodrzanoPlacanje ppbc1 = null;
 		PoljePodrzanoPlacanje ppbc2 = null;
 		try {
-			ppbc1 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_ID, rsa.encrypt("vXSzu6yK-XC9Gf1B2_TaS3Pfdp4bkefDsyxD7yXi"));
-			ppbc2 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_ID, rsa.encrypt("vXSzu6yK-XC9Gf1B2_TaS3Pfdp4bkefDsyxD7yXi"));
+			ppbc1 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_ID, RSAEncryptDecrypt.encrypt("vXSzu6yK-XC9Gf1B2_TaS3Pfdp4bkefDsyxD7yXi"));
+			ppbc2 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_ID, RSAEncryptDecrypt.encrypt("vXSzu6yK-XC9Gf1B2_TaS3Pfdp4bkefDsyxD7yXi"));
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -249,9 +247,18 @@ public class StartData {
 		transakcijaRepository.save(tr6);
 		transakcijaRepository.save(tr7);
 		transakcijaRepository.save(tr8);
-		
 
-
+	/*System.out.println("*************************************************");
+		System.out.println("encrypted: "+tanjapp1.getVrednost());
+		System.out.println("decrypted: "+RSAEncryptDecrypt.decrypt(tanjapp1.getVrednost()));
+		System.out.println("RESULT: "+tanjapp1.getVrednost().equals(RSAEncryptDecrypt.decrypt(tanjapp1.getVrednost())));
+		System.out.println("*************************************************");
+		System.out.println("*************************************************");
+		System.out.println("encrypted: "+tanjapp2.getVrednost());
+		System.out.println("decrypted: "+RSAEncryptDecrypt.decrypt(tanjapp2.getVrednost()));
+		System.out.println("RESULT: "+tanjapp1.getVrednost().equals(RSAEncryptDecrypt.decrypt(tanjapp2.getVrednost())));
+		System.out.println("*************************************************");
+*/
 	}
 
 }
