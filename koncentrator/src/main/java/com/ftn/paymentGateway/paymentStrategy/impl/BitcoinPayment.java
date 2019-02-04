@@ -33,6 +33,7 @@ import com.ftn.paymentGateway.enumerations.TransakcijaStatus;
 import com.ftn.paymentGateway.exceptions.PaymentErrorException;
 import com.ftn.paymentGateway.exceptions.TransactionUpdateExeption;
 import com.ftn.paymentGateway.exceptions.UnsupportedMethodException;
+import com.ftn.paymentGateway.helpClasses.RSAEncryptDecrypt;
 import com.ftn.paymentGateway.model.PodrzanoPlacanje;
 import com.ftn.paymentGateway.model.PoljePodrzanoPlacanje;
 import com.ftn.paymentGateway.model.TipPlacanja;
@@ -54,6 +55,9 @@ public class BitcoinPayment implements PaymentStrategy{
 	
 	@Autowired
 	private PodrzanoPlacanjeRepository podrzanoPlacanjeRepository;
+
+	@Autowired
+	private RSAEncryptDecrypt rsa;
 	
 	@Override
 	public TransakcijaIshodDTO doPayment(Transakcija transakcija, PodrzanoPlacanje podrzanoPlacanje) throws PaymentErrorException{
@@ -164,7 +168,14 @@ public class BitcoinPayment implements PaymentStrategy{
 		
 		for(PoljePodrzanoPlacanje polje : polja) {
 			if(polje.getIdPolja().equals(IdPoljePlacanja.MERCHANT_ID)) {
-				retVal = polje.getVrednost();
+				try {
+					retVal = rsa.decrypt(polje.getVrednost());
+				} catch (Exception e1) {
+					// TODO Auto-generated catch block
+					System.out.println("greska prilikom dekriptovanja - NEMOGUC PRISTUP BITNIM KREDENCIJALIMA");
+					e1.printStackTrace();
+					return null;
+				}
 				break;
 			}	
 		}

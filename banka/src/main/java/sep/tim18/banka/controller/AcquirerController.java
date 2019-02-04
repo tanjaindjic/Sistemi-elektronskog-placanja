@@ -6,6 +6,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import sep.tim18.banka.exceptions.FundsException;
@@ -61,7 +62,7 @@ public class AcquirerController {
     }
 
     @RequestMapping(value = "/getTransactions", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List> getTransactions() throws IOException {
+    public ResponseEntity<List<?>> getTransactions() throws IOException {
         List<FinishedPaymentDTO> transakcije = new ArrayList<>();
         for(Transakcija t : acquirerService.getAllTransakcije())
             if(t.getStatus().equals(Status.K_KP) || t.getStatus().equals(Status.C) || t.getStatus().equals(Status.C_PCC) || t.getStatus().equals(Status.U_KP) || t.getStatus().equals(Status.N_KP) || t.getStatus().equals(Status.E_KP))
@@ -171,7 +172,22 @@ public class AcquirerController {
             System.out.println(e.getMessage());;
         }
     }
-
-
+    
+    @RequestMapping(value = "/getNginx", method = RequestMethod.GET)
+    public ResponseEntity<String> testNginx(){
+    	
+    	RestTemplate restTemplate = new RestTemplate();
+		ResponseEntity<String> bitcoinResponse = null;
+		
+		HttpsURLConnection.setDefaultHostnameVerifier((hostname, session)->true);
+		
+		try {
+			bitcoinResponse = restTemplate.getForEntity("https://localhost:8098/paymentGateway/rest/nginxTest", String.class);
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+		
+		return bitcoinResponse;
+    }
 
 }
