@@ -13,4 +13,6 @@ public class PaymentGatewayApplication {
 	//	System.setProperty("javax.net.ssl.trustStore", "C:\\Program Files\\Java\\jdk1.8.0_191\\jre\\lib\\security\\cacerts");
 		SpringApplication.run(PaymentGatewayApplication.class, args);
 	}
+	
+	
 }

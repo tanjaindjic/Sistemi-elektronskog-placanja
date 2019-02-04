@@ -8,29 +8,33 @@ import java.util.Map;
 import javax.net.ssl.HttpsURLConnection;
 import javax.servlet.http.HttpServletRequest;
 
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.ftn.paymentGateway.dto.BankRequestDTO;
-import com.ftn.paymentGateway.dto.BankResponseDTO;
 import com.ftn.paymentGateway.dto.TransakcijaIshodDTO;
 import com.ftn.paymentGateway.enumerations.IdPoljePlacanja;
 import com.ftn.paymentGateway.enumerations.TransakcijaStatus;
 import com.ftn.paymentGateway.exceptions.PaymentErrorException;
 import com.ftn.paymentGateway.exceptions.UnsupportedMethodException;
+import com.ftn.paymentGateway.helpClasses.RSAEncryptDecrypt;
 import com.ftn.paymentGateway.model.PodrzanoPlacanje;
 import com.ftn.paymentGateway.model.PoljePodrzanoPlacanje;
 import com.ftn.paymentGateway.model.Transakcija;
 import com.ftn.paymentGateway.paymentStrategy.PaymentStrategy;
 import com.ftn.paymentGateway.utils.URLUtils;
 
+@Service
 public class CreditCardPayment implements PaymentStrategy{
-	
+
+	@Autowired
+	private RSAEncryptDecrypt rsa;
 	
 	private String errorURL = "rest/success";
 	
@@ -56,6 +60,16 @@ public class CreditCardPayment implements PaymentStrategy{
 			else if(polje.getIdPolja().equals(IdPoljePlacanja.MERCHANT_PASSWORD)){
 				merchant_secret = polje.getVrednost();
 			}
+		}
+
+		try {
+			merchant_id = rsa.decrypt(merchant_id);
+			merchant_secret = rsa.decrypt(merchant_secret);
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			System.out.println("greska prilikom dekriptovanja - NEMOGUC PRISTUP BITNIM KREDENCIJALIMA");
+			e1.printStackTrace();
+			return null;
 		}
 		HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
 		String urlBase = URLUtils.getBaseURl(request) + "/";

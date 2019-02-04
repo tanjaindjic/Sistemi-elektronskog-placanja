@@ -7,7 +7,6 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -24,6 +23,7 @@ import com.ftn.paymentGateway.dto.TransakcijaIshodDTO;
 import com.ftn.paymentGateway.enumerations.IdPoljePlacanja;
 import com.ftn.paymentGateway.enumerations.TransakcijaStatus;
 import com.ftn.paymentGateway.exceptions.PaymentErrorException;
+import com.ftn.paymentGateway.helpClasses.RSAEncryptDecrypt;
 import com.ftn.paymentGateway.model.PodrzanoPlacanje;
 import com.ftn.paymentGateway.model.PoljePodrzanoPlacanje;
 import com.ftn.paymentGateway.model.TipPlacanja;
@@ -63,7 +63,8 @@ public class PayPalPayment implements PaymentStrategy  {
 	private TipPlacanjaRepository tipPlacanjaRepository;
 	@Autowired
 	private TransakcijaRepository transakcijaRepository;
-	
+	@Autowired
+	private RSAEncryptDecrypt rsa;
 	
 	
 	public PayPalPayment() {
@@ -112,6 +113,15 @@ public class PayPalPayment implements PaymentStrategy  {
 				merchant_secret = polje.getVrednost();
 			}
 		}
+		try {
+			merchant_id = rsa.decrypt(merchant_id);
+			merchant_secret = rsa.decrypt(merchant_secret);
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			System.out.println("greska prilikom dekriptovanja - NEMOGUC PRISTUP BITNIM KREDENCIJALIMA");
+			e1.printStackTrace();
+			return null;
+		}
 	    try {
 	        String redirectUrl = "";
 	        
@@ -147,7 +157,7 @@ public class PayPalPayment implements PaymentStrategy  {
 	}
 
 
-	public Boolean completePayment(HttpServletRequest request, PodrzanoPlacanje podrzanoPlacanje) {
+	public Boolean completePayment(HttpServletRequest request, PodrzanoPlacanje podrzanoPlacanje){
 		String response = "";
 	    Payment payment = new Payment();
 	    payment.setId(request.getParameter("paymentId"));
@@ -166,6 +176,16 @@ public class PayPalPayment implements PaymentStrategy  {
 				merchant_secret = polje.getVrednost();
 			}
 		}
+		try {
+			merchant_id = rsa.decrypt(merchant_id);
+			merchant_secret = rsa.decrypt(merchant_secret);
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			System.out.println("greska prilikom dekriptovanja - NEMOGUC PRISTUP BITNIM KREDENCIJALIMA");
+			e1.printStackTrace();
+			return null;
+		}
+		
 	    try {
 	    	Map<String, String> sdkConfig = new HashMap<String, String>();
 	        sdkConfig.put("mode", "sandbox");
@@ -185,7 +205,7 @@ public class PayPalPayment implements PaymentStrategy  {
 
 
 	@Override
-	@Scheduled(initialDelay = 5000, fixedRate = 30000)
+	@Scheduled(initialDelay = 5000, fixedRate = 300000)
 	public void syncDB() {
 		List<Transakcija> ppTransakcije = null;
 		TipPlacanja payPalTip = tipPlacanjaRepository.findByKod("PPP");
@@ -216,7 +236,15 @@ public class PayPalPayment implements PaymentStrategy  {
 				break;
 			}	
 		}
-		
+		try {
+			merchant_id = rsa.decrypt(merchant_id);
+			merchant_secret = rsa.decrypt(merchant_secret);
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			System.out.println("greska prilikom dekriptovanja - NEMOGUC PRISTUP BITNIM KREDENCIJALIMA");
+			e1.printStackTrace();
+			return;
+		}
 		//////////
 		Map<String, String> sdkConfig = new HashMap<String, String>();
         sdkConfig.put("mode", "sandbox");
@@ -244,7 +272,7 @@ public class PayPalPayment implements PaymentStrategy  {
 			if(status==null)
 				continue;
 					System.out.println(statusi.get(ppt0.getIzvrsnaTransakcija()));
-					System.out.println(".........................................");
+					System.out.println("PAYPAL.................ISPRAVIO STATUS TRANSAKCIJE KOJI SE NE POKLAPA SA ONIM U BAZI");
 			//opcije za status su failed, created i approved
 			if(status.equals("approved")){
 				ppt0.setStatus(TransakcijaStatus.U);
@@ -298,9 +326,9 @@ public class PayPalPayment implements PaymentStrategy  {
 	private void dodajUListu(HashMap<String, String> retVal, ArrayList<Payment> payments) {
 		for(Payment p : payments){
 			retVal.put(p.getId(), p.getState());
-			System.out.println("---------------------------------------");
+		/*	System.out.println("---------------------------------------");
 			System.out.println(p.toString());
-			System.out.println("---------------------------------------");
+			System.out.println("---------------------------------------");*/
 		}
 	}
 	

@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 
 import com.ftn.paymentGateway.enumerations.IdPoljePlacanja;
 import com.ftn.paymentGateway.enumerations.TransakcijaStatus;
+import com.ftn.paymentGateway.helpClasses.RSAEncryptDecrypt;
 import com.ftn.paymentGateway.helpClasses.RandomStringGenerator;
 import com.ftn.paymentGateway.model.EntitetPlacanja;
 import com.ftn.paymentGateway.model.PodrzanoPlacanje;
@@ -42,6 +43,8 @@ public class StartData {
 	private RandomStringGenerator randomStringGenerator;
 	@Autowired 
 	private PoljePodrzanoPlacanjeRepository poljePodrzanoPlacanjeRepository;
+	@Autowired 
+	private RSAEncryptDecrypt rsa;
 	
 	
 	public StartData() {}
@@ -77,12 +80,25 @@ public class StartData {
 		ep7 = entitetPlacanjaRepository.save(ep7);
 		
 		/* Kreditne Kartice */
-		PoljePodrzanoPlacanje ppb1 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_ID, "1");
-		PoljePodrzanoPlacanje ppb2 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_ID, "2");
-		PoljePodrzanoPlacanje ppb3 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_ID, "3");
-		PoljePodrzanoPlacanje ppb11 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_PASSWORD, "pass1");
-		PoljePodrzanoPlacanje ppb21 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_PASSWORD, "pass2");
-		PoljePodrzanoPlacanje ppb31 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_PASSWORD, "pass3");
+		PoljePodrzanoPlacanje ppb1 = null;
+		PoljePodrzanoPlacanje ppb2 = null;
+		PoljePodrzanoPlacanje ppb3 = null;
+		PoljePodrzanoPlacanje ppb11 = null;
+		PoljePodrzanoPlacanje ppb21 = null;
+		PoljePodrzanoPlacanje ppb31 = null;
+		try {
+			ppb1 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_ID, rsa.encrypt("1"));
+			ppb2 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_ID, rsa.encrypt("2"));
+			ppb3 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_ID, rsa.encrypt("3"));
+			ppb11 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_PASSWORD, rsa.encrypt("pass1"));
+			ppb21 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_PASSWORD, rsa.encrypt("pass2"));
+			ppb31 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_PASSWORD, rsa.encrypt("pass3"));
+			
+			
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 		ppb1 = poljePodrzanoPlacanjeRepository.save(ppb1);
 		ppb2 = poljePodrzanoPlacanjeRepository.save(ppb2);
@@ -114,11 +130,19 @@ public class StartData {
 		
 		
 		/* PayPal */
-		PoljePodrzanoPlacanje pppp1 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_ID, "AS5IMk8HPdQhY6_LF4MismGdr9j73ERw2K9fYVhtH1O5cTQPqX5ec5vaEm5MlSl8GosBEczyC8UcJo1-");
-		PoljePodrzanoPlacanje pppp2 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_ID, "AS5IMk8HPdQhY6_LF4MismGdr9j73ERw2K9fYVhtH1O5cTQPqX5ec5vaEm5MlSl8GosBEczyC8UcJo1-");
-		PoljePodrzanoPlacanje pppp11 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_PASSWORD, "EHijiYCc4J0QRBlB475fXO23eUBSatQONjw-OaGrTjPgEv2J-uKEBkLFsQuSeFFjX9KwMIxkjXbS_yjw");
-		PoljePodrzanoPlacanje pppp21 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_PASSWORD, "EHijiYCc4J0QRBlB475fXO23eUBSatQONjw-OaGrTjPgEv2J-uKEBkLFsQuSeFFjX9KwMIxkjXbS_yjw");
-		
+		PoljePodrzanoPlacanje pppp1 = null;
+		PoljePodrzanoPlacanje pppp2 = null;
+		PoljePodrzanoPlacanje pppp21 = null;
+		PoljePodrzanoPlacanje pppp11 = null;
+		try {
+			pppp1 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_ID, rsa.encrypt("AS5IMk8HPdQhY6_LF4MismGdr9j73ERw2K9fYVhtH1O5cTQPqX5ec5vaEm5MlSl8GosBEczyC8UcJo1-"));
+			pppp2 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_ID, rsa.encrypt("AS5IMk8HPdQhY6_LF4MismGdr9j73ERw2K9fYVhtH1O5cTQPqX5ec5vaEm5MlSl8GosBEczyC8UcJo1-"));
+			pppp11 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_PASSWORD, rsa.encrypt("EHijiYCc4J0QRBlB475fXO23eUBSatQONjw-OaGrTjPgEv2J-uKEBkLFsQuSeFFjX9KwMIxkjXbS_yjw"));
+			pppp21 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_PASSWORD, rsa.encrypt("EHijiYCc4J0QRBlB475fXO23eUBSatQONjw-OaGrTjPgEv2J-uKEBkLFsQuSeFFjX9KwMIxkjXbS_yjw"));
+			} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 		pppp1 = poljePodrzanoPlacanjeRepository.save(pppp1);
 		pppp11 = poljePodrzanoPlacanjeRepository.save(pppp11);
@@ -141,9 +165,15 @@ public class StartData {
 		pp5 = podrzanoPlacanjeRepository.save(pp5);
 		
 		/* Bitcoin */
-		PoljePodrzanoPlacanje ppbc1 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_ID, "vXSzu6yK-XC9Gf1B2_TaS3Pfdp4bkefDsyxD7yXi");
-		PoljePodrzanoPlacanje ppbc2 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_ID, "vXSzu6yK-XC9Gf1B2_TaS3Pfdp4bkefDsyxD7yXi");
-		
+		PoljePodrzanoPlacanje ppbc1 = null;
+		PoljePodrzanoPlacanje ppbc2 = null;
+		try {
+			ppbc1 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_ID, rsa.encrypt("vXSzu6yK-XC9Gf1B2_TaS3Pfdp4bkefDsyxD7yXi"));
+			ppbc2 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_ID, rsa.encrypt("vXSzu6yK-XC9Gf1B2_TaS3Pfdp4bkefDsyxD7yXi"));
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		ppbc1 = poljePodrzanoPlacanjeRepository.save(ppbc1);
 		ppbc2 = poljePodrzanoPlacanjeRepository.save(ppbc2);
 		
@@ -184,6 +214,8 @@ public class StartData {
 		transakcijaRepository.save(tr6);
 		transakcijaRepository.save(tr7);
 		transakcijaRepository.save(tr8);
+		
+
 		
 	}
 
