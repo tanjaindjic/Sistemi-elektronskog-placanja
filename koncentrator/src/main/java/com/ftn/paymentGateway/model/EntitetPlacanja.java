@@ -20,19 +20,23 @@ public class EntitetPlacanja {
 	
 	@ManyToOne(optional = true)
 	private EntitetPlacanja nadredjeni;
+	
+	@Column(nullable = true, length = 1000)
+	private String syncPath;
 
 	public EntitetPlacanja() {
 		super();
 	}
 
 	public EntitetPlacanja(Long id, String naziv, String identifikacioniKod, boolean poslovniSaradnik,
-			EntitetPlacanja nadredjeni) {
+			EntitetPlacanja nadredjeni, String syncPath) {
 		super();
 		this.id = id;
 		this.naziv = naziv;
 		this.identifikacioniKod = identifikacioniKod;
 		this.poslovniSaradnik = poslovniSaradnik;
 		this.nadredjeni = nadredjeni;
+		this.syncPath = syncPath;
 	}
 
 	public Long getId() {
@@ -73,6 +77,14 @@ public class EntitetPlacanja {
 
 	public void setNadredjeni(EntitetPlacanja nadredjeni) {
 		this.nadredjeni = nadredjeni;
+	}
+
+	public String getSyncPath() {
+		return syncPath;
+	}
+
+	public void setSyncPath(String syncPath) {
+		this.syncPath = syncPath;
 	}
 
 }
