@@ -342,27 +342,7 @@ public class AcquirerServiceImpl implements AcquirerService {
         finishedPaymentDTO.setAcquirerTimestamp(t.getTimestamp());
         finishedPaymentDTO.setPaymentID(paymentInfo.getPaymentID());
 
-       /* if(t.getStatus().equals(Status.K_KP)){ //moze se desiti ili da je bilo neuspesno placanje ali nije istekao token pa je
-            //status vracen na Kreirano jer moze opet da se proba ili mozda kupac nikad nije ni uneo podatke i probao da plati na stranici banke
-            if(isTokenExpired(t.getPaymentURL())) {
-                finishedPaymentDTO.setStatusTransakcije(Status.E);
-                t.setStatus(Status.E);
-                transakcijaRepository.save(t);
-            }
-            else{
-                finishedPaymentDTO.setStatusTransakcije(Status.K);
-                t.setStatus(Status.K);
-                transakcijaRepository.save(t);
-            }
-            finishedPaymentDTO.setRedirectURL(t.getErrorURL());
-
-        }else */
-        if(t.getStatus().equals(Status.C) || t.getStatus().equals(Status.C_PCC)){ //ako se ceka odgovor PCC-a jos uvek ili nije ni uspela
-            //komunikacija sa PCC-om
-            finishedPaymentDTO.setStatusTransakcije(Status.C);
-            finishedPaymentDTO.setRedirectURL(t.getErrorURL());
-
-        }else if(t.getStatus()==Status.U_KP) {
+      if(t.getStatus()==Status.U_KP) {
             finishedPaymentDTO.setStatusTransakcije(Status.U);
             finishedPaymentDTO.setRedirectURL(t.getSuccessURL());
             t.setStatus(Status.U);
@@ -583,6 +563,8 @@ public class AcquirerServiceImpl implements AcquirerService {
         finishedPaymentDTO.setAcquirerTimestamp(t.getTimestamp());
         finishedPaymentDTO.setPaymentID(paymentInfo.getPaymentID());
         finishedPaymentDTO.setRedirectURL(t.getFailedURL());
+        t.setStatus(Status.N);
+        transakcijaRepository.save(t);
 
         HttpsURLConnection.setDefaultHostnameVerifier((hostname, session)->true);
         RestTemplate template = new RestTemplate();
@@ -594,9 +576,7 @@ public class AcquirerServiceImpl implements AcquirerService {
         }catch(Exception e){
             System.out.println("KP nije dostupan.");
             e.printStackTrace();
-            if(rollback)
-                t.setStatus(Status.K_KP);
-            else t.setStatus(Status.N_KP);
+            t.setStatus(Status.N_KP);
             transakcijaRepository.save(t);
             return "/paymentSent";
         }

@@ -28,12 +28,13 @@ public class MainController {
     private ZahtevRepository zahtevRepository;
 
     @RequestMapping(value = "/request", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity.BodyBuilder request(@Valid @RequestBody PCCRequestDTO request) throws JsonProcessingException {
+    public ResponseEntity request(@Valid @RequestBody PCCRequestDTO request) throws JsonProcessingException {
 
+        System.out.println("PCC primio zahtev: " + request.toString());
         Zahtev zahtev = mainService.checkRequest(request);
         if(zahtev == null){
             System.out.println("Zahtev odbijen jer vec postoji za tu transakciju.");
-            return ResponseEntity.badRequest();
+            return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
 
         Banka odKupca = mainService.getBankaByPan(request.getPanPosaljioca());
@@ -49,7 +50,7 @@ public class MainController {
 
         }else mainService.forward(zahtev, request, odKupca.getUrlBanke()); //npr /requestPayment
 
-        return ResponseEntity.ok();
+        return new ResponseEntity(HttpStatus.OK);
     }
 
     @RequestMapping(value = "/reply", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)

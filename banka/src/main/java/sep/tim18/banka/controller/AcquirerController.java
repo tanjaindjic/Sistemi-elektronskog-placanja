@@ -65,7 +65,7 @@ public class AcquirerController {
     public ResponseEntity<List<?>> getTransactions() throws IOException {
         List<FinishedPaymentDTO> transakcije = new ArrayList<>();
         for(Transakcija t : acquirerService.getAllTransakcije())
-            if(t.getStatus().equals(Status.K_KP) || t.getStatus().equals(Status.C) || t.getStatus().equals(Status.C_PCC) || t.getStatus().equals(Status.U_KP) || t.getStatus().equals(Status.N_KP) || t.getStatus().equals(Status.E_KP))
+            if(t.getStatus().equals(Status.U_KP) || t.getStatus().equals(Status.N_KP) || t.getStatus().equals(Status.E_KP))
                 transakcije.add(acquirerService.createFinishedPaymentDTO(t));
 
         return new ResponseEntity<>(transakcije, HttpStatus.OK);
@@ -150,7 +150,7 @@ public class AcquirerController {
 
             }catch (FundsException e){
                 System.out.println("Nedovoljno sredstava.");
-                acquirerService.paymentFailed(paymentInfo, t, token, buyerInfoDTO, true);
+                acquirerService.paymentFailed(paymentInfo, t, token, buyerInfoDTO, false);
                 map.put("Location", "/failed");
                 return new ResponseEntity<>(map, HttpStatus.BAD_REQUEST);
             }
