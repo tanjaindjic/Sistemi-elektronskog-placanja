@@ -58,19 +58,19 @@ public class StartData {
 		tp3 = tipPlacanjaRepository.save(tp3);
 		
 		/* Naucne Centrale */
-		EntitetPlacanja ep1 = new EntitetPlacanja(null, "Naucna Centrala 1", "NC1NC1NC1#", true, null);
-		EntitetPlacanja ep2 = new EntitetPlacanja(null, "Naucna Centrala 2", "NC2NC2NC2#", true, null);
-		EntitetPlacanja tanja = new EntitetPlacanja(null, "Tanja Naucna Centrala", "tanjatanja", true, null);
+		EntitetPlacanja ep1 = new EntitetPlacanja(null, "Naucna Centrala 1", "NC1NC1NC1#", true, null, "localhost:8080/nesto1");
+		EntitetPlacanja ep2 = new EntitetPlacanja(null, "Naucna Centrala 2", "NC2NC2NC2#", true, null, "localhost:8080/nesto2");
+		EntitetPlacanja tanja = new EntitetPlacanja(null, "Tanja Naucna Centrala", "tanjatanja", true, null, "https://localhost:8096/kupovina");
 
 		
 		/* Casopisi */
-		EntitetPlacanja ep3 = new EntitetPlacanja(null, "Casopis 1", "CAS1#CAS1#", false, ep1);
-		EntitetPlacanja ep4 = new EntitetPlacanja(null, "Casopis 2", "CAS2#CAS2#", false, ep1);
-		EntitetPlacanja ep5 = new EntitetPlacanja(null, "Casopis 3", "CAS3#CAS3#", false, ep2);
-		EntitetPlacanja ep6 = new EntitetPlacanja(null, "Casopis 4", "CAS4#CAS4#", false, ep2);
-		EntitetPlacanja ep7 = new EntitetPlacanja(null, "Casopis 5", "CAS5#CAS5#", false, ep2);
-		EntitetPlacanja tanjac1 = new EntitetPlacanja(null, "Casopis1", "casopis001", false, tanja);
-		EntitetPlacanja tanjac2 = new EntitetPlacanja(null, "Casopis2", "casopis002", false, tanja);
+		EntitetPlacanja ep3 = new EntitetPlacanja(null, "Casopis 1", "CAS1#CAS1#", false, ep1, null);
+		EntitetPlacanja ep4 = new EntitetPlacanja(null, "Casopis 2", "CAS2#CAS2#", false, ep1, null);
+		EntitetPlacanja ep5 = new EntitetPlacanja(null, "Casopis 3", "CAS3#CAS3#", false, ep2, null);
+		EntitetPlacanja ep6 = new EntitetPlacanja(null, "Casopis 4", "CAS4#CAS4#", false, ep2, null);
+		EntitetPlacanja ep7 = new EntitetPlacanja(null, "Casopis 5", "CAS5#CAS5#", false, ep2, null);
+		EntitetPlacanja tanjac1 = new EntitetPlacanja(null, "Casopis1", "casopis001", false, tanja, null);
+		EntitetPlacanja tanjac2 = new EntitetPlacanja(null, "Casopis2", "casopis002", false, tanja, null);
 
 
 		ep1 = entitetPlacanjaRepository.save(ep1);
@@ -169,9 +169,9 @@ public class StartData {
 		PoljePodrzanoPlacanje pppp11 = null;
 		try {
 			pppp1 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_ID, RSAEncryptDecrypt.encrypt("AS5IMk8HPdQhY6_LF4MismGdr9j73ERw2K9fYVhtH1O5cTQPqX5ec5vaEm5MlSl8GosBEczyC8UcJo1-"));
-			pppp2 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_ID, RSAEncryptDecrypt.encrypt("AYHTphqHP3dkn5OiWxJ6e-guWt9a79PenQaHmZ_pfY17SrkWZxQyvUh-IT6Gg5V7aBoA8UlmXVO6NcTa"));
+			pppp2 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_ID, RSAEncryptDecrypt.encrypt("AS5IMk8HPdQhY6_LF4MismGdr9j73ERw2K9fYVhtH1O5cTQPqX5ec5vaEm5MlSl8GosBEczyC8UcJo1-"));
 			pppp11 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_PASSWORD, RSAEncryptDecrypt.encrypt("EHijiYCc4J0QRBlB475fXO23eUBSatQONjw-OaGrTjPgEv2J-uKEBkLFsQuSeFFjX9KwMIxkjXbS_yjw"));
-			pppp21 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_PASSWORD, RSAEncryptDecrypt.encrypt("EACGbPEtjHAXtgEpNGxh6ABVPMwnN64VI9WFRC5n6ciO-lnXNgDjMldZHIVPZXoBCFVWakAKz2qrcMF3"));
+			pppp21 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_PASSWORD, RSAEncryptDecrypt.encrypt("EHijiYCc4J0QRBlB475fXO23eUBSatQONjw-OaGrTjPgEv2J-uKEBkLFsQuSeFFjX9KwMIxkjXbS_yjw"));
 			} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -248,17 +248,6 @@ public class StartData {
 		transakcijaRepository.save(tr7);
 		transakcijaRepository.save(tr8);
 
-	/*System.out.println("*************************************************");
-		System.out.println("encrypted: "+tanjapp1.getVrednost());
-		System.out.println("decrypted: "+RSAEncryptDecrypt.decrypt(tanjapp1.getVrednost()));
-		System.out.println("RESULT: "+tanjapp1.getVrednost().equals(RSAEncryptDecrypt.decrypt(tanjapp1.getVrednost())));
-		System.out.println("*************************************************");
-		System.out.println("*************************************************");
-		System.out.println("encrypted: "+tanjapp2.getVrednost());
-		System.out.println("decrypted: "+RSAEncryptDecrypt.decrypt(tanjapp2.getVrednost()));
-		System.out.println("RESULT: "+tanjapp1.getVrednost().equals(RSAEncryptDecrypt.decrypt(tanjapp2.getVrednost())));
-		System.out.println("*************************************************");
-*/
 	}
 
 }
