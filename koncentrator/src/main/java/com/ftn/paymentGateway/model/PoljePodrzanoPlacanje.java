@@ -23,7 +23,7 @@ public class PoljePodrzanoPlacanje {
 	@Enumerated(EnumType.STRING)
 	private IdPoljePlacanja idPolja;
 	
-	@Column(nullable = true, length = 1200)
+	@Column(nullable = true, length = 10000)
 	private String vrednost;
 
 	public PoljePodrzanoPlacanje() {

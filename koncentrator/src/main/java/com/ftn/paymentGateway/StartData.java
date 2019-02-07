@@ -43,14 +43,12 @@ public class StartData {
 	private RandomStringGenerator randomStringGenerator;
 	@Autowired 
 	private PoljePodrzanoPlacanjeRepository poljePodrzanoPlacanjeRepository;
-	@Autowired 
-	private RSAEncryptDecrypt rsa;
-	
+
 	
 	public StartData() {}
 	
 	@PostConstruct
-	private void init() {
+	private void init() throws Exception {
 		TipPlacanja tp1 = new TipPlacanja(null, "CCP", "Kreditna Kartica", "CreditCardPayment", "../../paymentGateway/assets/images/cc.png");
 		TipPlacanja tp2 = new TipPlacanja(null, "PPP", "Pay Pal", "PayPalPayment", "../../paymentGateway/assets/images/pp.png");
 		TipPlacanja tp3 = new TipPlacanja(null, "BCP", "Bitcoin", "BitcoinPayment", "../../paymentGateway/assets/images/bc.png");
@@ -62,7 +60,8 @@ public class StartData {
 		/* Naucne Centrale */
 		EntitetPlacanja ep1 = new EntitetPlacanja(null, "Naucna Centrala 1", "NC1NC1NC1#", true, null);
 		EntitetPlacanja ep2 = new EntitetPlacanja(null, "Naucna Centrala 2", "NC2NC2NC2#", true, null);
-		
+		EntitetPlacanja tanja = new EntitetPlacanja(null, "Tanja Naucna Centrala", "tanjatanja", true, null);
+
 		
 		/* Casopisi */
 		EntitetPlacanja ep3 = new EntitetPlacanja(null, "Casopis 1", "CAS1#CAS1#", false, ep1);
@@ -70,15 +69,21 @@ public class StartData {
 		EntitetPlacanja ep5 = new EntitetPlacanja(null, "Casopis 3", "CAS3#CAS3#", false, ep2);
 		EntitetPlacanja ep6 = new EntitetPlacanja(null, "Casopis 4", "CAS4#CAS4#", false, ep2);
 		EntitetPlacanja ep7 = new EntitetPlacanja(null, "Casopis 5", "CAS5#CAS5#", false, ep2);
-		
+		EntitetPlacanja tanjac1 = new EntitetPlacanja(null, "Casopis1", "casopis001", false, tanja);
+		EntitetPlacanja tanjac2 = new EntitetPlacanja(null, "Casopis2", "casopis002", false, tanja);
+
+
 		ep1 = entitetPlacanjaRepository.save(ep1);
 		ep2 = entitetPlacanjaRepository.save(ep2);
+		tanja = entitetPlacanjaRepository.save(tanja);
 		ep3 = entitetPlacanjaRepository.save(ep3);
 		ep4 = entitetPlacanjaRepository.save(ep4);
 		ep5 = entitetPlacanjaRepository.save(ep5);
 		ep6 = entitetPlacanjaRepository.save(ep6);
 		ep7 = entitetPlacanjaRepository.save(ep7);
-		
+		tanjac1 = entitetPlacanjaRepository.save(tanjac1);
+		tanjac2 = entitetPlacanjaRepository.save(tanjac2);
+
 		/* Kreditne Kartice */
 		PoljePodrzanoPlacanje ppb1 = null;
 		PoljePodrzanoPlacanje ppb2 = null;
@@ -86,27 +91,43 @@ public class StartData {
 		PoljePodrzanoPlacanje ppb11 = null;
 		PoljePodrzanoPlacanje ppb21 = null;
 		PoljePodrzanoPlacanje ppb31 = null;
+
+        PoljePodrzanoPlacanje tanjapp1 = null;
+        PoljePodrzanoPlacanje tanjapp2 = null;
+        PoljePodrzanoPlacanje tanjapp11 = null;
+        PoljePodrzanoPlacanje tanjapp22 = null;
+
 		try {
-			ppb1 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_ID, rsa.encrypt("1"));
-			ppb2 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_ID, rsa.encrypt("2"));
-			ppb3 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_ID, rsa.encrypt("3"));
-			ppb11 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_PASSWORD, rsa.encrypt("pass1"));
-			ppb21 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_PASSWORD, rsa.encrypt("pass2"));
-			ppb31 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_PASSWORD, rsa.encrypt("pass3"));
-			
-			
+			ppb1 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_ID, RSAEncryptDecrypt.encrypt("1"));
+			ppb2 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_ID, RSAEncryptDecrypt.encrypt("2"));
+			ppb3 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_ID, RSAEncryptDecrypt.encrypt("3"));
+			ppb11 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_PASSWORD, RSAEncryptDecrypt.encrypt("pass1"));
+			ppb21 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_PASSWORD, RSAEncryptDecrypt.encrypt("pass2"));
+			ppb31 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_PASSWORD, RSAEncryptDecrypt.encrypt("pass3"));
+
+			tanjapp1 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_ID, RSAEncryptDecrypt.encrypt("2"));
+			tanjapp2 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_PASSWORD, RSAEncryptDecrypt.encrypt("pass2"));
+			tanjapp11 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_ID, RSAEncryptDecrypt.encrypt("2"));
+			tanjapp22 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_PASSWORD, RSAEncryptDecrypt.encrypt("pass2"));
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
+
+
 		ppb1 = poljePodrzanoPlacanjeRepository.save(ppb1);
 		ppb2 = poljePodrzanoPlacanjeRepository.save(ppb2);
 		ppb3 = poljePodrzanoPlacanjeRepository.save(ppb3);
 		ppb11 = poljePodrzanoPlacanjeRepository.save(ppb11);
 		ppb21 = poljePodrzanoPlacanjeRepository.save(ppb21);
 		ppb31 = poljePodrzanoPlacanjeRepository.save(ppb31);
-		
+
+		tanjapp1 = poljePodrzanoPlacanjeRepository.save(tanjapp1);
+		tanjapp2 = poljePodrzanoPlacanjeRepository.save(tanjapp2);
+		tanjapp11 = poljePodrzanoPlacanjeRepository.save(tanjapp11);
+		tanjapp22 = poljePodrzanoPlacanjeRepository.save(tanjapp22);
+
 		List<PoljePodrzanoPlacanje> banka1PP = new ArrayList<>();
 		banka1PP.add(ppb1);
 		banka1PP.add(ppb11);
@@ -118,16 +139,28 @@ public class StartData {
 		List<PoljePodrzanoPlacanje> banka3PP = new ArrayList<>();
 		banka3PP.add(ppb3);
 		banka3PP.add(ppb31);
-		
+
+		List<PoljePodrzanoPlacanje> tanjaPoljaBanka = new ArrayList<>();
+		tanjaPoljaBanka.add(tanjapp1);
+		tanjaPoljaBanka.add(tanjapp2);
+
+		List<PoljePodrzanoPlacanje> tanjaPoljaBanka2 = new ArrayList<>();
+		tanjaPoljaBanka2.add(tanjapp11);
+		tanjaPoljaBanka2.add(tanjapp22);
+
 		
 		PodrzanoPlacanje pp1 = new PodrzanoPlacanje(null, false, banka1PP, ep1, tp1);
 		PodrzanoPlacanje pp2 = new PodrzanoPlacanje(null, false, banka2PP, ep2, tp1);
 		PodrzanoPlacanje pp3 = new PodrzanoPlacanje(null, false, banka3PP, ep3, tp1);
-		
+		PodrzanoPlacanje tanjaPodrzano = new PodrzanoPlacanje(null, false, tanjaPoljaBanka, tanjac1, tp1);
+		PodrzanoPlacanje tanjaPodrzano2 = new PodrzanoPlacanje(null, false, tanjaPoljaBanka2, tanjac2, tp1);
+
 		pp1 = podrzanoPlacanjeRepository.save(pp1);
 		pp2 = podrzanoPlacanjeRepository.save(pp2);
 		pp3 = podrzanoPlacanjeRepository.save(pp3);
-		
+		tanjaPodrzano = podrzanoPlacanjeRepository.save(tanjaPodrzano);
+		tanjaPodrzano2 = podrzanoPlacanjeRepository.save(tanjaPodrzano2);
+
 		
 		/* PayPal */
 		PoljePodrzanoPlacanje pppp1 = null;
@@ -135,10 +168,10 @@ public class StartData {
 		PoljePodrzanoPlacanje pppp21 = null;
 		PoljePodrzanoPlacanje pppp11 = null;
 		try {
-			pppp1 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_ID, rsa.encrypt("AS5IMk8HPdQhY6_LF4MismGdr9j73ERw2K9fYVhtH1O5cTQPqX5ec5vaEm5MlSl8GosBEczyC8UcJo1-"));
-			pppp2 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_ID, rsa.encrypt("AS5IMk8HPdQhY6_LF4MismGdr9j73ERw2K9fYVhtH1O5cTQPqX5ec5vaEm5MlSl8GosBEczyC8UcJo1-"));
-			pppp11 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_PASSWORD, rsa.encrypt("EHijiYCc4J0QRBlB475fXO23eUBSatQONjw-OaGrTjPgEv2J-uKEBkLFsQuSeFFjX9KwMIxkjXbS_yjw"));
-			pppp21 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_PASSWORD, rsa.encrypt("EHijiYCc4J0QRBlB475fXO23eUBSatQONjw-OaGrTjPgEv2J-uKEBkLFsQuSeFFjX9KwMIxkjXbS_yjw"));
+			pppp1 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_ID, RSAEncryptDecrypt.encrypt("AS5IMk8HPdQhY6_LF4MismGdr9j73ERw2K9fYVhtH1O5cTQPqX5ec5vaEm5MlSl8GosBEczyC8UcJo1-"));
+			pppp2 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_ID, RSAEncryptDecrypt.encrypt("AS5IMk8HPdQhY6_LF4MismGdr9j73ERw2K9fYVhtH1O5cTQPqX5ec5vaEm5MlSl8GosBEczyC8UcJo1-"));
+			pppp11 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_PASSWORD, RSAEncryptDecrypt.encrypt("EHijiYCc4J0QRBlB475fXO23eUBSatQONjw-OaGrTjPgEv2J-uKEBkLFsQuSeFFjX9KwMIxkjXbS_yjw"));
+			pppp21 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_PASSWORD, RSAEncryptDecrypt.encrypt("EHijiYCc4J0QRBlB475fXO23eUBSatQONjw-OaGrTjPgEv2J-uKEBkLFsQuSeFFjX9KwMIxkjXbS_yjw"));
 			} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -168,8 +201,8 @@ public class StartData {
 		PoljePodrzanoPlacanje ppbc1 = null;
 		PoljePodrzanoPlacanje ppbc2 = null;
 		try {
-			ppbc1 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_ID, rsa.encrypt("vXSzu6yK-XC9Gf1B2_TaS3Pfdp4bkefDsyxD7yXi"));
-			ppbc2 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_ID, rsa.encrypt("vXSzu6yK-XC9Gf1B2_TaS3Pfdp4bkefDsyxD7yXi"));
+			ppbc1 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_ID, RSAEncryptDecrypt.encrypt("vXSzu6yK-XC9Gf1B2_TaS3Pfdp4bkefDsyxD7yXi"));
+			ppbc2 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_ID, RSAEncryptDecrypt.encrypt("vXSzu6yK-XC9Gf1B2_TaS3Pfdp4bkefDsyxD7yXi"));
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -214,9 +247,18 @@ public class StartData {
 		transakcijaRepository.save(tr6);
 		transakcijaRepository.save(tr7);
 		transakcijaRepository.save(tr8);
-		
 
-		
+	/*System.out.println("*************************************************");
+		System.out.println("encrypted: "+tanjapp1.getVrednost());
+		System.out.println("decrypted: "+RSAEncryptDecrypt.decrypt(tanjapp1.getVrednost()));
+		System.out.println("RESULT: "+tanjapp1.getVrednost().equals(RSAEncryptDecrypt.decrypt(tanjapp1.getVrednost())));
+		System.out.println("*************************************************");
+		System.out.println("*************************************************");
+		System.out.println("encrypted: "+tanjapp2.getVrednost());
+		System.out.println("decrypted: "+RSAEncryptDecrypt.decrypt(tanjapp2.getVrednost()));
+		System.out.println("RESULT: "+tanjapp1.getVrednost().equals(RSAEncryptDecrypt.decrypt(tanjapp2.getVrednost())));
+		System.out.println("*************************************************");
+*/
 	}
 
 }

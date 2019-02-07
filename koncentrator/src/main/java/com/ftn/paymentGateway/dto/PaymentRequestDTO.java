@@ -44,6 +44,19 @@ public class PaymentRequestDTO {
 		this.errorURL = errorURL;
 	}
 
+	@Override
+	public String toString() {
+		return "PaymentRequestDTO{" +
+				"entitetPlacanja=" + entitetPlacanja +
+				", iznos=" + iznos +
+				", pretplata=" + pretplata +
+				", maticnaTransakcija=" + maticnaTransakcija +
+				", successURL='" + successURL + '\'' +
+				", failedURL='" + failedURL + '\'' +
+				", errorURL='" + errorURL + '\'' +
+				'}';
+	}
+
 	public EntitetPlacanjaDTO getEntitetPlacanja() {
 		return entitetPlacanja;
 	}

@@ -44,6 +44,26 @@ public class PCCRequestDTO {
 
     }
 
+    @Override
+    public String toString() {
+        return "PCCRequestDTO{" +
+                "acquirerOrderID=" + acquirerOrderID +
+                ", acquirerTimestamp=" + acquirerTimestamp +
+                ", merchantOrderID=" + merchantOrderID +
+                ", merchantTimestamp=" + merchantTimestamp +
+                ", panPosaljioca='" + panPosaljioca + '\'' +
+                ", cvv='" + cvv + '\'' +
+                ", ime='" + ime + '\'' +
+                ", prezime='" + prezime + '\'' +
+                ", mesec=" + mesec +
+                ", godina=" + godina +
+                ", returnURL='" + returnURL + '\'' +
+                ", iznos=" + iznos +
+                ", panPrimaoca='" + panPrimaoca + '\'' +
+                ", brojBankeProdavca='" + brojBankeProdavca + '\'' +
+                '}';
+    }
+
     public PCCRequestDTO(PCCRequest pccRequest) {
         this.acquirerOrderID =  pccRequest.getAcquirerOrderID();
         this.acquirerTimestamp =  pccRequest.getAcquirerTimestamp();

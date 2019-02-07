@@ -122,8 +122,7 @@ public class AcquirerServiceImpl implements AcquirerService {
             System.out.println("SCHEDULED TASK---Primio sa PCC-a: " + preostaleTransakcije.size());
             for (PCCReplyDTO pccReplyDTO : preostaleTransakcije) {
                 Transakcija t = transakcijaRepository.findById(pccReplyDTO.getAcquirerOrderID()).get();
-                t.setStatus(pccReplyDTO.getStatus());
-                transakcijaRepository.save(t);
+                save(t,pccReplyDTO.getStatus() );
             }
         }catch (Exception e){
             System.out.println("SCHEDULED TASK---PCC nije dostupan.");
@@ -149,15 +148,13 @@ public class AcquirerServiceImpl implements AcquirerService {
             PCCRequestDTO pccRequestDTO = new PCCRequestDTO(pccRequest);
 
             try {
+                save(t, Status.C);
                 template.postForEntity(requestToPCC, pccRequestDTO, PCCRequestDTO.class);
                 pccRequestRepository.delete(pccRequest);
-                t.setStatus(Status.C);
-                transakcijaRepository.save(t);
                 System.out.println("SCHEDULED TASK---Poslata transakcija ID: " + t.getOrderID());
             } catch (Exception e) {
                 System.out.println("SCHEDULED TASK---PCC nije dostupan. Transakcija ID: " + t.getOrderID() + " nije poslata.");
-                t.setStatus(Status.C_PCC); //cuvam status samo pamtim da treba pccu da se posalje ponovo
-                transakcijaRepository.save(t);
+                save(t,Status.C_PCC );
             }
         }
 
@@ -169,15 +166,14 @@ public class AcquirerServiceImpl implements AcquirerService {
         for(Transakcija t : transakcijaRepository.findByStatus(Status.K)){
             if(isTokenExpired(t.getPaymentURL())){
                 System.out.println("Transakcija ID: " + t.getOrderID() + " je istekla.");
-                t.setStatus(Status.E_KP);
-                transakcijaRepository.save(t);
+                save(t, Status.E_KP);
+
             }
         }
         for(Transakcija t : transakcijaRepository.findByStatus(Status.K_KP)){
             if(isTokenExpired(t.getPaymentURL())){
                 System.out.println("Transakcija ID: " + t.getOrderID() + " je istekla.");
-                t.setStatus(Status.E_KP);
-                transakcijaRepository.save(t);
+                save(t, Status.E_KP);
             }
         }
     }
@@ -342,44 +338,21 @@ public class AcquirerServiceImpl implements AcquirerService {
         finishedPaymentDTO.setAcquirerTimestamp(t.getTimestamp());
         finishedPaymentDTO.setPaymentID(paymentInfo.getPaymentID());
 
-       /* if(t.getStatus().equals(Status.K_KP)){ //moze se desiti ili da je bilo neuspesno placanje ali nije istekao token pa je
-            //status vracen na Kreirano jer moze opet da se proba ili mozda kupac nikad nije ni uneo podatke i probao da plati na stranici banke
-            if(isTokenExpired(t.getPaymentURL())) {
-                finishedPaymentDTO.setStatusTransakcije(Status.E);
-                t.setStatus(Status.E);
-                transakcijaRepository.save(t);
-            }
-            else{
-                finishedPaymentDTO.setStatusTransakcije(Status.K);
-                t.setStatus(Status.K);
-                transakcijaRepository.save(t);
-            }
-            finishedPaymentDTO.setRedirectURL(t.getErrorURL());
-
-        }else */
-        if(t.getStatus().equals(Status.C) || t.getStatus().equals(Status.C_PCC)){ //ako se ceka odgovor PCC-a jos uvek ili nije ni uspela
-            //komunikacija sa PCC-om
-            finishedPaymentDTO.setStatusTransakcije(Status.C);
-            finishedPaymentDTO.setRedirectURL(t.getErrorURL());
-
-        }else if(t.getStatus()==Status.U_KP) {
+      if(t.getStatus()==Status.U_KP) {
             finishedPaymentDTO.setStatusTransakcije(Status.U);
             finishedPaymentDTO.setRedirectURL(t.getSuccessURL());
-            t.setStatus(Status.U);
-            transakcijaRepository.save(t);
+            save(t, Status.U);
 
         }else if(t.getStatus().equals(Status.N_KP)){
             finishedPaymentDTO.setStatusTransakcije(Status.N);
             finishedPaymentDTO.setRedirectURL(t.getFailedURL());
-            t.setStatus(Status.N);
-            transakcijaRepository.save(t);
+            save(t, Status.N);
 
         }
         else if(t.getStatus().equals(Status.E_KP)){
             finishedPaymentDTO.setStatusTransakcije(Status.E);
             finishedPaymentDTO.setRedirectURL(t.getFailedURL());
-            t.setStatus(Status.E);
-            transakcijaRepository.save(t);
+          save(t, Status.E);
 
         }
         return finishedPaymentDTO;
@@ -415,8 +388,7 @@ public class AcquirerServiceImpl implements AcquirerService {
 
             if(max.compareTo(Calendar.getInstance())<0){
                 System.out.println("Postavljeno vreme za placanje je isteklo.");
-            	t.setStatus(Status.E);
-                transakcijaRepository.save(t);
+                save(t, Status.E);
                 return true;
             }
             else return false;
@@ -433,8 +405,7 @@ public class AcquirerServiceImpl implements AcquirerService {
 
     /** transakcije **/
     @Override
-    @Transactional(readOnly = false, rollbackFor = Exception.class, propagation = Propagation.NEVER, isolation = Isolation.SERIALIZABLE)
-    public ResponseEntity<Map> tryPayment(String token, BuyerInfoDTO buyerInfoDTO, HttpServletResponse response) throws IOException, PaymentException, NotFoundException, FundsException {
+     public ResponseEntity<Map> tryPayment(String token, BuyerInfoDTO buyerInfoDTO, HttpServletResponse response) throws IOException, PaymentException, NotFoundException, FundsException {
 
         Map<String, String> map = new HashMap<>();
 
@@ -450,8 +421,7 @@ public class AcquirerServiceImpl implements AcquirerService {
         if (isTokenExpired(token)) {
             //TODO srediti posle da automatski radi
             System.out.println("Token " + token + " je istekao.");
-            t.setStatus(Status.E);
-            transakcijaRepository.save(t);
+            save(t, Status.E);
             paymentFailed(paymentInfo, t, token, buyerInfoDTO, false);
             map.put("Location", "/expired");
             return new ResponseEntity<>(map, HttpStatus.BAD_REQUEST);
@@ -474,8 +444,7 @@ public class AcquirerServiceImpl implements AcquirerService {
 
         if (match.isEmpty()) {
             System.out.println("Greska u pronalazenju kartice.");
-            t.setStatus(Status.N);
-            transakcijaRepository.save(t);
+            save(t, Status.N);
             paymentFailed(paymentInfo, t, token, buyerInfoDTO, false);
             map.put("Location", "/failed");
             return new ResponseEntity<>(map, HttpStatus.BAD_REQUEST);
@@ -495,6 +464,16 @@ public class AcquirerServiceImpl implements AcquirerService {
         if(idx == -1)
             throw new PaymentException("Nije moguce naci karticu.");
 
+        String location = paymentSuccessful(paymentInfo, t, token, buyerInfoDTO);
+		return placanjeIstaBanka(t, zaPlacanje, kupac, paymentInfo, token, buyerInfoDTO, location);
+
+    }
+
+    @Transactional(readOnly = false, rollbackFor = Exception.class, propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
+    public ResponseEntity placanjeIstaBanka(Transakcija t, Kartica zaPlacanje,Klijent kupac, PaymentInfo paymentInfo, String token, BuyerInfoDTO buyerInfoDTO, String location ) throws JsonProcessingException {
+        Map<String, String> map = new HashMap<>();
+
+        int idx = kupac.getKartice().indexOf(zaPlacanje);
         System.out.println("Prebacivanje sredstava: " + t.getIznos());
         System.out.println("Stanje pre: " + zaPlacanje.getRaspolozivaSredstva());
         Float raspolozivo = zaPlacanje.getRaspolozivaSredstva();
@@ -515,26 +494,23 @@ public class AcquirerServiceImpl implements AcquirerService {
         klijentRepository.save(prodavac);
 
         t.setStatus(Status.U);
-        t.setPanPrimaoca(kupac.getKartice().get(0).getPan());
         transakcijaRepository.save(t);
 
         System.out.println("Uspesno prebacivanje novca.");
 
-        String location = paymentSuccessful(paymentInfo, t, token, buyerInfoDTO);
+
         System.out.println("Lokacija:  " + location);
         map.put("Location", location);
         HttpHeaders headers = new HttpHeaders();
-		headers.add("Location", location);
-		headers.add("Access-Control-Allow-Origin", "*");
-		return new ResponseEntity<>(map, headers, HttpStatus.OK);
-
+        headers.add("Location", location);
+        headers.add("Access-Control-Allow-Origin", "*");
+        return new ResponseEntity<>(map, headers, HttpStatus.OK);
     }
 
     @Override
     public void sendToPCC(Transakcija t, String token, BuyerInfoDTO buyerInfoDTO, PaymentInfo paymentInfo, HttpServletResponse resp) throws JsonProcessingException {
 
-        t.setStatus(Status.C);
-        transakcijaRepository.save(t);
+        save(t, Status.C);
 
         PCCRequestDTO pccRequestDTO = new PCCRequestDTO();
         pccRequestDTO.setAcquirerOrderID(t.getOrderID());
@@ -560,13 +536,11 @@ public class AcquirerServiceImpl implements AcquirerService {
         }catch (HttpStatusCodeException exception) {
             if(exception.getStatusCode().is5xxServerError()){
                 System.out.println("Poslata vec postojeca transakcija na PCC");
-                t.setStatus(Status.N);
-                transakcijaRepository.save(t);
+                save(t, Status.N);
             }
         }catch(Exception e){
             System.out.println("Greska kod slanja zahteva na PCC.");
-            t.setStatus(Status.C_PCC); //cuvam status samo pamtim da treba pccu da se posalje ponovo
-            transakcijaRepository.save(t);
+            save(t, Status.C_PCC);
             PCCRequest pccRequest = new PCCRequest(pccRequestDTO);
             pccRequestRepository.save(pccRequest);
             System.out.println("Sacuvan PCCRequest:" + pccRequest.toString());
@@ -584,22 +558,20 @@ public class AcquirerServiceImpl implements AcquirerService {
         finishedPaymentDTO.setAcquirerTimestamp(t.getTimestamp());
         finishedPaymentDTO.setPaymentID(paymentInfo.getPaymentID());
         finishedPaymentDTO.setRedirectURL(t.getFailedURL());
+        save(t, Status.N);
 
         HttpsURLConnection.setDefaultHostnameVerifier((hostname, session)->true);
         RestTemplate template = new RestTemplate();
         try{//TODO vrati success url ili failed url od kp
             ResponseEntity<Boolean> response = template.postForEntity(replyToKP, finishedPaymentDTO, Boolean.class);
             if(response.getBody())
-                return t.getSuccessURL();
-            else return t.getFailedURL();
+               return t.getFailedURL();
+            else return "/failed";
         }catch(Exception e){
             System.out.println("KP nije dostupan.");
             e.printStackTrace();
-            if(rollback)
-                t.setStatus(Status.K_KP);
-            else t.setStatus(Status.N_KP);
-            transakcijaRepository.save(t);
-            return "/paymentSent";
+            save(t, Status.N_KP);
+            return "/failed";
         }
 
     }
@@ -623,12 +595,11 @@ public class AcquirerServiceImpl implements AcquirerService {
             ResponseEntity<Boolean> response = template.postForEntity(replyToKP, finishedPaymentDTO, Boolean.class);
             if(response.getBody())
                 return t.getSuccessURL();
-            else return t.getFailedURL();
+            else return t.getErrorURL();
         } catch(Exception e) {
             System.out.println("KP nije dostupan.");
             e.printStackTrace();
-            t.setStatus(Status.U_KP);
-            transakcijaRepository.save(t);
+            save(t, Status.U_KP);
             return "/paymentSent";
         }
 
@@ -649,12 +620,12 @@ public class AcquirerServiceImpl implements AcquirerService {
             throw new NotFoundException();
 
         if(pccReplyDTO.getStatus()==Status.N) {
-            t.setStatus(Status.N);
+            save(t, Status.N);
         }
         else{
             t.setIssuerOrderId(pccReplyDTO.getIssuerOrderID());
             t.setIssuerTimestamp(pccReplyDTO.getIssuerTimestamp());
-            t.setStatus(Status.U);
+            save(t, Status.U);
             Kartica primalac = karticaRepository.findByPan(t.getPanPrimaoca());
 
             Float raspolozivo = primalac.getRaspolozivaSredstva();
@@ -667,7 +638,6 @@ public class AcquirerServiceImpl implements AcquirerService {
             klijentRepository.save(prodavac);
 
         }
-        transakcijaRepository.save(t);
         System.out.println("Novi status transakcije ID: " + t.getOrderID() + " je " + t.getStatus().toString());
         sendReplyToKP(t, paymentInfo);
     }
@@ -691,13 +661,17 @@ public class AcquirerServiceImpl implements AcquirerService {
         }catch(Exception e){
             System.out.println("KP nije dostupan,metoda sendReplyToKP.");
             if(t.getStatus()==Status.U)
-                t.setStatus(Status.U_KP);
-            else t.setStatus(Status.K_KP);
-            transakcijaRepository.save(t);
+                save(t, Status.U_KP);
+            else  save(t, Status.N_KP);
 
 
         }
 
+    }
+    @Transactional(readOnly = false, rollbackFor = Exception.class, propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
+    public void save(Transakcija t, Status s){
+        t.setStatus(s);
+        transakcijaRepository.save(t);
     }
     
     
