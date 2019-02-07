@@ -40,7 +40,7 @@ public class TransakcijaServiceImpl implements TransakcijaService{
 	@Override
 	public Transakcija getById(Long id) {
 		
-		return transakcijaRepository.getOne(id);
+		return transakcijaRepository.findById(id).get();
 	}
 
 	@Override
