@@ -169,9 +169,9 @@ public class StartData {
 		PoljePodrzanoPlacanje pppp11 = null;
 		try {
 			pppp1 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_ID, RSAEncryptDecrypt.encrypt("AS5IMk8HPdQhY6_LF4MismGdr9j73ERw2K9fYVhtH1O5cTQPqX5ec5vaEm5MlSl8GosBEczyC8UcJo1-"));
-			pppp2 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_ID, RSAEncryptDecrypt.encrypt("AS5IMk8HPdQhY6_LF4MismGdr9j73ERw2K9fYVhtH1O5cTQPqX5ec5vaEm5MlSl8GosBEczyC8UcJo1-"));
+			pppp2 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_ID, RSAEncryptDecrypt.encrypt("AYHTphqHP3dkn5OiWxJ6e-guWt9a79PenQaHmZ_pfY17SrkWZxQyvUh-IT6Gg5V7aBoA8UlmXVO6NcTa"));
 			pppp11 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_PASSWORD, RSAEncryptDecrypt.encrypt("EHijiYCc4J0QRBlB475fXO23eUBSatQONjw-OaGrTjPgEv2J-uKEBkLFsQuSeFFjX9KwMIxkjXbS_yjw"));
-			pppp21 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_PASSWORD, RSAEncryptDecrypt.encrypt("EHijiYCc4J0QRBlB475fXO23eUBSatQONjw-OaGrTjPgEv2J-uKEBkLFsQuSeFFjX9KwMIxkjXbS_yjw"));
+			pppp21 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_PASSWORD, RSAEncryptDecrypt.encrypt("EACGbPEtjHAXtgEpNGxh6ABVPMwnN64VI9WFRC5n6ciO-lnXNgDjMldZHIVPZXoBCFVWakAKz2qrcMF3"));
 			} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
