@@ -64,7 +64,18 @@ public class BitcoinPayment implements PaymentStrategy{
 			throw new PaymentErrorException();
 		}
 		
-		String idNaloga = getIdNaloga(podrzanoPlacanje.getPolja());
+		String idNaloga = null;
+		
+		try {
+			for(PoljePodrzanoPlacanje polje : podrzanoPlacanje.getPolja()) {
+				if(polje.getIdPolja().equals(IdPoljePlacanja.MERCHANT_ID)) {
+					idNaloga = RSAEncryptDecrypt.decrypt(polje.getVrednost());
+					break;
+				}
+			}
+		} catch (Exception e) {
+			return new TransakcijaIshodDTO(false, false, TransakcijaStatus.N, null, null);
+		}
 		
 		if(idNaloga == null) {
 			return new TransakcijaIshodDTO(false, false, TransakcijaStatus.N, null, null);
@@ -80,12 +91,12 @@ public class BitcoinPayment implements PaymentStrategy{
 		
 		MultiValueMap<String, String> bitcoinRequestParams= new LinkedMultiValueMap<String, String>();
 		bitcoinRequestParams.add("order_id", transakcija.getId().toString());
-		bitcoinRequestParams.add("price_amount", ""+transakcija.getIznos());
+		bitcoinRequestParams.add("price_amount", new String(""+transakcija.getIznos()));
 		bitcoinRequestParams.add("price_currency", "USD");
 		bitcoinRequestParams.add("receive_currency", "USD");
 		bitcoinRequestParams.add("success_url", transakcija.getSuccessURL());
 		bitcoinRequestParams.add("cancel-url", transakcija.getErrorURL());
-		bitcoinRequestParams.add("title", transakcija.getJedinstveniToken());
+		bitcoinRequestParams.add("title", "Patment Gateway Transaction");
 
 		HttpEntity<MultiValueMap<String, String>> bitcoinRequest = new HttpEntity<MultiValueMap<String, String>>(bitcoinRequestParams, headers);
 		
@@ -96,6 +107,7 @@ public class BitcoinPayment implements PaymentStrategy{
 			bitcoinResponse = restTemplate.postForEntity(new URI("https://api-sandbox.coingate.com/v2/orders"), bitcoinRequest, String.class);
 		} catch (RestClientException | URISyntaxException e) {
 			System.out.println("Greska prilikom slanja zahteva, BITCOIN.");
+			//e.printStackTrace();
 			return new TransakcijaIshodDTO(false, false, TransakcijaStatus.N, null, null);
 		}
 		

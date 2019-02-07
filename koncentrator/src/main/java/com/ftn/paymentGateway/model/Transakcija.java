@@ -60,6 +60,9 @@ public class Transakcija {
     
 	@Column(nullable = true)
     private String errorURL;
+	
+	@Column(nullable = false)
+	private boolean poslatoSaradniku;
 
 	public Transakcija() {
 		super();
@@ -67,7 +70,7 @@ public class Transakcija {
 
 	public Transakcija(Long id, Long maticnaTransakcija, String izvrsnaTransakcija, double iznos, Date vreme,
 			TransakcijaStatus status, String jedinstveniToken, boolean pretplata, EntitetPlacanja entitetPlacanja,
-			TipPlacanja tipPlacanja, String successURL, String failedURL, String errorURL) {
+			TipPlacanja tipPlacanja, String successURL, String failedURL, String errorURL, boolean poslatoSaradniku) {
 		super();
 		this.id = id;
 		this.maticnaTransakcija = maticnaTransakcija;
@@ -82,6 +85,7 @@ public class Transakcija {
 		this.successURL = successURL;
 		this.failedURL = failedURL;
 		this.errorURL = errorURL;
+		this.poslatoSaradniku = poslatoSaradniku;
 	}
 
 	public Long getId() {
@@ -187,5 +191,13 @@ public class Transakcija {
 	public void setErrorURL(String errorURL) {
 		this.errorURL = errorURL;
 	}
-	
+
+	public boolean isPoslatoSaradniku() {
+		return poslatoSaradniku;
+	}
+
+	public void setPoslatoSaradniku(boolean poslatoSaradniku) {
+		this.poslatoSaradniku = poslatoSaradniku;
+	}
+
 }

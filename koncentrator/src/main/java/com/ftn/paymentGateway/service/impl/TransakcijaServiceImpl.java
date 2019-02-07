@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
@@ -19,6 +20,7 @@ import com.ftn.paymentGateway.helpClasses.RandomStringGenerator;
 import com.ftn.paymentGateway.model.EntitetPlacanja;
 import com.ftn.paymentGateway.model.TipPlacanja;
 import com.ftn.paymentGateway.model.Transakcija;
+import com.ftn.paymentGateway.repository.EntitetPlacanjaRepository;
 import com.ftn.paymentGateway.repository.TransakcijaRepository;
 import com.ftn.paymentGateway.service.TransakcijaService;
 
@@ -27,6 +29,9 @@ public class TransakcijaServiceImpl implements TransakcijaService{
 	
 	@Autowired
 	private TransakcijaRepository transakcijaRepository;
+	
+	@Autowired
+	private EntitetPlacanjaRepository entitetPlacanjaRepository;
 	
 	@Autowired
 	private RandomStringGenerator randomStringGenerator;
@@ -40,7 +45,7 @@ public class TransakcijaServiceImpl implements TransakcijaService{
 	@Override
 	public Transakcija getById(Long id) {
 		
-		return transakcijaRepository.getOne(id);
+		return transakcijaRepository.findById(id).get();
 	}
 
 	@Override
@@ -53,7 +58,7 @@ public class TransakcijaServiceImpl implements TransakcijaService{
 		String uniqueToken = generateUniqueToken();
 		
 		Transakcija newPayment = new Transakcija(null, paymentInfo.getMaticnaTransakcija(), null, paymentInfo.getIznos(),
-				new Date(System.currentTimeMillis()), TransakcijaStatus.C, uniqueToken, pretplata, entitetPlacanja, null, successUrl, failedUrl, errorUrl);
+				new Date(System.currentTimeMillis()), TransakcijaStatus.C, uniqueToken, pretplata, entitetPlacanja, null, successUrl, failedUrl, errorUrl, false);
 		
 		return transakcijaRepository.save(newPayment);
 	}
