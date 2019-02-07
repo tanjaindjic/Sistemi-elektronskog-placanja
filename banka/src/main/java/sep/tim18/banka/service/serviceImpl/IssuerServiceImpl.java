@@ -106,8 +106,7 @@ public class IssuerServiceImpl implements IssuerService {
                 processPayment(request, t, k);
             }else {
                 System.out.println("Podaci kupca nisu validni.");
-                t.setStatus(Status.N);
-                transakcijaRepository.save(t);
+                save(t, Status.N);
                 PCCReplyDTO pccReplyDTO = new PCCReplyDTO();
                 pccReplyDTO.setAcquirerOrderID(request.getAcquirerOrderID());
                 pccReplyDTO.setStatus(Status.N);
@@ -115,8 +114,7 @@ public class IssuerServiceImpl implements IssuerService {
             }
         }else {
             System.out.println("Nalog kupca ne postoji u trazenoj banci.");
-            t.setStatus(Status.N);
-            transakcijaRepository.save(t);
+            save(t, Status.N);
             PCCReplyDTO pccReplyDTO = new PCCReplyDTO();
             pccReplyDTO.setAcquirerOrderID(request.getAcquirerOrderID());
             pccReplyDTO.setMerchantOrderID(request.getMerchantOrderID());
@@ -181,9 +179,8 @@ public class IssuerServiceImpl implements IssuerService {
         }catch (Exception e){
             System.out.println("PCC nedostupan.");
             if(t.getStatus()==Status.N)
-                t.setStatus(Status.N_PCC);
-            else t.setStatus(Status.U_PCC);
-            transakcijaRepository.save(t);
+                save(t, Status.N_PCC);
+            else save(t, Status.U_PCC);
         }
     }
 
@@ -192,6 +189,10 @@ public class IssuerServiceImpl implements IssuerService {
         return transakcijaRepository.findAll();
     }
 
-
+    @Transactional(readOnly = false, rollbackFor = Exception.class, propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
+    public void save(Transakcija t, Status s){
+        t.setStatus(s);
+        transakcijaRepository.save(t);
+    }
 
 }

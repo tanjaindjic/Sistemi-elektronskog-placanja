@@ -606,7 +606,6 @@ public class AcquirerServiceImpl implements AcquirerService {
     }
 
     @Override
-    @Transactional(readOnly = false, rollbackFor = Exception.class, propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
     public void finalizePayment(PCCReplyDTO pccReplyDTO) throws NotFoundException {
 
         Transakcija t = transakcijaRepository.findById(pccReplyDTO.getAcquirerOrderID()).get();
