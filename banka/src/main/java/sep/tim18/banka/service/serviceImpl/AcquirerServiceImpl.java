@@ -413,8 +413,7 @@ public class AcquirerServiceImpl implements AcquirerService {
 
     /** transakcije **/
     @Override
-    @Transactional(readOnly = false, rollbackFor = Exception.class, propagation = Propagation.NEVER, isolation = Isolation.SERIALIZABLE)
-    public ResponseEntity<Map> tryPayment(String token, BuyerInfoDTO buyerInfoDTO, HttpServletResponse response) throws IOException, PaymentException, NotFoundException, FundsException {
+     public ResponseEntity<Map> tryPayment(String token, BuyerInfoDTO buyerInfoDTO, HttpServletResponse response) throws IOException, PaymentException, NotFoundException, FundsException {
 
         Map<String, String> map = new HashMap<>();
 
@@ -475,6 +474,16 @@ public class AcquirerServiceImpl implements AcquirerService {
         if(idx == -1)
             throw new PaymentException("Nije moguce naci karticu.");
 
+        String location = paymentSuccessful(paymentInfo, t, token, buyerInfoDTO);
+		return placanjeIstaBanka(t, zaPlacanje, kupac, paymentInfo, token, buyerInfoDTO, location);
+
+    }
+
+    @Transactional(readOnly = false, rollbackFor = Exception.class, propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
+    public ResponseEntity placanjeIstaBanka(Transakcija t, Kartica zaPlacanje,Klijent kupac, PaymentInfo paymentInfo, String token, BuyerInfoDTO buyerInfoDTO, String location ) throws JsonProcessingException {
+        Map<String, String> map = new HashMap<>();
+
+        int idx = kupac.getKartice().indexOf(zaPlacanje);
         System.out.println("Prebacivanje sredstava: " + t.getIznos());
         System.out.println("Stanje pre: " + zaPlacanje.getRaspolozivaSredstva());
         Float raspolozivo = zaPlacanje.getRaspolozivaSredstva();
@@ -499,14 +508,13 @@ public class AcquirerServiceImpl implements AcquirerService {
 
         System.out.println("Uspesno prebacivanje novca.");
 
-        String location = paymentSuccessful(paymentInfo, t, token, buyerInfoDTO);
+
         System.out.println("Lokacija:  " + location);
         map.put("Location", location);
         HttpHeaders headers = new HttpHeaders();
-		headers.add("Location", location);
-		headers.add("Access-Control-Allow-Origin", "*");
-		return new ResponseEntity<>(map, headers, HttpStatus.OK);
-
+        headers.add("Location", location);
+        headers.add("Access-Control-Allow-Origin", "*");
+        return new ResponseEntity<>(map, headers, HttpStatus.OK);
     }
 
     @Override
@@ -571,14 +579,14 @@ public class AcquirerServiceImpl implements AcquirerService {
         try{//TODO vrati success url ili failed url od kp
             ResponseEntity<Boolean> response = template.postForEntity(replyToKP, finishedPaymentDTO, Boolean.class);
             if(response.getBody())
-                return t.getSuccessURL();
-            else return t.getFailedURL();
+               return t.getFailedURL();
+            else return "/failed";
         }catch(Exception e){
             System.out.println("KP nije dostupan.");
             e.printStackTrace();
             t.setStatus(Status.N_KP);
             transakcijaRepository.save(t);
-            return "/paymentSent";
+            return "/failed";
         }
 
     }
@@ -602,7 +610,7 @@ public class AcquirerServiceImpl implements AcquirerService {
             ResponseEntity<Boolean> response = template.postForEntity(replyToKP, finishedPaymentDTO, Boolean.class);
             if(response.getBody())
                 return t.getSuccessURL();
-            else return t.getFailedURL();
+            else return t.getErrorURL();
         } catch(Exception e) {
             System.out.println("KP nije dostupan.");
             e.printStackTrace();

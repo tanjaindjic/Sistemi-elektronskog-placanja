@@ -150,9 +150,13 @@ public class AcquirerController {
 
             }catch (FundsException e){
                 System.out.println("Nedovoljno sredstava.");
-                acquirerService.paymentFailed(paymentInfo, t, token, buyerInfoDTO, false);
-                map.put("Location", "/failed");
-                return new ResponseEntity<>(map, HttpStatus.BAD_REQUEST);
+                String location = acquirerService.paymentFailed(paymentInfo, t, token, buyerInfoDTO, false);
+                HttpHeaders headers = new HttpHeaders();
+                headers.add("Location", location);
+                headers.add("Access-Control-Allow-Origin", "*");
+                map.put("Location", location);
+                System.out.println(location);
+                return new ResponseEntity<>(map, headers, HttpStatus.OK);
             }
         }
         else{
@@ -169,7 +173,7 @@ public class AcquirerController {
         try {
             acquirerService.finalizePayment(pccReplyDTO);
         }catch (NotFoundException e){
-            System.out.println(e.getMessage());;
+            System.out.println(e.getMessage());
         }
     }
     
