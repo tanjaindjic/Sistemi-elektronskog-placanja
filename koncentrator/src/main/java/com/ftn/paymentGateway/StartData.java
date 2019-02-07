@@ -248,17 +248,6 @@ public class StartData {
 		transakcijaRepository.save(tr7);
 		transakcijaRepository.save(tr8);
 
-	/*System.out.println("*************************************************");
-		System.out.println("encrypted: "+tanjapp1.getVrednost());
-		System.out.println("decrypted: "+RSAEncryptDecrypt.decrypt(tanjapp1.getVrednost()));
-		System.out.println("RESULT: "+tanjapp1.getVrednost().equals(RSAEncryptDecrypt.decrypt(tanjapp1.getVrednost())));
-		System.out.println("*************************************************");
-		System.out.println("*************************************************");
-		System.out.println("encrypted: "+tanjapp2.getVrednost());
-		System.out.println("decrypted: "+RSAEncryptDecrypt.decrypt(tanjapp2.getVrednost()));
-		System.out.println("RESULT: "+tanjapp1.getVrednost().equals(RSAEncryptDecrypt.decrypt(tanjapp2.getVrednost())));
-		System.out.println("*************************************************");
-*/
 	}
 
 }
