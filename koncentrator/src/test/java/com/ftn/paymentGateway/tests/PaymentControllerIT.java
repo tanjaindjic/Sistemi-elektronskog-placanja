@@ -1,5 +1,6 @@
 package com.ftn.paymentGateway.tests;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -17,6 +18,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ftn.paymentGateway.dto.BankResponseDTO;
 import com.ftn.paymentGateway.dto.EntitetPlacanjaDTO;
 import com.ftn.paymentGateway.dto.PaymentRequestDTO;
 import com.ftn.paymentGateway.enumerations.IdPoljePlacanja;
@@ -41,8 +43,6 @@ public class PaymentControllerIT {
 	@Autowired
     private MockMvc mvc; 
     @Autowired
-    private TransakcijaRepository repository;
-    @Autowired
     private EntitetPlacanjaRepository entitetPlacanjaRepository;
     @Autowired
 	private RandomStringGenerator randomStringGenerator;
@@ -59,7 +59,7 @@ public class PaymentControllerIT {
     public void whenSendPaymentRequest_thenStatus200()
       throws Exception {
     	EntitetPlacanjaDTO epDTO = new EntitetPlacanjaDTO("AAA", null);
-    	EntitetPlacanja ep = new EntitetPlacanja(null, "Casopis TEST", "CAST#CAST#", false, null);
+    	EntitetPlacanja ep = new EntitetPlacanja(null, "Casopis TEST", "CAST#CAST#", false, null, null);
     	ep = entitetPlacanjaRepository.save(ep);
     	PaymentRequestDTO randomObj = new PaymentRequestDTO();
     	randomObj.setErrorURL("");
@@ -76,9 +76,6 @@ public class PaymentControllerIT {
           .contentType(MediaType.APPLICATION_JSON)
           .content(json))
           .andExpect(status().isOk());
-     /*     .andExpect(content()
-          .contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-          .andExpect(content().json("{}"));*/
     }
     @Test
     public void whenDoPayment_thenStatus200()
@@ -86,7 +83,7 @@ public class PaymentControllerIT {
     	String token = randomStringGenerator.genRandomString(90);
     	TipPlacanja tp = tipPlacanjaRepository.findByKod("CCP");
     	Long id = tp.getId();    	
-    	EntitetPlacanja ep = new EntitetPlacanja(null, "Casopis TEST", "CAST#CAST#", false, null);
+    	EntitetPlacanja ep = new EntitetPlacanja(null, "Casopis TEST", "CAST#CAST#", false, null, null);
     	ep = entitetPlacanjaRepository.save(ep);
     	PoljePodrzanoPlacanje ppb = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_ID, RSAEncryptDecrypt.encrypt("1"));
     	PoljePodrzanoPlacanje ppb1 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_PASSWORD, RSAEncryptDecrypt.encrypt("pass1"));
@@ -101,14 +98,79 @@ public class PaymentControllerIT {
 		
     	Transakcija tr = new Transakcija(null, new Long(10), null, 5.00, new Date(System.currentTimeMillis()), TransakcijaStatus.C, token, false, ep, tp, "https://localhost:8098/paymentGateway/#!/success", "/failed", "/error");
         transakcijaRepository.save(tr);
+        
     	mvc.perform(post("/rest/doPayment")
           .contentType(MediaType.APPLICATION_JSON)
           .param("paymentTypeId", id.toString())
       	  .param("uniqueToken", token))
           .andExpect(status().isOk());
-     /*     .andExpect(content()
-          .contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-          .andExpect(content().json("{}"));*/
     }
-
+    @Test
+    public void whenCompletePayment_thenStatus200()
+      throws Exception {
+    	String token = randomStringGenerator.genRandomString(90);
+    	TipPlacanja tp = tipPlacanjaRepository.findByKod("CCP");
+    	Long id = tp.getId();    	
+    	EntitetPlacanja ep = new EntitetPlacanja(null, "Casopis TEST", "CAST#CAST#", false, null, null);
+    	ep = entitetPlacanjaRepository.save(ep);
+    	PoljePodrzanoPlacanje ppb = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_ID, RSAEncryptDecrypt.encrypt("1"));
+    	PoljePodrzanoPlacanje ppb1 = new PoljePodrzanoPlacanje(null, IdPoljePlacanja.MERCHANT_PASSWORD, RSAEncryptDecrypt.encrypt("pass1"));
+		
+    	ppb = poljePodrzanoPlacanjeRepository.save(ppb);
+    	ppb1 = poljePodrzanoPlacanjeRepository.save(ppb1);
+    	List<PoljePodrzanoPlacanje> banka1PP = new ArrayList<>();
+		banka1PP.add(ppb);
+		banka1PP.add(ppb1);
+		PodrzanoPlacanje pp1 = new PodrzanoPlacanje(null, false, banka1PP, ep, tp);
+		pp1 = podrzanoPlacanjeRepository.save(pp1);
+		
+    	Transakcija tr = new Transakcija(null, new Long(10), null, 5.00, new Date(System.currentTimeMillis()), TransakcijaStatus.C, token, false, ep, tp, "https://localhost:8098/paymentGateway/#!/success", "/failed", "/error");
+        transakcijaRepository.save(tr);
+    	BankResponseDTO bankResp = new BankResponseDTO(tr.getId(), new Long(2), new Date(), new Long(3), TransakcijaStatus.U, "");
+       
+    	ObjectMapper objectMapper = new ObjectMapper();
+        String json = objectMapper.writeValueAsString(bankResp);
+        
+    	mvc.perform(post("/rest/bankResponse")
+          .contentType(MediaType.APPLICATION_JSON)
+          .content(json))
+          .andExpect(status().isOk());
+    }
+    
+    @Test
+    public void whenProveriStatusTransakcije_thenStatus200()
+      throws Exception {
+    	String token = randomStringGenerator.genRandomString(90);
+    	TipPlacanja tp = tipPlacanjaRepository.findByKod("CCP");
+    	Long id = tp.getId();    	
+    	EntitetPlacanja ep = new EntitetPlacanja(null, "Casopis TEST", "CAST#CAST#", false, null, null);
+    	ep = entitetPlacanjaRepository.save(ep);
+    	
+		
+    	Transakcija tr = new Transakcija(null, new Long(10), null, 5.00, new Date(System.currentTimeMillis()), TransakcijaStatus.C, token, false, ep, tp, "https://localhost:8098/paymentGateway/#!/success", "/failed", "/error");
+        transakcijaRepository.save(tr);
+    	
+    	mvc.perform(get("/rest/proveriStatusTransakcije")
+          .contentType(MediaType.APPLICATION_JSON)
+          .param("uniqueToken", token))
+          .andExpect(status().isOk());
+    }
+    @Test
+    public void whenObaviVracanje_thenStatus200()
+      throws Exception {
+    	String token = randomStringGenerator.genRandomString(90);
+    	TipPlacanja tp = tipPlacanjaRepository.findByKod("CCP");
+    	Long id = tp.getId();    	
+    	EntitetPlacanja ep = new EntitetPlacanja(null, "Casopis TEST", "CAST#CAST#", false, null, null);
+    	ep = entitetPlacanjaRepository.save(ep);
+    	
+		
+    	Transakcija tr = new Transakcija(null, new Long(10), null, 5.00, new Date(System.currentTimeMillis()), TransakcijaStatus.C, token, false, ep, tp, "https://localhost:8098/paymentGateway/#!/success", "/failed", "/error");
+        transakcijaRepository.save(tr);
+    	
+    	mvc.perform(get("/rest/obaviVracanje")
+          .contentType(MediaType.APPLICATION_JSON)
+          .param("uniqueToken", token))
+          .andExpect(status().isOk());
+    }
 }
