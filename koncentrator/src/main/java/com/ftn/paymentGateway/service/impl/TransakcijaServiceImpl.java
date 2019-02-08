@@ -128,4 +128,11 @@ public class TransakcijaServiceImpl implements TransakcijaService{
 		return transakcijaRepository.findFirst10ByStatusAndTipPlacanja(status, tipPlacanja);
 	}
 
+	@Override
+	@Transactional(readOnly = false, rollbackFor = Exception.class, propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
+	public Transakcija updateStatus(Transakcija transakcija, TransakcijaStatus noviStatus) {
+		transakcija.setStatus(noviStatus);
+		return transakcijaRepository.save(transakcija);
+	}
+
 }
