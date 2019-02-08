@@ -8,8 +8,12 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.junit.Before;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.junit.runners.MethodSorters;
+import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -38,6 +42,7 @@ import com.ftn.paymentGateway.repository.TransakcijaRepository;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @AutoConfigureMockMvc
 public class PaymentControllerIT {
 	@Autowired
@@ -55,20 +60,15 @@ public class PaymentControllerIT {
     @Autowired
 	private PodrzanoPlacanjeRepository podrzanoPlacanjeRepository;
     
+    
     @Test
-    public void whenSendPaymentRequest_thenStatus200()
+    public void a_whenSendPaymentRequest_thenStatus200()
       throws Exception {
     	EntitetPlacanjaDTO epDTO = new EntitetPlacanjaDTO("AAA", null);
     	EntitetPlacanja ep = new EntitetPlacanja(null, "Casopis TEST", "CAST#CAST#", false, null, null);
     	ep = entitetPlacanjaRepository.save(ep);
-    	PaymentRequestDTO randomObj = new PaymentRequestDTO();
-    	randomObj.setErrorURL("");
-    	randomObj.setFailedURL("");
-    	randomObj.setSuccessURL("");
-    	randomObj.setIznos(new Double(10));
-    	randomObj.setPretplata(false);
-    	randomObj.setEntitetPlacanja(epDTO);
-    	randomObj.setMaticnaTransakcija(new Long(1));
+    	PaymentRequestDTO randomObj = new PaymentRequestDTO(epDTO, new Double(10), false, new Long(1), "","", "");
+        
     	
     	ObjectMapper objectMapper = new ObjectMapper();
         String json = objectMapper.writeValueAsString(randomObj);
@@ -78,7 +78,7 @@ public class PaymentControllerIT {
           .andExpect(status().isOk());
     }
     @Test
-    public void whenDoPayment_thenStatus200()
+    public void b_whenDoPayment_thenStatus200()
       throws Exception {
     	String token = randomStringGenerator.genRandomString(90);
     	TipPlacanja tp = tipPlacanjaRepository.findByKod("CCP");
@@ -106,7 +106,7 @@ public class PaymentControllerIT {
           .andExpect(status().isOk());
     }
     @Test
-    public void whenCompletePayment_thenStatus200()
+    public void c_whenCompletePayment_thenStatus200()
       throws Exception {
     	String token = randomStringGenerator.genRandomString(90);
     	TipPlacanja tp = tipPlacanjaRepository.findByKod("CCP");
@@ -138,7 +138,7 @@ public class PaymentControllerIT {
     }
     
     @Test
-    public void whenProveriStatusTransakcije_thenStatus200()
+    public void d_whenProveriStatusTransakcije_thenStatus200()
       throws Exception {
     	String token = randomStringGenerator.genRandomString(90);
     	TipPlacanja tp = tipPlacanjaRepository.findByKod("CCP");
@@ -156,7 +156,7 @@ public class PaymentControllerIT {
           .andExpect(status().isOk());
     }
     @Test
-    public void whenObaviVracanje_thenStatus200()
+    public void e_whenObaviVracanje_thenStatus200()
       throws Exception {
     	String token = randomStringGenerator.genRandomString(90);
     	TipPlacanja tp = tipPlacanjaRepository.findByKod("CCP");
