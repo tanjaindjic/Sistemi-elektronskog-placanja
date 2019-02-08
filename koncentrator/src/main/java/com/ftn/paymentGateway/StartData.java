@@ -247,8 +247,8 @@ public class StartData {
 		
 		PodrzanoPlacanje pp4 = new PodrzanoPlacanje(null, false, pppp1PP, ep3, tp2);
 		PodrzanoPlacanje pp5 = new PodrzanoPlacanje(null, false, pppp2PP, ep4, tp2);
-		PodrzanoPlacanje maraPodrzanoP1 = new PodrzanoPlacanje(null, false, mara1PP, maraC1, tp2);
-		PodrzanoPlacanje maraPodrzanoP2 = new PodrzanoPlacanje(null, false, mara2PP, maraI1, tp2);
+		PodrzanoPlacanje maraPodrzanoP1 = new PodrzanoPlacanje(null, true, mara1PP, maraC1, tp2);
+		PodrzanoPlacanje maraPodrzanoP2 = new PodrzanoPlacanje(null, true, mara2PP, maraI1, tp2);
 		
 		pp4 = podrzanoPlacanjeRepository.save(pp4);
 		pp5 = podrzanoPlacanjeRepository.save(pp5);

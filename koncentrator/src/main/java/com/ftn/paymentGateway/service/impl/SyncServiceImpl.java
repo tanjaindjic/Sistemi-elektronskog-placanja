@@ -3,6 +3,7 @@ package com.ftn.paymentGateway.service.impl;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -71,6 +72,7 @@ public class SyncServiceImpl implements SyncService{
 			}
 		    
 		    if(syncResponse.getBody().equals(SyncStatus.SUCCESS)){
+		    	System.out.println("MENJAAAA");
 		    	for(Transakcija tempTran : zaIzmenu) {
 		    		setEvidentirano(tempTran);
 		    	}
@@ -81,7 +83,12 @@ public class SyncServiceImpl implements SyncService{
 	
 	private Map<Long, String> buildResponseMap(EntitetPlacanja entitetPlacanja, Map<Long, String> transakcijeInfo, List<Transakcija> zaIzmenu){
 		
-		List<Transakcija> zaEvidentiranje = transakcijaRepository.findByEntitetPlacanjaAndPoslatoSaradniku(entitetPlacanja, false);
+		Collection<TransakcijaStatus> statusi = new ArrayList<>();
+		statusi.add(TransakcijaStatus.U);
+		statusi.add(TransakcijaStatus.N);
+		statusi.add(TransakcijaStatus.E);
+		
+		List<Transakcija> zaEvidentiranje = transakcijaRepository.findByEntitetPlacanjaAndPoslatoSaradnikuAndStatusIn(entitetPlacanja, false, statusi);
 		
 		for(Transakcija tempTran : zaEvidentiranje) {
 			transakcijeInfo.put(tempTran.getMaticnaTransakcija(), tempTran.getStatus().toString());
@@ -116,6 +123,7 @@ public class SyncServiceImpl implements SyncService{
 	@Transactional(readOnly = false, rollbackFor = Exception.class, propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
 	private void setEvidentirano(Transakcija transakcija) {
 		transakcija.setPoslatoSaradniku(true);
+		transakcijaRepository.save(transakcija);
 	}
 
 	@Transactional(readOnly = false, rollbackFor = Exception.class, propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)

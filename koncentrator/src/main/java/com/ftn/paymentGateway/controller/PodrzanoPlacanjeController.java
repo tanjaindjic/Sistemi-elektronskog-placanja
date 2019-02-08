@@ -56,7 +56,14 @@ public class PodrzanoPlacanjeController {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
 		
-		ArrayList<PodrzanoPlacanje> podrzanaPlacanja = podrzanoPlacanjeService.getByEntitetPlacanja(transakcija.getEntitetPlacanja());
+		ArrayList<PodrzanoPlacanje> podrzanaPlacanja = null;
+		
+		if(transakcija.isPretplata()) {
+			podrzanaPlacanja = podrzanoPlacanjeService.getByEntitetPlacanjaAndPretplata(transakcija.getEntitetPlacanja(), true);
+		}else {
+			podrzanaPlacanja = podrzanoPlacanjeService.getByEntitetPlacanja(transakcija.getEntitetPlacanja());
+		}
+		
 		ArrayList<TipPlacanja> retVal = new ArrayList<TipPlacanja>();
 		
 		for(PodrzanoPlacanje pp : podrzanaPlacanja) {
