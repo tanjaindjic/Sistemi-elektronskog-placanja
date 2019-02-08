@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
+import com.ftn.paymentGateway.enumerations.SyncStatus;
 import com.ftn.paymentGateway.enumerations.TransakcijaStatus;
 import com.ftn.paymentGateway.model.EntitetPlacanja;
 import com.ftn.paymentGateway.model.Transakcija;
@@ -61,16 +62,15 @@ public class SyncServiceImpl implements SyncService{
 			RestTemplate restTemplate = new RestTemplate();
 			HttpsURLConnection.setDefaultHostnameVerifier ((hostname, session) -> true);
 
-		    ResponseEntity<String> syncResponse = null;
+		    ResponseEntity<SyncStatus> syncResponse = null;
 		    try {
-		    	syncResponse = restTemplate.postForEntity(new URI(poslovniSaradnik.getSyncPath()), syncRequest, String.class);
+		    	syncResponse = restTemplate.postForEntity(new URI(poslovniSaradnik.getSyncPath()), syncRequest, SyncStatus.class);
 			} catch (Exception e) {
 				//e.printStackTrace();
 				continue;
 			}
 		    
-		    //Promeniti status u nesto normalno
-		    if(syncResponse.getBody().equals("S")){
+		    if(syncResponse.getBody().equals(SyncStatus.SUCCESS)){
 		    	for(Transakcija tempTran : zaIzmenu) {
 		    		setEvidentirano(tempTran);
 		    	}

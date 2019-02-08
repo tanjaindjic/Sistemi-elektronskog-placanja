@@ -210,50 +210,9 @@ public class PaymentController {
 		System.out.println("usao u bank response");
 		System.out.println(bankResponse.toString());
 		Transakcija transakcija = transakcijaService.getById(bankResponse.getMerchantOrderID());
-		TipPlacanja tipPlacanja = tipPlacanjaService.getById(transakcija.getTipPlacanja().getId());
-		ArrayList<PodrzanoPlacanje> podrzanaPlacanja = podrzanoPlacanjeService.getByEntitetPlacanjaAndTipPlacanja(transakcija.getEntitetPlacanja(), tipPlacanja);
-		
-		if(podrzanaPlacanja.isEmpty()) {
-			return false;
-		}
-		
-		PodrzanoPlacanje podrzanoPlacanje = podrzanaPlacanja.get(0);
-		Boolean retVal= false;
-		try {
-			retVal = paymentFactory.getPaymentStrategy(tipPlacanja).completePayment(request, podrzanoPlacanje);
-			if(retVal==null){
-				return false;
-			}
-			System.out.println("USPESNO RADI ZA BANKU success");
-		} catch (UnsupportedMethodException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InvalidPaymentTypeException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		String urlRedirect = transakcija.getFailedURL();
-		PaymentResponseDTO response = new PaymentResponseDTO();
-		if(retVal){		
-			System.out.println("USPESNO zavrsio ZA BANKU REDIREKCIJU");		        
-	        response.setMaticnaTransakcija(transakcija.getMaticnaTransakcija());
-	        response.setPoruka("Uplata je uspesno izvrsena");
-	        response.setStatus(TransakcijaStatus.U);
-	        transakcija.setStatus(TransakcijaStatus.U);
-	        System.out.println("TANJA CAREEEEE");
-	        urlRedirect = transakcija.getSuccessURL();
-	        System.out.println(urlRedirect);
-	        return true;
-		//TODO dodati redirekciju na odgovarajucu stranicu i za controller za "/cancel"
-		}
-		else{
-			System.out.println("NIJE USPESNO zavrsio ZA BANKU REDIREKCIJU");
-            response.setPoruka("Uplata je NIJE uspesno izvrsena");
-            response.setStatus(TransakcijaStatus.N);
-            transakcija.setStatus(TransakcijaStatus.N);
-        }
-        transakcijaService.save(transakcija);
-		return false;
+
+        transakcijaService.updateStatus(transakcija, bankResponse.getStatus());
+		return true;
     }
 	
 	@RequestMapping(value = "proveriStatusTransakcije", method = RequestMethod.GET)
@@ -311,3 +270,4 @@ public class PaymentController {
     }
 
 }
+
