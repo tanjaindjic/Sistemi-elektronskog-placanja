@@ -24,7 +24,7 @@ public interface TransakcijaService {
 
 	public Transakcija save(Transakcija transakcija);
 	
-	public Transakcija checkTokenValidity(Transakcija transakcija);
+	public boolean checkTokenValidity(Transakcija transakcija);
 	
 	public List<Transakcija> get10ByStatusAndType(TransakcijaStatus status, TipPlacanja tipPlacanja);
 	

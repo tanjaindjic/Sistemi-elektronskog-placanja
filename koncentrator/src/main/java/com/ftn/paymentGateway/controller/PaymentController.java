@@ -106,7 +106,7 @@ public class PaymentController {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
 		
-		if(transakcijaService.checkTokenValidity(transakcija) == null) {
+		if(!transakcijaService.checkTokenValidity(transakcija)) {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
 		
@@ -242,6 +242,7 @@ public class PaymentController {
 	        transakcija.setStatus(TransakcijaStatus.U);
 	        System.out.println("TANJA CAREEEEE");
 	        urlRedirect = transakcija.getSuccessURL();
+	        System.out.println(urlRedirect);
 	        return true;
 		//TODO dodati redirekciju na odgovarajucu stranicu i za controller za "/cancel"
 		}

@@ -32,6 +32,13 @@ public class StartData {
         BNumber = bank1No;
     }
 
+    private static boolean taskEnabled;
+
+    @Value("${TASK_ENABLED}")
+    public void setEnabled(Boolean enabled) {
+        taskEnabled = enabled;
+    }
+
     @Autowired
     private TransakcijaRepository transakcijaRepository;
 
@@ -48,6 +55,11 @@ public class StartData {
 
     @PostConstruct
     private void init(){
+        if(!taskEnabled){//u slucaju issuera ne bi trebalo da se pokrecu ovi taskovi
+            System.out.println("START DATA---not enabled on ISSUER server");
+            return;
+        }
+        System.out.println("usao u start data");
         Klijent klijent1 = new Klijent("prvi", "prvic", "1", "pass1", "mejl1", new ArrayList<>());
         Klijent klijent2 = new Klijent("drugi", "drugic", "2", "pass2", "mejl2", new ArrayList<>());
         Klijent klijent3 = new Klijent("treci", "trecic", "3", "pass3", "mejl3", new ArrayList<>());
