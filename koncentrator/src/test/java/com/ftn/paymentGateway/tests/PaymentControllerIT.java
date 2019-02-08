@@ -161,7 +161,7 @@ public class PaymentControllerIT {
     	String token = randomStringGenerator.genRandomString(90);
     	TipPlacanja tp = tipPlacanjaRepository.findByKod("CCP");
     	Long id = tp.getId();    	
-    	EntitetPlacanja ep = new EntitetPlacanja(null, "Casopis TEST", "CAST#CAST#", false, null, null);
+    	EntitetPlacanja ep = new EntitetPlacanja(null, "Casopis TEST", "CAST#CAST#", false, null, "");
     	ep = entitetPlacanjaRepository.save(ep);
     	
 		
