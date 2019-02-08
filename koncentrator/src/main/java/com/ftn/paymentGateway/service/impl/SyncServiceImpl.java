@@ -62,15 +62,15 @@ public class SyncServiceImpl implements SyncService{
 			RestTemplate restTemplate = new RestTemplate();
 			HttpsURLConnection.setDefaultHostnameVerifier ((hostname, session) -> true);
 
-		    ResponseEntity<String> syncResponse = null;
+		    ResponseEntity<SyncStatus> syncResponse = null;
 		    try {
-		    	syncResponse = restTemplate.postForEntity(new URI(poslovniSaradnik.getSyncPath()), syncRequest, String.class);
+		    	syncResponse = restTemplate.postForEntity(new URI(poslovniSaradnik.getSyncPath()), syncRequest, SyncStatus.class);
 			} catch (Exception e) {
 				//e.printStackTrace();
 				continue;
 			}
 		    
-		    if(syncResponse.getBody().equals(SyncStatus.SUCCESS.toString())){
+		    if(syncResponse.getBody().equals(SyncStatus.SUCCESS)){
 		    	for(Transakcija tempTran : zaIzmenu) {
 		    		setEvidentirano(tempTran);
 		    	}
