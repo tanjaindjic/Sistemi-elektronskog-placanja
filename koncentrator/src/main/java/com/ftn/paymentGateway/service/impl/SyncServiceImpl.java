@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
+import com.ftn.paymentGateway.enumerations.SyncStatus;
 import com.ftn.paymentGateway.enumerations.TransakcijaStatus;
 import com.ftn.paymentGateway.model.EntitetPlacanja;
 import com.ftn.paymentGateway.model.Transakcija;
@@ -69,8 +70,7 @@ public class SyncServiceImpl implements SyncService{
 				continue;
 			}
 		    
-		    //Promeniti status u nesto normalno
-		    if(syncResponse.getBody().equals("S")){
+		    if(syncResponse.getBody().equals(SyncStatus.SUCCESS.toString())){
 		    	for(Transakcija tempTran : zaIzmenu) {
 		    		setEvidentirano(tempTran);
 		    	}
