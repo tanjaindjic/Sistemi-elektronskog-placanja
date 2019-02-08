@@ -19,6 +19,7 @@ import com.ftn.paymentGateway.helpClasses.RandomStringGenerator;
 import com.ftn.paymentGateway.model.EntitetPlacanja;
 import com.ftn.paymentGateway.model.TipPlacanja;
 import com.ftn.paymentGateway.model.Transakcija;
+import com.ftn.paymentGateway.repository.EntitetPlacanjaRepository;
 import com.ftn.paymentGateway.repository.TransakcijaRepository;
 import com.ftn.paymentGateway.service.TransakcijaService;
 
@@ -53,7 +54,7 @@ public class TransakcijaServiceImpl implements TransakcijaService{
 		String uniqueToken = generateUniqueToken();
 		
 		Transakcija newPayment = new Transakcija(null, paymentInfo.getMaticnaTransakcija(), null, paymentInfo.getIznos(),
-				new Date(System.currentTimeMillis()), TransakcijaStatus.C, uniqueToken, pretplata, entitetPlacanja, null, successUrl, failedUrl, errorUrl);
+				new Date(System.currentTimeMillis()), TransakcijaStatus.C, uniqueToken, pretplata, entitetPlacanja, null, successUrl, failedUrl, errorUrl, false);
 		
 		return transakcijaRepository.save(newPayment);
 	}

@@ -96,7 +96,7 @@ public class PaymentControllerIT {
 		PodrzanoPlacanje pp1 = new PodrzanoPlacanje(null, false, banka1PP, ep, tp);
 		pp1 = podrzanoPlacanjeRepository.save(pp1);
 		
-    	Transakcija tr = new Transakcija(null, new Long(10), null, 5.00, new Date(System.currentTimeMillis()), TransakcijaStatus.C, token, false, ep, tp, "https://localhost:8098/paymentGateway/#!/success", "/failed", "/error");
+    	Transakcija tr = new Transakcija(null, new Long(10), null, 5.00, new Date(System.currentTimeMillis()), TransakcijaStatus.C, token, false, ep, tp, "https://localhost:8098/paymentGateway/#!/success", "/failed", "/error", false);
         transakcijaRepository.save(tr);
         
     	mvc.perform(post("/rest/doPayment")
@@ -124,7 +124,7 @@ public class PaymentControllerIT {
 		PodrzanoPlacanje pp1 = new PodrzanoPlacanje(null, false, banka1PP, ep, tp);
 		pp1 = podrzanoPlacanjeRepository.save(pp1);
 		
-    	Transakcija tr = new Transakcija(null, new Long(10), null, 5.00, new Date(System.currentTimeMillis()), TransakcijaStatus.C, token, false, ep, tp, "https://localhost:8098/paymentGateway/#!/success", "/failed", "/error");
+    	Transakcija tr = new Transakcija(null, new Long(10), null, 5.00, new Date(System.currentTimeMillis()), TransakcijaStatus.C, token, false, ep, tp, "https://localhost:8098/paymentGateway/#!/success", "/failed", "/error", false);
         transakcijaRepository.save(tr);
     	BankResponseDTO bankResp = new BankResponseDTO(tr.getId(), new Long(2), new Date(), new Long(3), TransakcijaStatus.U, "");
        
@@ -147,7 +147,7 @@ public class PaymentControllerIT {
     	ep = entitetPlacanjaRepository.save(ep);
     	
 		
-    	Transakcija tr = new Transakcija(null, new Long(10), null, 5.00, new Date(System.currentTimeMillis()), TransakcijaStatus.C, token, false, ep, tp, "https://localhost:8098/paymentGateway/#!/success", "/failed", "/error");
+    	Transakcija tr = new Transakcija(null, new Long(10), null, 5.00, new Date(System.currentTimeMillis()), TransakcijaStatus.C, token, false, ep, tp, "https://localhost:8098/paymentGateway/#!/success", "/failed", "/error", false);
         transakcijaRepository.save(tr);
     	
     	mvc.perform(get("/rest/proveriStatusTransakcije")
@@ -165,7 +165,7 @@ public class PaymentControllerIT {
     	ep = entitetPlacanjaRepository.save(ep);
     	
 		
-    	Transakcija tr = new Transakcija(null, new Long(10), null, 5.00, new Date(System.currentTimeMillis()), TransakcijaStatus.C, token, false, ep, tp, "https://localhost:8098/paymentGateway/#!/success", "/failed", "/error");
+    	Transakcija tr = new Transakcija(null, new Long(10), null, 5.00, new Date(System.currentTimeMillis()), TransakcijaStatus.C, token, false, ep, tp, "https://localhost:8098/paymentGateway/#!/success", "/failed", "/error", false);
         transakcijaRepository.save(tr);
     	
     	mvc.perform(get("/rest/obaviVracanje")
