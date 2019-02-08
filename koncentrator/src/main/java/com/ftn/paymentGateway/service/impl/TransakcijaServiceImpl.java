@@ -95,7 +95,7 @@ public class TransakcijaServiceImpl implements TransakcijaService{
 	}
 
 	@Override
-	public Transakcija checkTokenValidity(Transakcija transakcija) {
+	public boolean checkTokenValidity(Transakcija transakcija) {
 		
 		Date startDate = transakcija.getVreme();
 		Calendar calendar = Calendar.getInstance();
@@ -103,7 +103,13 @@ public class TransakcijaServiceImpl implements TransakcijaService{
 	    calendar.add(Calendar.MINUTE, tokenExpiration);
 		Date endDate = calendar.getTime();
 				
-		return transakcijaRepository.checkTokenValidity(transakcija.getJedinstveniToken(), startDate, endDate);
+		if(endDate.before(new Date(System.currentTimeMillis()))) {
+			transakcija.setStatus(TransakcijaStatus.E);
+			transakcijaRepository.save(transakcija);
+			return false;
+		}
+				
+		return true;
 	}
 
 	@Override

@@ -106,7 +106,7 @@ public class PaymentController {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
 		
-		if(transakcijaService.checkTokenValidity(transakcija) == null) {
+		if(!transakcijaService.checkTokenValidity(transakcija)) {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
 		
@@ -196,7 +196,7 @@ public class PaymentController {
 		//TODO dodati redirekciju na odgovarajucu stranicu i za controller za "/cancel"
 		}
 		else{
-			System.out.println("NEUSPESNO zarsio ZA PAYPAL REDIREKCIJU");
+			System.out.println("NEUSPESNO zavrsio ZA PAYPAL REDIREKCIJU");
             response.setPoruka("Uplata je NIJE uspesno izvrsena");
             response.setStatus(TransakcijaStatus.N);
             transakcija.setStatus(TransakcijaStatus.N);

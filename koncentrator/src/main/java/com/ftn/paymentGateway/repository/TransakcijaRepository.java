@@ -17,13 +17,11 @@ public interface TransakcijaRepository extends JpaRepository<Transakcija, Long>{
 
 	public Transakcija findByIzvrsnaTransakcija(String izvrsnaTransakcija);
 	
-	@Query("from Transakcija as t where t.jedinstveniToken = ?1 and t.status = 'C' and (t.vreme >= ?2 and t.vreme <= ?3)")
-	public Transakcija checkTokenValidity(String token, Date startTimestamp, Date endTimestamp);
-	
 	public List<Transakcija> findFirst10ByStatusAndTipPlacanja(TransakcijaStatus status, TipPlacanja tipPlacanja);
 
 	public List<Transakcija> findByStatusAndTipPlacanja(TransakcijaStatus c, TipPlacanja payPalTip);
 	
 	public List<Transakcija> findByEntitetPlacanjaAndPoslatoSaradniku(EntitetPlacanja entitetPlacanja, boolean poslatoSaradniku);
 	
+	public List<Transakcija> findByStatus(TransakcijaStatus status);
 }
