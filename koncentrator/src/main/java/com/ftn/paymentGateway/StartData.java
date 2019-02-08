@@ -239,10 +239,10 @@ public class StartData {
 		
 		List<PoljePodrzanoPlacanje> mara1PP = new ArrayList<>();
 		mara1PP.add(marapp1);
-		mara1PP.add(marapp2);
+		mara1PP.add(marapp11);
 		
 		List<PoljePodrzanoPlacanje> mara2PP = new ArrayList<>();
-		mara2PP.add(marapp11);
+		mara2PP.add(marapp2);
 		mara2PP.add(marapp21);
 		
 		PodrzanoPlacanje pp4 = new PodrzanoPlacanje(null, false, pppp1PP, ep3, tp2);
