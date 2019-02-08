@@ -97,7 +97,7 @@ public class PaymentControllerIntegrationTests {
     }
     
     @Test
-    public void b_whenDoPayment_thenStatus200()
+    public void testAll_thenStatus200()
       throws Exception {
     	ObjectMapper objectMapper = new ObjectMapper();
         String json = objectMapper.writeValueAsString(randomObj);
