@@ -106,7 +106,7 @@ public class PaymentController {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
 		
-		if(transakcijaService.checkTokenValidity(transakcija) == null) {
+		if(!transakcijaService.checkTokenValidity(transakcija)) {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
 		

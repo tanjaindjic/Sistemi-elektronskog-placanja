@@ -2,6 +2,8 @@ package com.ftn.paymentGateway.service.impl;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,6 +11,7 @@ import java.util.Map;
 import javax.net.ssl.HttpsURLConnection;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -18,6 +21,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
+import com.ftn.paymentGateway.enumerations.TransakcijaStatus;
 import com.ftn.paymentGateway.model.EntitetPlacanja;
 import com.ftn.paymentGateway.model.Transakcija;
 import com.ftn.paymentGateway.repository.EntitetPlacanjaRepository;
@@ -27,6 +31,12 @@ import com.ftn.paymentGateway.service.SyncService;
 @Service
 public class SyncServiceImpl implements SyncService{
 	
+	@Value("${frontend.tokenLength}")
+	private int len;
+	
+	@Value("${tokenExpiration.inMinutes}")
+	private int tokenExpiration;
+	
 	@Autowired
 	private TransakcijaRepository transakcijaRepository;
 	
@@ -34,7 +44,7 @@ public class SyncServiceImpl implements SyncService{
 	private EntitetPlacanjaRepository entitetPlacanjaRepository;
 	
 	@Override
-	//@Scheduled(initialDelay = 15000, fixedRate = 120000)
+	@Scheduled(initialDelay = 7000, fixedRate = 60000)
 	public void posaljiSaradnicima() {
 		
 		List<EntitetPlacanja> poslovniSaradnici = entitetPlacanjaRepository.findByPoslovniSaradnik(true);
@@ -55,12 +65,12 @@ public class SyncServiceImpl implements SyncService{
 		    try {
 		    	syncResponse = restTemplate.postForEntity(new URI(poslovniSaradnik.getSyncPath()), syncRequest, String.class);
 			} catch (Exception e) {
-				e.printStackTrace();
+				//e.printStackTrace();
 				continue;
 			}
 		    
 		    //Promeniti status u nesto normalno
-		    if(syncResponse.getBody().equals("U")){
+		    if(syncResponse.getBody().equals("S")){
 		    	for(Transakcija tempTran : zaIzmenu) {
 		    		setEvidentirano(tempTran);
 		    	}
@@ -89,9 +99,45 @@ public class SyncServiceImpl implements SyncService{
 		return transakcijeInfo;
 	}
 	
+	@Override
+	@Scheduled(initialDelay = 5000, fixedRate = 60000)
+	public void disableExpired() {
+		
+		List<Transakcija> zaIzmenu = transakcijaRepository.findByStatus(TransakcijaStatus.C);
+			
+		for(Transakcija t : zaIzmenu) {
+			if(!checkTokenValidity(t)) {
+				setStatus(t, TransakcijaStatus.E);
+			}
+		}
+		
+	}
+	
 	@Transactional(readOnly = false, rollbackFor = Exception.class, propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
 	private void setEvidentirano(Transakcija transakcija) {
 		transakcija.setPoslatoSaradniku(true);
+	}
+
+	@Transactional(readOnly = false, rollbackFor = Exception.class, propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
+	private void setStatus(Transakcija transakcija, TransakcijaStatus noviStatus) {
+		transakcija.setStatus(noviStatus);
+		transakcijaRepository.save(transakcija);
+	}
+	
+	
+	private boolean checkTokenValidity(Transakcija transakcija) {
+		
+		Date startDate = transakcija.getVreme();
+		Calendar calendar = Calendar.getInstance();
+	    calendar.setTime(startDate);
+	    calendar.add(Calendar.MINUTE, tokenExpiration);
+		Date endDate = calendar.getTime();
+		
+		if(endDate.before(new Date(System.currentTimeMillis()))) {
+			return false;
+		}
+				
+		return true;
 	}
 
 }
