@@ -15,4 +15,6 @@ public interface PodrzanoPlacanjeService {
 	public ArrayList<PodrzanoPlacanje> getByEntitetPlacanjaAndTipPlacanja(EntitetPlacanja entitetPlacanja, TipPlacanja tipPlacanja);
 	
 	public ArrayList<PodrzanoPlacanje> getByEntitetPlacanja(EntitetPlacanja entitetPlacanja);
+	
+	public ArrayList<PodrzanoPlacanje> getByEntitetPlacanjaAndPretplata(EntitetPlacanja entitetPlacanja, boolean pretplata);
 }

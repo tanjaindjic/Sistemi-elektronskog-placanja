@@ -1,5 +1,6 @@
 package com.ftn.paymentGateway.repository;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
@@ -21,7 +22,7 @@ public interface TransakcijaRepository extends JpaRepository<Transakcija, Long>{
 
 	public List<Transakcija> findByStatusAndTipPlacanja(TransakcijaStatus c, TipPlacanja payPalTip);
 	
-	public List<Transakcija> findByEntitetPlacanjaAndPoslatoSaradniku(EntitetPlacanja entitetPlacanja, boolean poslatoSaradniku);
+	public List<Transakcija> findByEntitetPlacanjaAndPoslatoSaradnikuAndStatusIn(EntitetPlacanja entitetPlacanja, boolean poslatoSaradniku, Collection<TransakcijaStatus> statusi);
 	
 	public List<Transakcija> findByStatus(TransakcijaStatus status);
 }

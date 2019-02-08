@@ -121,7 +121,7 @@ public class BitcoinPayment implements PaymentStrategy{
 	}
 	
 	@Override
-	@Scheduled(initialDelay = 10000, fixedRate = 1200000) // Odlozi 10s, ponavljaj na 20min
+	@Scheduled(initialDelay = 10000, fixedRate = 60000) // Odlozi 10s, ponavljaj na 20min
 	public void syncDB() {
 		
 		List<Transakcija> pending = null;
@@ -180,10 +180,8 @@ public class BitcoinPayment implements PaymentStrategy{
 			if(polje.getIdPolja().equals(IdPoljePlacanja.MERCHANT_ID)) {
 				try {
 					retVal = RSAEncryptDecrypt.decrypt(polje.getVrednost());
-				} catch (Exception e1) {
-					// TODO Auto-generated catch block
+				} catch (Exception e) {
 					System.out.println("greska prilikom dekriptovanja - NEMOGUC PRISTUP BITNIM KREDENCIJALIMA");
-					e1.printStackTrace();
 					return null;
 				}
 				break;

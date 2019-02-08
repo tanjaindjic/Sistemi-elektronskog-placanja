@@ -17,4 +17,6 @@ public interface PodrzanoPlacanjeRepository extends JpaRepository<PodrzanoPlacan
 
 	public ArrayList<PodrzanoPlacanje> findDistinctByTipPlacanja(TipPlacanja payPalTip);
 	
+	public ArrayList<PodrzanoPlacanje> findByEntitetPlacanjaAndPretplata(EntitetPlacanja entitetPlacanja, boolean pretplata);
+	
 }

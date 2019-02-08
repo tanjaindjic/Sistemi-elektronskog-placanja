@@ -22,17 +22,7 @@ public class PodrzanoPlacanjeServiceImpl implements PodrzanoPlacanjeService{
 	
 	@Override
 	public PodrzanoPlacanje insert(PodrzanoPlacanje podrzanoPlacanje) {
-	/*	for(PoljePodrzanoPlacanje ppp : podrzanoPlacanje.getPolja()){
-			try {
-				String encrypt = rsa.encrypt(ppp.getVrednost());
-				System.out.println(".................. "+ppp.getVrednost());
-				ppp.setVrednost(encrypt);
-				System.out.println("uspeo da kriptuje "+ encrypt);
-			} catch (Exception e) {
-				System.out.println("nije uspeo da kriptuje............");
-				e.printStackTrace();
-			}			
-		}*/
+	
 		return podrzanoPlacanjeRepository.save(podrzanoPlacanje);
 	}
 
@@ -53,6 +43,12 @@ public class PodrzanoPlacanjeServiceImpl implements PodrzanoPlacanjeService{
 	public ArrayList<PodrzanoPlacanje> getByEntitetPlacanja(EntitetPlacanja entitetPlacanja) {
 		
 		return podrzanoPlacanjeRepository.findByEntitetPlacanja(entitetPlacanja);
+	}
+
+	@Override
+	public ArrayList<PodrzanoPlacanje> getByEntitetPlacanjaAndPretplata(EntitetPlacanja entitetPlacanja, boolean pretplata) {
+		
+		return podrzanoPlacanjeRepository.findByEntitetPlacanjaAndPretplata(entitetPlacanja, pretplata);
 	}
 	
 }
