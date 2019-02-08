@@ -123,6 +123,7 @@ public class SyncServiceImpl implements SyncService{
 	@Transactional(readOnly = false, rollbackFor = Exception.class, propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
 	private void setEvidentirano(Transakcija transakcija) {
 		transakcija.setPoslatoSaradniku(true);
+		transakcijaRepository.save(transakcija);
 	}
 
 	@Transactional(readOnly = false, rollbackFor = Exception.class, propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)

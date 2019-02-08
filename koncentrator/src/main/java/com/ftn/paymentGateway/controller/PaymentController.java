@@ -125,8 +125,6 @@ public class PaymentController {
 		transakcija.setTipPlacanja(tipPlacanja);
 		transakcijaService.save(transakcija);
 		PodrzanoPlacanje podrzanoPlacanje = podrzanaPlacanja.get(0);
-		String merchant_id = "";
-		String merchant_secret = "";
 
 		TransakcijaIshodDTO retVal = null;
 		try {
