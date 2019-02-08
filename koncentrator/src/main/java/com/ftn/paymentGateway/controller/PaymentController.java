@@ -181,7 +181,7 @@ public class PaymentController {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		String urlRedirect = "https://localhost:8098/paymentGateway/#!/home";
+		String urlRedirect = transakcija.getFailedURL();
 		PaymentResponseDTO response = new PaymentResponseDTO();
 		if(retVal){		
 			System.out.println("USPESNO zavrsio ZA PAYPAL REDIREKCIJU");		        
@@ -191,7 +191,7 @@ public class PaymentController {
 	        transakcija.setStatus(TransakcijaStatus.U);
 	        transakcijaService.save(transakcija);
 	        System.out.println("NINA CAREEEEE");
-	        urlRedirect = "https://localhost:8098/paymentGateway/#!/success/"+transakcija.getJedinstveniToken();
+	        urlRedirect = transakcija.getSuccessURL();
 	        return new ModelAndView("redirect:" + urlRedirect);
 		//TODO dodati redirekciju na odgovarajucu stranicu i za controller za "/cancel"
 		}
@@ -232,7 +232,7 @@ public class PaymentController {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		String urlRedirect = "https://localhost:8098/paymentGateway/#!/home";
+		String urlRedirect = transakcija.getFailedURL();
 		PaymentResponseDTO response = new PaymentResponseDTO();
 		if(retVal){		
 			System.out.println("USPESNO zavrsio ZA BANKU REDIREKCIJU");		        
@@ -241,7 +241,8 @@ public class PaymentController {
 	        response.setStatus(TransakcijaStatus.U);
 	        transakcija.setStatus(TransakcijaStatus.U);
 	        System.out.println("TANJA CAREEEEE");
-	        urlRedirect = "https://localhost:8098/paymentGateway/#!/success/"+transakcija.getJedinstveniToken();
+	        urlRedirect = transakcija.getSuccessURL();
+	        System.out.println(urlRedirect);
 	        return true;
 		//TODO dodati redirekciju na odgovarajucu stranicu i za controller za "/cancel"
 		}
